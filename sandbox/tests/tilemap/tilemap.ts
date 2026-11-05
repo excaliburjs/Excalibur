@@ -60,9 +60,9 @@ game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
 
 game.currentScene.onActivate = async () => {
   await game.currentScene.camera.move(ex.Vector.Zero.clone(), 2000, ex.easeInOutCubic);
-  console.log(tm.getOnScreenTiles());
+  console.log(tm.getOnscreenTiles());
   await game.currentScene.camera.move(new ex.Vector(800, 600), 4000, ex.easeInOutCubic);
-  console.log(tm.getOnScreenTiles());
+  console.log(tm.getOnscreenTiles());
 
   await ex.coroutine(
     function* () {
@@ -78,13 +78,13 @@ game.currentScene.onActivate = async () => {
   );
 
   await game.currentScene.camera.zoomOverTime(2, 1000);
-  console.log(tm.getOnScreenTiles());
+  console.log(tm.getOnscreenTiles());
   await game.currentScene.camera.zoomOverTime(1, 1000);
-  console.log(tm.getOnScreenTiles());
+  console.log(tm.getOnscreenTiles());
   await game.currentScene.camera.move(tm.pos, 2000, ex.easeInOutCubic);
-  console.log(tm.getOnScreenTiles());
+  console.log(tm.getOnscreenTiles());
   await game.currentScene.camera.zoomOverTime(2, 1000);
-  console.log(tm.getOnScreenTiles());
+  console.log(tm.getOnscreenTiles());
 };
 
 game.start(loader).then(async () => {});

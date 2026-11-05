@@ -83,8 +83,8 @@ export class MotionComponent extends Component {
     /**
      * Integrate on screen only entities, defaults to false meaning all entities are integrated
      */
-    onScreenOnly: boolean;
+    onscreenOnly: boolean;
   } = {
-    onScreenOnly: false
+    onscreenOnly: false
   };
 }

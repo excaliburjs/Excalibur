@@ -5,7 +5,7 @@ export class Future<T> {
   // Code from StephenCleary https://gist.github.com/StephenCleary/ba50b2da419c03b9cba1d20cb4654d5e
   private _resolver!: (value: T) => void;
   private _rejecter!: (error: Error) => void;
-  private _isCompleted: boolean = false;
+  private _isComplete: boolean = false;
 
   constructor() {
     this.promise = new Promise((resolve, reject) => {
@@ -16,23 +16,23 @@ export class Future<T> {
 
   public readonly promise: Promise<T>;
 
-  public get isCompleted(): boolean {
-    return this._isCompleted;
+  public get isComplete(): boolean {
+    return this._isComplete;
   }
 
   public resolve(value: T): void {
-    if (this._isCompleted) {
+    if (this._isComplete) {
       return;
     }
-    this._isCompleted = true;
+    this._isComplete = true;
     this._resolver(value);
   }
 
   public reject(error: Error): void {
-    if (this._isCompleted) {
+    if (this._isComplete) {
       return;
     }
-    this._isCompleted = true;
+    this._isComplete = true;
     this._rejecter(error);
   }
 }

@@ -47,7 +47,7 @@ export interface GraphicsComponentData {
   flipHorizontal: boolean;
   flipVertical: boolean;
   copyGraphics: boolean;
-  forceOnScreen: boolean;
+  forceOnscreen: boolean;
   shouldAlwaysTick: boolean;
   tint?: { r: number; g: number; b: number; a: number };
 }
@@ -153,7 +153,7 @@ export class GraphicsComponent extends Component {
   /**
    * Optionally force the graphic onscreen, default false. Not recommend to use for perf reasons, only if you known what you're doing.
    */
-  public forceOnScreen: boolean = false;
+  public forceOnscreen: boolean = false;
 
   /**
    * Optionally tick graphics even when offscreen, default false. When true, the current graphic will tick every frame
@@ -529,7 +529,7 @@ export class GraphicsComponent extends Component {
     graphics.anchor = this.anchor.clone();
     graphics.copyGraphics = this.copyGraphics;
     graphics.material = this.material;
-    graphics.forceOnScreen = this.forceOnScreen;
+    graphics.forceOnscreen = this.forceOnscreen;
     graphics.onPreDraw = this.onPreDraw;
     graphics.onPostDraw = this.onPostDraw;
     graphics.isVisible = this.isVisible;
@@ -557,7 +557,7 @@ export class GraphicsComponent extends Component {
       flipHorizontal: this.flipHorizontal,
       flipVertical: this.flipVertical,
       copyGraphics: this.copyGraphics,
-      forceOnScreen: this.forceOnScreen,
+      forceOnscreen: this.forceOnscreen,
       shouldAlwaysTick: this.shouldAlwaysTick,
       tint: undefined
     };
@@ -609,7 +609,7 @@ export class GraphicsComponent extends Component {
     this.flipHorizontal = data.flipHorizontal ?? false;
     this.flipVertical = data.flipVertical ?? false;
     this.copyGraphics = data.copyGraphics ?? false;
-    this.forceOnScreen = data.forceOnScreen ?? false;
+    this.forceOnscreen = data.forceOnscreen ?? false;
     this.shouldAlwaysTick = data.shouldAlwaysTick ?? false;
 
     // Use setters to create WatchVector with proper change detection

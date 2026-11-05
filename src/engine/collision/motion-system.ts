@@ -22,7 +22,7 @@ export class MotionSystem extends System {
         all: [TransformComponent, MotionComponent]
       },
       tags: {
-        not: physics.config.integration.onScreenOnly
+        not: physics.config.integration.onscreenOnly
           ? ['ex.offscreen', 'ex.is_sleeping', PauseComponentTag]
           : ['ex.is_sleeping', PauseComponentTag]
       }
@@ -51,7 +51,7 @@ export class MotionSystem extends System {
       transform = entities[i].get(TransformComponent);
       motion = entities[i].get(MotionComponent);
 
-      if (motion.integration.onScreenOnly && entities[i].hasTag('ex.offscreen')) {
+      if (motion.integration.onscreenOnly && entities[i].hasTag('ex.offscreen')) {
         continue;
       }
 

@@ -64,7 +64,7 @@ var game = new ex.Engine({
   // uvPadding: 0.5,
   physics: {
     integration: {
-      onScreenOnly: true
+      onscreenOnly: true
     },
     colliders: {
       compositeStrategy: 'together'

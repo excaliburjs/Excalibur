@@ -593,7 +593,7 @@ describe('The engine', () => {
       // Act
       engine.start().then(() => {
         // Assert
-        expect(engine.isHiDpi).toBe(true);
+        expect(engine.isHiDPI).toBe(true);
         (<any>window).devicePixelRatio = 1;
 
         done();
@@ -617,7 +617,7 @@ describe('The engine', () => {
 
       engine.start().then(() => {
         // Assert
-        expect(engine.isHiDpi).toBe(false);
+        expect(engine.isHiDPI).toBe(false);
         done();
       });
     }));
@@ -638,7 +638,7 @@ describe('The engine', () => {
 
       engine.start().then(() => {
         // Assert
-        expect(engine.isHiDpi).toBe(false);
+        expect(engine.isHiDPI).toBe(false);
         expect(engine.drawWidth).toBe(100);
         expect(engine.drawHeight).toBe(100);
         (<any>window).devicePixelRatio = 1;

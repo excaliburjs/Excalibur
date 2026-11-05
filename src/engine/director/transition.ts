@@ -272,7 +272,7 @@ export class Transition extends Entity {
 
     this.onUpdate(this.progress);
 
-    if (this.isComplete && !this._completeFuture.isCompleted) {
+    if (this.isComplete && !this._completeFuture.isComplete) {
       this.onEnd(this.progress);
       this._completeFuture.resolve();
     }
