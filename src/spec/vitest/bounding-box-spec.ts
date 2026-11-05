@@ -23,13 +23,13 @@ describe('A Bounding Box constructed with no parameters', () => {
 describe('A Bounding Box', function () {
   it('can have zero dimensions', () => {
     const zeroWidth = new ex.BoundingBox({ left: 0, right: 0, top: 0, bottom: 10 });
-    expect(zeroWidth.hasZeroDimensions()).toBe(true);
+    expect(zeroWidth.hasZeroDimensions).toBe(true);
 
     const zeroHeight = new ex.BoundingBox({ left: 0, right: 10, top: 0, bottom: 0 });
-    expect(zeroHeight.hasZeroDimensions()).toBe(true);
+    expect(zeroHeight.hasZeroDimensions).toBe(true);
 
     const zero = new ex.BoundingBox({ left: 0, right: 0, top: 0, bottom: 0 });
-    expect(zero.hasZeroDimensions()).toBe(true);
+    expect(zero.hasZeroDimensions).toBe(true);
   });
 
   it('can be cloned', () => {

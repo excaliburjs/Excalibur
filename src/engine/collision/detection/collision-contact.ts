@@ -109,7 +109,7 @@ export class CollisionContact {
     }
   }
 
-  public isCanceled() {
+  public get isCanceled() {
     return this._canceled;
   }
 

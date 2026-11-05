@@ -357,7 +357,7 @@ export class Keyboard {
     global.addEventListener('keydown', this._handleKeyDown);
   }
 
-  toggleEnabled(enabled: boolean) {
+  setEnabled(enabled: boolean) {
     this._enabled = enabled;
   }
 

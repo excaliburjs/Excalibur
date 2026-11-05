@@ -61,7 +61,7 @@ describe('A Trigger', () => {
 
     // Assert
     expect(trigger.action).toHaveBeenCalledTimes(1);
-    expect(trigger.isKilled()).toBe(true);
+    expect(trigger.isKilled).toBe(true);
   });
 
   it.skip('can be triggered multiple times', () => {
@@ -123,7 +123,7 @@ describe('A Trigger', () => {
     expect(trigger.action).toHaveBeenCalledTimes(3);
     expect(enterSpy).toHaveBeenCalledTimes(3);
     expect(exitSpy).toHaveBeenCalledTimes(3);
-    expect(trigger.isKilled()).toBe(true);
+    expect(trigger.isKilled).toBe(true);
   });
 
   it.skip('fires an event when an actor enters the trigger once', () => {
@@ -209,7 +209,7 @@ describe('A Trigger', () => {
     // Arrange
     const trigger = new ex.Trigger({
       pos: new ex.Vector(200, 200),
-      visible: true,
+      isVisible: true,
       width: 100,
       height: 100
     });
@@ -229,7 +229,7 @@ describe('A Trigger', () => {
     // Arrange
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
-      visible: true,
+      isVisible: true,
       width: 100,
       height: 100,
       filter: () => false
@@ -253,7 +253,7 @@ describe('A Trigger', () => {
     // Arrange
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
-      visible: true,
+      isVisible: true,
       width: 100,
       height: 100,
       filter: () => true
@@ -282,7 +282,7 @@ describe('A Trigger', () => {
 
     const trigger = new ex.Trigger({
       pos: new ex.Vector(0, 100),
-      visible: true,
+      isVisible: true,
       width: 100,
       height: 100,
       target: actor

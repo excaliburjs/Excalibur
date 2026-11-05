@@ -34,7 +34,7 @@ export class FontSource implements Loadable<FontFace> {
   }
 
   async load(): Promise<FontFace> {
-    if (this.isLoaded()) {
+    if (this.isLoaded) {
       return this.data;
     }
 
@@ -55,7 +55,7 @@ export class FontSource implements Loadable<FontFace> {
     return this.data;
   }
 
-  isLoaded(): boolean {
+  get isLoaded(): boolean {
     return this._isLoaded;
   }
 

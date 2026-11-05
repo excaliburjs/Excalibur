@@ -35,3 +35,11 @@ There are a few things that Excalibur does that are good to know before you star
 8. Excalibur handles offscreen draw culling for you! No need to manage that!
 
 9. Excalibur uses pre-multiplied alphas when drawing which is important to know if you use [Material](/docs/materials)
+
+
+# API Naming
+
+* Boolean properties describing what an object *is* or *has* are named `isX`/`hasX`, read-only or settable: `actor.isKilled`, `engine.isRunning`, `graphics.isVisible`, `tile.isSolid`. Options use the same name: `new Actor({ isVisible: false })`. Test: if "the object is ___" is a natural sentence, use `isX`.
+* Booleans that name a behavior to perform, or mirror a web platform property, keep their plain name: `sound.loop`, `sound.muted`, `graphics.smoothing`, `flipHorizontal`. Text formatting attributes follow CSS and typography vocabulary (`font.bold`, `font.family`), and common computer jargon like `enabled` is also left as is.
+* Anything that has a side effect or does real work is a verb method: `engine.start()`, `contact.cancel()`, `input.setEnabled(false)`.
+* Async state is a Promise property, never `isX()`: `await engine.ready`, `await track.done`. The synchronous check is `engine.isReady`.

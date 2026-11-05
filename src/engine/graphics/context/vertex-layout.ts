@@ -203,7 +203,7 @@ export class VertexLayout {
     }
 
     const gl = this._gl;
-    if (!this._shader.isCurrentlyBound()) {
+    if (!this._shader.isCurrentlyBound) {
       throw Error('Shader associated with this vertex layout is not active! Call shader.use() before layout.use()');
     }
     this._vertexBuffer.bind();

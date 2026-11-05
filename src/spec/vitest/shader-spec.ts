@@ -447,7 +447,7 @@ describe('A Shader', () => {
     const setUniformSpy = vi.spyOn(sut, 'trySetUniformInt');
 
     const fakeImage = {
-      isLoaded: () => true,
+      isLoaded: true,
       image: { src: 'fake-image.png' }
     } as any;
     vi.spyOn(sut as any, '_loadImageSource').mockReturnValue(null);
@@ -645,7 +645,7 @@ describe('A Shader', () => {
     (sut as any)._maxTextureSlots = 2;
 
     const fakeImage = {
-      isLoaded: () => true,
+      isLoaded: true,
       image: {
         src: 'fake.png',
         getAttribute: () => null,
@@ -767,7 +767,7 @@ void main() {
     sut.compile();
 
     const fakeImage = {
-      isLoaded: () => true,
+      isLoaded: true,
       image: {
         src: 'null-texture.png',
         getAttribute: () => null,
@@ -1079,7 +1079,7 @@ void main() {
     sut.compile();
 
     const fakeImage = {
-      isLoaded: () => true,
+      isLoaded: true,
       image: { src: 'fake.png' }
     } as any;
 
@@ -1227,7 +1227,7 @@ void main() {
     sut.compile();
 
     const fakeImage = {
-      isLoaded: () => false,
+      isLoaded: false,
       image: { src: 'unloaded.png' }
     } as any;
 

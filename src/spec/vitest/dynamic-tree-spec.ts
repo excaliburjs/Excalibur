@@ -31,7 +31,7 @@ describe('A DynamicTree', () => {
     tree.trackCollider(proxy);
 
     expect(tree.root).toBeDefined();
-    expect(tree.root!.isLeaf()).toBe(true);
+    expect(tree.root!.isLeaf).toBe(true);
     expect(tree.root!.data).toBe(proxy);
     expect(tree.getHeight()).toBe(0);
   });
@@ -63,7 +63,7 @@ describe('A DynamicTree', () => {
       if (!node) {
         return;
       }
-      if (node.isLeaf()) {
+      if (node.isLeaf) {
         expect(node.height).toBe(0);
       } else {
         expect(node.height).toBe(1 + Math.max(node.left!.height, node.right!.height));

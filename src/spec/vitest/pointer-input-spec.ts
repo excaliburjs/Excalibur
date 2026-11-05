@@ -278,9 +278,9 @@ describe('A pointer', () => {
     expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(10, 10));
     expect(engine.input.pointers.primary.lastPagePos).toEqual(ex.vec(10, 10));
 
-    expect(engine.currentScene.camera.hasChanged()).toBe(false);
+    expect(engine.currentScene.camera.hasChanged).toBe(false);
     engine.currentScene.camera.pos = ex.vec(1000, 1000);
-    expect(engine.currentScene.camera.hasChanged()).toBe(true);
+    expect(engine.currentScene.camera.hasChanged).toBe(true);
     engine.currentScene.update(engine, 0);
     expect(engine.input.pointers.primary.lastWorldPos).toEqual(ex.vec(760, 760));
     expect(engine.input.pointers.primary.lastScreenPos).toEqual(ex.vec(10, 10));

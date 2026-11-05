@@ -63,7 +63,7 @@ export class Slide extends Transition {
   override onInitialize(engine: Engine): void {
     this._engine = engine;
     let bounds = engine.screen.unsafeArea;
-    if (bounds.hasZeroDimensions()) {
+    if (bounds.hasZeroDimensions) {
       bounds = engine.screen.contentArea;
     }
     switch (this.slideDirection) {

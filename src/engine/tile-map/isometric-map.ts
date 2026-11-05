@@ -34,7 +34,7 @@ export class IsometricTile extends Entity {
   /**
    * Indicates whether this tile is solid
    */
-  public solid: boolean = false;
+  public isSolid: boolean = false;
 
   public override events = new EventEmitter<EntityEvents & IsometricTilePointerEvents>();
 
@@ -95,7 +95,7 @@ export class IsometricTile extends Entity {
   /**
    * Adds a collider to the IsometricTile
    *
-   * **Note!** the {@apilink Tile.solid} must be set to true for it to act as a "fixed" collider
+   * **Note!** the {@apilink Tile.isSolid} must be set to true for it to act as a "fixed" collider
    * @param collider
    */
   public addCollider(collider: Collider) {
@@ -437,7 +437,7 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
     this._composite.clearColliders();
     const pos = this.get(TransformComponent).pos;
     for (const tile of this.tiles) {
-      if (tile.solid) {
+      if (tile.isSolid) {
         for (const collider of tile.getColliders()) {
           const originalOffset = this._getOrSetColliderOriginalOffset(collider);
           collider.offset = this.tileToWorld(vec(tile.x, tile.y))
@@ -546,7 +546,7 @@ export class IsometricMap extends Entity implements HasNestedPointerEvents {
     }
     if (showAll || showColliderGeometry) {
       for (const tile of this.tiles) {
-        if (tile.solid) {
+        if (tile.isSolid) {
           // only draw solid tiles
           for (const collider of tile.getColliders()) {
             collider.debug(gfx, geometryColor, { lineWidth: geometryLineWidth, pointSize: geometryPointSize });

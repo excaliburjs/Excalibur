@@ -432,7 +432,7 @@ class TestRenderer implements ex.RendererPlugin {
     // no-op
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return false;
   }
 

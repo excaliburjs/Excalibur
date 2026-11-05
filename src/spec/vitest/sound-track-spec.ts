@@ -43,7 +43,7 @@ describe('A SoundTrack', () => {
 
   it('starts stopped with no source allocated', () => {
     const track = new ex.SoundTrack(buffer, destination);
-    expect(track.isStopped()).toBe(true);
+    expect(track.isStopped).toBe(true);
     expect(sources.length).toBe(0);
   });
 
@@ -143,20 +143,20 @@ describe('A SoundTrack', () => {
     expect(track.getPlaybackPosition()).toBe(0);
 
     track.seek(0.05);
-    expect(track.isPaused()).toBe(true);
+    expect(track.isPaused).toBe(true);
     expect(track.getPlaybackPosition()).toBe(0.05);
 
     track.play();
-    expect(track.isPlaying()).toBe(true);
+    expect(track.isPlaying).toBe(true);
     expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(0.05);
     expect(sources[0].start).toBeDefined();
 
     track.pause();
-    expect(track.isPaused()).toBe(true);
+    expect(track.isPaused).toBe(true);
     expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(0.05);
 
     track.stop();
-    expect(track.isStopped()).toBe(true);
+    expect(track.isStopped).toBe(true);
     expect(track.getPlaybackPosition()).toBe(0);
   });
 
@@ -165,11 +165,11 @@ describe('A SoundTrack', () => {
     const started = vi.fn();
     const done = track.play(started);
     expect(started).toHaveBeenCalled();
-    expect(track.isPlaying()).toBe(true);
+    expect(track.isPlaying).toBe(true);
     expect(track.done).toBe(done);
 
     await expect(done).resolves.toBe(true);
-    expect(track.isStopped()).toBe(true);
+    expect(track.isStopped).toBe(true);
     expect(sources[0].disconnect).toHaveBeenCalled();
   });
 
@@ -178,7 +178,7 @@ describe('A SoundTrack', () => {
     track.loop = true;
     const done = track.play();
     await delay(10);
-    expect(track.isPlaying()).toBe(true);
+    expect(track.isPlaying).toBe(true);
     track.stop();
     await expect(done).resolves.toBe(true);
   });
@@ -202,7 +202,7 @@ describe('A SoundTrack', () => {
 
     expect(error).toHaveBeenCalled();
     expect(sources[0].connect).toHaveBeenCalledWith((track as any)._gain);
-    expect(track.isPlaying()).toBe(true);
+    expect(track.isPlaying).toBe(true);
     track.stop();
   });
 });

@@ -949,7 +949,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
           // If we are still using the same renderer we can add to the current batch
           currentRenderer!.draw(...this._drawCalls[i].args);
         }
-        if (currentRenderer!.hasPendingDraws()) {
+        if (currentRenderer!.hasPendingDraws) {
           currentRenderer!.flush();
         }
       }
@@ -966,7 +966,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     } else {
       // This is the final flush at the moment to draw any leftover pending draw
       for (const renderer of this._renderers.values()) {
-        if (renderer.hasPendingDraws()) {
+        if (renderer.hasPendingDraws) {
           renderer.flush();
         }
       }

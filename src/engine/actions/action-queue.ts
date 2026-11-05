@@ -71,14 +71,14 @@ export class ActionQueue {
    *
    * @returns `true` if there are more actions to process in the sequence
    */
-  public hasNext(): boolean {
+  public get hasNext(): boolean {
     return this._actions.length > 0;
   }
 
   /**
    * @returns `true` if the current sequence of actions is done
    */
-  public isComplete(): boolean {
+  public get isComplete(): boolean {
     return this._actions.length === 0;
   }
 

@@ -257,13 +257,13 @@ describe('A Coroutine', () => {
         throw Error('should not error');
       });
 
-      expect(result.isRunning()).toBe(true);
+      expect(result.isRunning).toBe(true);
       clock.step(100);
       clock.step(100);
       result.cancel();
-      expect(result.isRunning()).toBe(false);
+      expect(result.isRunning).toBe(false);
       clock.step(100);
-      expect(result.isRunning()).toBe(false);
+      expect(result.isRunning).toBe(false);
     });
   });
 
@@ -283,17 +283,17 @@ describe('A Coroutine', () => {
         { autostart: false }
       );
 
-      expect(result.isRunning()).toBe(false);
+      expect(result.isRunning).toBe(false);
       clock.step(100);
       result.start();
       result.start();
       expect(logger.warn).toHaveBeenCalled();
       clock.step(100);
       clock.step(100);
-      expect(result.isRunning()).toBe(true);
+      expect(result.isRunning).toBe(true);
       clock.step(100);
-      expect(result.isRunning()).toBe(false);
-      expect(result.isComplete()).toBe(true);
+      expect(result.isRunning).toBe(false);
+      expect(result.isComplete).toBe(true);
     });
   });
 
@@ -315,7 +315,7 @@ describe('A Coroutine', () => {
       clock.step(99);
       clock.step(100);
 
-      expect(result.isRunning()).toBe(false);
+      expect(result.isRunning).toBe(false);
     });
   });
 
@@ -342,7 +342,7 @@ describe('A Coroutine', () => {
       expect(result.generator.next().value).toBe(300);
       expect(result.generator.next().value).toBe(400);
 
-      expect(result.isRunning()).toBe(false);
+      expect(result.isRunning).toBe(false);
     });
   });
 
@@ -370,7 +370,7 @@ describe('A Coroutine', () => {
         expect(val).toBe(results[i++]);
       }
 
-      expect(result.isRunning()).toBe(false);
+      expect(result.isRunning).toBe(false);
     });
   });
 });

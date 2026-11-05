@@ -1124,11 +1124,11 @@ describe('Action', () => {
 
       repeat.stop();
       scene.update(engine, 1);
-      expect(queue.isComplete()).toBe(true);
+      expect(queue.isComplete).toBe(true);
       queue.reset();
       scene.update(engine, 1);
       expect(callback).toHaveBeenCalledTimes(2);
-      expect(queue.isComplete()).toBe(false);
+      expect(queue.isComplete).toBe(false);
     });
 
     it.each(['parallel', 'sequence'])('can reuse a stopped repeat inside %s actions', (composition) => {

@@ -146,7 +146,7 @@ export class BoundingBox {
   /**
    * Return whether the bounding box has zero dimensions in height,width or both
    */
-  public hasZeroDimensions() {
+  public get hasZeroDimensions() {
     return this.width === 0 || this.height === 0;
   }
 
@@ -379,10 +379,10 @@ export class BoundingBox {
    */
   public overlaps(other: BoundingBox, epsilon?: number): boolean {
     const e = epsilon || 0;
-    if (other.hasZeroDimensions()) {
+    if (other.hasZeroDimensions) {
       return this.contains(other);
     }
-    if (this.hasZeroDimensions()) {
+    if (this.hasZeroDimensions) {
       return other.contains(this);
     }
     const totalBoundingBox = this.combine(other);

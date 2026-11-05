@@ -195,7 +195,7 @@ export abstract class Clock {
   /**
    * Returns if the clock is currently running
    */
-  public abstract isRunning(): boolean;
+  public abstract get isRunning(): boolean;
 
   /**
    * Start the clock, it will then periodically call the tick(elapsedMilliseconds) since the last tick
@@ -218,7 +218,7 @@ export class StandardClock extends Clock {
     super(options);
   }
 
-  public isRunning(): boolean {
+  public get isRunning(): boolean {
     return this._running;
   }
 
@@ -281,7 +281,7 @@ export class TestClock extends Clock {
     return this._currentTime ?? 0;
   }
 
-  public isRunning(): boolean {
+  public get isRunning(): boolean {
     return this._running;
   }
   public start(): void {

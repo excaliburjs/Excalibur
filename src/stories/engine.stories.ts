@@ -92,7 +92,7 @@ export const PlayButton: StoryObj = {
         height: 50
       });
       heart.on('pointerdown', async (_evnt: ex.PointerEvent) => {
-        if (game.isRunning()) {
+        if (game.isRunning) {
           game.stop();
           await loader.showPlayButton();
           game.start();

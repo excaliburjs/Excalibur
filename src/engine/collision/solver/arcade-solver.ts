@@ -27,7 +27,7 @@ export class ArcadeSolver implements CollisionSolver {
     this.preSolve(contacts);
 
     // Remove any canceled contacts
-    contacts = contacts.filter((c) => !c.isCanceled());
+    contacts = contacts.filter((c) => !c.isCanceled);
 
     // Locate collision bias order
     let bias: ContactBias;
@@ -115,7 +115,7 @@ export class ArcadeSolver implements CollisionSolver {
   public postSolve(contacts: CollisionContact[]) {
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
-      if (contact.isCanceled()) {
+      if (contact.isCanceled) {
         continue;
       }
       const colliderA = contact.colliderA;
@@ -186,7 +186,7 @@ export class ArcadeSolver implements CollisionSolver {
   }
 
   public solveVelocity(contact: CollisionContact) {
-    if (contact.isCanceled()) {
+    if (contact.isCanceled) {
       return;
     }
 

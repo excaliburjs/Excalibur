@@ -42,7 +42,7 @@ describe('A RealisticSolver', () => {
 
     realisticSolver.preSolve([contact]);
     // Considers infinitesimally overlapping to no longer be overlapping and thus cancels the contact
-    expect(contact.isCanceled()).toBe(true);
+    expect(contact.isCanceled).toBe(true);
   });
 
   it('should run the configured number of position and velocity iterations without variable shadowing issues', () => {

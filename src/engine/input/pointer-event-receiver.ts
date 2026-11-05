@@ -96,7 +96,7 @@ export class PointerEventReceiver {
     public engine: Engine
   ) {}
 
-  public toggleEnabled(enabled: boolean) {
+  public setEnabled(enabled: boolean) {
     this._enabled = enabled;
   }
 
@@ -271,7 +271,7 @@ export class PointerEventReceiver {
       this.primary.emit('wheel', event);
     }
 
-    if (this.engine.currentScene.camera.hasChanged()) {
+    if (this.engine.currentScene.camera.hasChanged) {
       for (const pointer of this._pointers) {
         pointer._updateWorldPosition(this.engine);
       }
@@ -324,7 +324,7 @@ export class PointerEventReceiver {
    * browser events.
    */
   public init(options?: PointerInitOptions) {
-    if (this.engine.isDisposed()) {
+    if (this.engine.isDisposed) {
       return;
     }
     // Disabling the touch action avoids browser/platform gestures from firing on the canvas
@@ -457,7 +457,7 @@ export class PointerEventReceiver {
    * Responsible for handling and parsing pointer events
    */
   private _handle(ev: NativeTouchEvent | NativePointerEvent | NativeMouseEvent) {
-    if (this.engine.isDisposed() || !this._enabled) {
+    if (this.engine.isDisposed || !this._enabled) {
       return;
     }
     ev.preventDefault();
@@ -519,7 +519,7 @@ export class PointerEventReceiver {
   }
 
   private _handleWheel(ev: NativeWheelEvent) {
-    if (this.engine.isDisposed() || !this._enabled) {
+    if (this.engine.isDisposed || !this._enabled) {
       return;
     }
     // Should we prevent page scroll because of this event

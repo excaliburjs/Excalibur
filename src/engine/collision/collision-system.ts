@@ -179,7 +179,7 @@ export class CollisionSystem extends System {
         solver.solve(frameContacts, elapsed / substep, step, substep);
 
         // Only contacts detected this substep drive the next substep's pairs, carried contacts are excluded
-        contacts = contacts.filter((c) => !c.isCanceled());
+        contacts = contacts.filter((c) => !c.isCanceled);
 
         // Record contacts for start/end from the solver's input: dormant contacts (carried over, or whose bodies fell
         // asleep during this substep) are filtered out of the solved list but must stay alive
@@ -211,7 +211,7 @@ export class CollisionSystem extends System {
 
   private _recordContacts(contacts: CollisionContact[]) {
     for (const contact of contacts) {
-      if (contact.isCanceled()) {
+      if (contact.isCanceled) {
         continue;
       }
       // Process composite ids, things with the same composite id are treated as the same collider for start/end

@@ -37,8 +37,8 @@ export interface CoroutineOptions {
 type Thenable = PromiseLike<void>['then'];
 
 export interface CoroutineInstance extends PromiseLike<void> {
-  isRunning(): boolean;
-  isComplete(): boolean;
+  readonly isRunning: boolean;
+  readonly isComplete: boolean;
   done: Promise<void>;
   generator: Generator<CoroutineInstance | number | Promise<any> | undefined, void, number>;
   start: () => CoroutineInstance;
@@ -203,10 +203,10 @@ export function coroutine(...args: any[]): CoroutineInstance {
   });
 
   const co: CoroutineInstance = {
-    isRunning: () => {
+    get isRunning() {
       return started && !cancelled && !completed;
     },
-    isComplete: () => {
+    get isComplete() {
       return completed;
     },
     cancel: () => {

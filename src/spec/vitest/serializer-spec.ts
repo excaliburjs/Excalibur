@@ -36,9 +36,9 @@ describe('The Serializer ', () => {
 
   describe('== Initialization ==', () => {
     it('should initialize the serializer', () => {
-      expect(Serializer.isInitialized()).toBe(false);
+      expect(Serializer.isInitialized).toBe(false);
       Serializer.init(true);
-      expect(Serializer.isInitialized()).toBe(true);
+      expect(Serializer.isInitialized).toBe(true);
     });
 
     it('should warn when initializing twice', () => {
@@ -54,7 +54,7 @@ describe('The Serializer ', () => {
 
     it('should auto-register common components when autoRegisterComponents is true', () => {
       Serializer.init(true);
-      expect(Serializer.isInitialized()).toBe(true);
+      expect(Serializer.isInitialized).toBe(true);
       const a = Serializer.getRegisteredComponents();
       expect(a.length).toBeGreaterThan(0);
     });
@@ -674,7 +674,7 @@ describe('The Serializer ', () => {
 
       Serializer.reset();
 
-      expect(Serializer.isInitialized()).toBe(false);
+      expect(Serializer.isInitialized).toBe(false);
       expect(Serializer.getRegistry('graphics')).toEqual(new Map());
       expect(Serializer.getRegistry('actors')).toEqual(new Map());
       expect(Serializer.getRegistry('components')).toEqual(new Map());

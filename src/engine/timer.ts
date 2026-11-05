@@ -90,7 +90,7 @@ export class Timer {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private _onComplete: () => void = () => {};
   private _complete = false;
-  public get complete() {
+  public get isComplete() {
     return this._complete;
   }
 
@@ -169,7 +169,7 @@ export class Timer {
         this.events.emit('complete');
       }
 
-      if (!this.complete && this._elapsedTime >= this.interval) {
+      if (!this.isComplete && this._elapsedTime >= this.interval) {
         this._callbacks.forEach((c) => {
           c.call(this);
         });
@@ -224,7 +224,7 @@ export class Timer {
    * @returns milliseconds until the next action callback, if complete will return 0
    */
   public get timeToNextAction() {
-    if (this.complete) {
+    if (this.isComplete) {
       return 0;
     }
     return this.interval - this._elapsedTime;
@@ -268,7 +268,7 @@ export class Timer {
     }
 
     this._running = true;
-    if (this.complete) {
+    if (this.isComplete) {
       this._complete = false;
       this._elapsedTime = 0;
       this._numberOfTicks = 0;

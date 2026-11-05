@@ -60,7 +60,7 @@ export abstract class Graphic {
   public tint?: Color;
 
   private _transformStale = true;
-  public isStale() {
+  public get isStale() {
     return this._transformStale;
   }
 

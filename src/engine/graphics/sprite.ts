@@ -86,7 +86,7 @@ export class Sprite extends Graphic {
   }
 
   protected override _preDraw(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.image.isLoaded() && this._dirty) {
+    if (this.image.isLoaded && this._dirty) {
       this._dirty = false;
       this._updateSpriteDimensions();
     }
@@ -94,7 +94,7 @@ export class Sprite extends Graphic {
   }
 
   public _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number): void {
-    if (this.image.isLoaded()) {
+    if (this.image.isLoaded) {
       ex.drawImage(
         this.image.image,
         this.sourceView.x,

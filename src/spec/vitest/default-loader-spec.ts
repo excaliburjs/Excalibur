@@ -24,7 +24,7 @@ describe('A DefaultLoader', () => {
 
   it('is loaded when no resources', async () => {
     const loader = new ex.DefaultLoader();
-    expect(loader.isLoaded()).toBe(true);
+    expect(loader.isLoaded).toBe(true);
     await expect(loader.areResourcesLoaded()).resolves.toBeUndefined();
   });
 
@@ -33,7 +33,7 @@ describe('A DefaultLoader', () => {
       loadables: [new ex.ImageSource('./some/image.png')]
     });
     expect(sut.resources.length).toBe(1);
-    expect(sut.isLoaded()).toBe(false);
+    expect(sut.isLoaded).toBe(false);
     expect(sut.progress).toBe(0);
   });
 

@@ -49,7 +49,7 @@ export const PlayingASound: StoryObj = {
     startOrPauseBtn.graphics.use('play');
 
     startOrPauseBtn.on('pointerup', (evt) => {
-      if (!guitarLoopSound.isPlaying()) {
+      if (!guitarLoopSound.isPlaying) {
         guitarLoopSound.play();
       } else {
         guitarLoopSound.pause();
@@ -187,7 +187,7 @@ export const VolumeLevels: StoryObj = {
     startBtn.on('pointerup', function () {
       playAction('Playing guitar sound, volume will adjust in 2 seconds');
 
-      if (!testSound.isPlaying()) {
+      if (!testSound.isPlaying) {
         testSound.play(initialVolume).then(function () {
           /* do nothing */
         });

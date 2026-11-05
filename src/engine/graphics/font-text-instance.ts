@@ -11,7 +11,7 @@ export class FontTextInstance {
   public ctx: CanvasRenderingContext2D | null = null;
   private _textFragments: { x: number; y: number; canvas: HTMLCanvasElement }[] = [];
   public dimensions: BoundingBox | null = null;
-  public disposed: boolean = false;
+  public isDisposed: boolean = false;
   private _lastHashCode: number;
   /**
    * Maximum upward reach from baseline, in text space
@@ -47,7 +47,7 @@ export class FontTextInstance {
   }
 
   measureText(text: string, maxWidth?: number): BoundingBox {
-    if (this.disposed) {
+    if (this.isDisposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
     let lines = null;
@@ -269,7 +269,7 @@ export class FontTextInstance {
   private _dirty = true;
   private _ex?: ExcaliburGraphicsContext;
   public render(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number) {
-    if (this.disposed) {
+    if (this.isDisposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
     this._ex = ex;
@@ -335,7 +335,7 @@ export class FontTextInstance {
   }
 
   dispose() {
-    this.disposed = true;
+    this.isDisposed = true;
     this.dimensions = null;
     this.canvas = null;
     this.ctx = null;

@@ -37,7 +37,7 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
   ) {
     this.gridSize = gridSize;
     this.bounds = object.bounds;
-    this.hasZeroBounds = this.bounds.hasZeroDimensions();
+    this.hasZeroBounds = this.bounds.hasZeroDimensions;
     this.leftX = Math.floor(this.bounds.left / this.gridSize);
     this.rightX = Math.floor(this.bounds.right / this.gridSize);
     this.bottomY = Math.floor(this.bounds.bottom / this.gridSize);
@@ -50,7 +50,7 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
    * Refreshes `bounds` as a side effect (via {@apilink updateBounds}) so callers that need the current
    * bounds regardless of the result (see {@apilink SparseHashGrid.update}) don't have to recompute them
    */
-  hasChanged(): boolean {
+  refreshAndCheckChanged(): boolean {
     this.updateBounds();
     const bounds = this.bounds;
     const leftX = Math.floor(bounds.left / this.gridSize);
@@ -86,14 +86,14 @@ export class HashGridProxy<T extends { bounds: BoundingBox }> {
   /**
    * Updates the hashed bounds coordinates
    *
-   * Only called after {@apilink hasChanged} returns true, which has already refreshed `bounds`
+   * Only called after {@apilink refreshAndCheckChanged} returns true, which has already refreshed `bounds`
    */
   update(): void {
     this.leftX = Math.floor(this.bounds.left / this.gridSize);
     this.rightX = Math.floor(this.bounds.right / this.gridSize);
     this.bottomY = Math.floor(this.bounds.bottom / this.gridSize);
     this.topY = Math.floor(this.bounds.top / this.gridSize);
-    this.hasZeroBounds = this.bounds.hasZeroDimensions();
+    this.hasZeroBounds = this.bounds.hasZeroDimensions;
   }
 }
 
@@ -276,8 +276,8 @@ export class SparseHashGrid<TObject extends { bounds: BoundingBox }, TProxy exte
       if (!proxy) {
         continue;
       }
-      // hasChanged refreshes proxy.bounds when needed, the broadphase reads them directly
-      if (proxy.hasChanged()) {
+      // refreshAndCheckChanged refreshes proxy.bounds when needed, the broadphase reads them directly
+      if (proxy.refreshAndCheckChanged()) {
         // TODO slightly wasteful only remove from changed
         for (let x = proxy.leftX; x <= proxy.rightX; x++) {
           for (let y = proxy.topY; y <= proxy.bottomY; y++) {

@@ -24,7 +24,7 @@ function spawnRocket(direction) {
   rocket.body.canSleep = true;
 
   rocket.on('preupdate', () => {
-    if (rocket.isOffScreen) {
+    if (rocket.isOffscreen) {
       rocket.kill();
       console.log('Rocket offscreen killed');
     }

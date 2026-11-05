@@ -87,7 +87,7 @@ describe('A Graphics ECS Component', () => {
         'some-gfx': rect
       },
       current: 'some-gfx',
-      visible: false,
+      isVisible: false,
       opacity: 0.5,
       copyGraphics: true,
       offset: ex.vec(10, 11),

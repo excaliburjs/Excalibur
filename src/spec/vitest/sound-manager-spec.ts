@@ -315,14 +315,14 @@ describe('A SoundManager', () => {
       const s1 = new ex.Sound(TEST);
       const s2 = new ex.Sound(PREVIEW);
       const mgr = new ex.SoundManager({ sounds: [s1, s2] });
-      expect(mgr.isLoaded()).toBe(false);
+      expect(mgr.isLoaded).toBe(false);
 
       const data = await mgr.load();
-      expect(mgr.isLoaded()).toBe(true);
+      expect(mgr.isLoaded).toBe(true);
       expect(mgr.data).toBe(data);
       expect(data.length).toBe(2);
-      expect(s1.isLoaded()).toBe(true);
-      expect(s2.isLoaded()).toBe(true);
+      expect(s1.isLoaded).toBe(true);
+      expect(s2.isLoaded).toBe(true);
     });
 
     it('wires every sound to the engine, including sounds tracked later', () => {
@@ -418,7 +418,7 @@ describe('A SoundManager', () => {
       expect(mgr.getChannel('sfx').playingCount()).toBe(1);
       expect(mgr.start('preview'), 'over the sfx cap').toBe(null);
       expect(mgr.start('test', { loop: true }), 'music channel is not capped').toBeInstanceOf(ex.SoundTrack);
-      expect(first.isPlaying()).toBe(true);
+      expect(first.isPlaying).toBe(true);
       mgr.stop();
     });
 
@@ -439,17 +439,17 @@ describe('A SoundManager', () => {
       const oldest = mgr.start('preview', { loop: true })!;
       const newer = mgr.start('preview', { loop: true })!;
       expect(newer).toBeDefined();
-      expect(oldest.isStopped(), 'stolen by the channel cap').toBe(true);
-      expect(newer.isPlaying()).toBe(true);
+      expect(oldest.isStopped, 'stolen by the channel cap').toBe(true);
+      expect(newer.isPlaying).toBe(true);
       expect(mgr.getChannel('sfx').playingCount()).toBe(1);
 
       const music = mgr.start('test', { loop: true })!;
       expect(mgr.playingCount()).toBe(2);
       const second = mgr.start('test', { loop: true })!;
       expect(second).toBeDefined();
-      expect(newer.isStopped(), 'the manager cap steals the oldest across channels').toBe(true);
-      expect(music.isPlaying()).toBe(true);
-      expect(second.isPlaying()).toBe(true);
+      expect(newer.isStopped, 'the manager cap steals the oldest across channels').toBe(true);
+      expect(music.isPlaying).toBe(true);
+      expect(second.isPlaying).toBe(true);
       expect(mgr.playingCount()).toBe(2);
       mgr.stop();
     });
@@ -489,11 +489,11 @@ describe('A SoundManager', () => {
       await new Promise<void>((done) => {
         s1.once('playbackstart', () => {
           s1.pause();
-          expect(s1.isPaused()).toBe(true);
+          expect(s1.isPaused).toBe(true);
           expect(mgr.playingCount()).toBe(0);
 
           s2.once('playbackstart', () => {
-            expect(s2.isPlaying()).toBe(true);
+            expect(s2.isPlaying).toBe(true);
             mgr.stop();
             done();
           });

@@ -318,7 +318,7 @@ export class MaterialRenderer implements RendererPlugin {
     return texture;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return false;
   }
   flush(): void {

@@ -49,7 +49,7 @@ export class RealisticSolver implements CollisionSolver {
     this.preSolve(contacts, substep);
 
     // Remove any canceled contacts, dormant (sleeping) contacts are only carried for their constraints and never solved
-    contacts = contacts.filter((c) => !c.isCanceled() && !Pair.isDormant(c.bodyA, c.bodyB));
+    contacts = contacts.filter((c) => !c.isCanceled && !Pair.isDormant(c.bodyA, c.bodyB));
     // Locate collision bias order
     let bias: ContactBias;
     switch (this.config!.contactSolveBias) {

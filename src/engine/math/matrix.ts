@@ -574,7 +574,7 @@ export class Matrix {
     return m;
   }
 
-  public isIdentity(): boolean {
+  public get isIdentity(): boolean {
     return (
       this.data[0] === 1 &&
       this.data[1] === 0 &&

@@ -13,7 +13,7 @@ describe('Clocks', () => {
         defaultUpdateMs: 1000
       });
       testClock.start();
-      expect(testClock.isRunning()).toBe(true);
+      expect(testClock.isRunning).toBe(true);
       expect(tickSpy).not.toHaveBeenCalled();
 
       testClock.step();
@@ -28,7 +28,7 @@ describe('Clocks', () => {
       expect(testClock.now()).toBe(2022);
 
       testClock.stop();
-      expect(testClock.isRunning()).toBe(false);
+      expect(testClock.isRunning).toBe(false);
     });
 
     it('can be converted to a standard clock', () => {
@@ -55,7 +55,7 @@ describe('Clocks', () => {
       });
 
       testClock.step();
-      expect(testClock.isRunning()).toBe(false);
+      expect(testClock.isRunning).toBe(false);
       expect(logger.warn).toHaveBeenCalledWith('The clock is not running, no step will be performed');
     });
 
@@ -202,11 +202,11 @@ describe('Clocks', () => {
       expect(tickSpy).not.toHaveBeenCalled();
       clock.start();
 
-      expect(clock.isRunning()).toBe(true);
+      expect(clock.isRunning).toBe(true);
       expect(tickSpy).toHaveBeenCalled();
 
       clock.stop();
-      expect(clock.isRunning()).toBe(false);
+      expect(clock.isRunning).toBe(false);
     });
 
     it('can handle exceptions and stop', () => {

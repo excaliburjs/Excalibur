@@ -57,9 +57,9 @@ describe('An entity', () => {
 
   it('can be killed', () => {
     const entity = new ex.Entity();
-    expect(entity.isKilled()).toBe(false);
+    expect(entity.isKilled).toBe(false);
     entity.kill();
-    expect(entity.isKilled()).toBe(true);
+    expect(entity.isKilled).toBe(true);
   });
 
   it('can have types by component', () => {

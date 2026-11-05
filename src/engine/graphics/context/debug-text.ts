@@ -72,7 +72,7 @@ export class DebugText {
    * @returns BoundingBox whose width/height are the rendered size in pixels (origin Zero)
    */
   public measureText(text: string, scale: number = 1): BoundingBox {
-    if (this._imageSource?.isLoaded() && this._spriteFont) {
+    if (this._imageSource?.isLoaded && this._spriteFont) {
       const base = this._spriteFont.measureText(text);
       return BoundingBox.fromDimension(base.width * scale, base.height * scale, VectorClass.Zero);
     }
@@ -89,7 +89,7 @@ export class DebugText {
    * @param scale Optional glyph scale factor, defaults to 1
    */
   public write(ctx: ExcaliburGraphicsContext, text: string, pos: Vector, foreground?: Color, background?: Color, scale: number = 1) {
-    if (this._imageSource.isLoaded()) {
+    if (this._imageSource.isLoaded) {
       const pos1 = ctx.getTransform().getPosition();
       ctx.save();
       ctx.resetTransform();

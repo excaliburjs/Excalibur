@@ -487,7 +487,7 @@ export class Director<TKnownScenes extends string = any> {
     }
     this._emitEvent('navigationend', sourceScene, destinationScene);
 
-    this._engine.input?.toggleEnabled(engineInputEnabled);
+    this._engine.input?.setEnabled(engineInputEnabled);
     this._isTransitioning = false;
   }
 
@@ -552,15 +552,15 @@ export class Director<TKnownScenes extends string = any> {
       this.currentTransition = transition;
       const sceneInputEnabled = targetScene.input?.enabled ?? true;
 
-      targetScene.input?.toggleEnabled(!transition.blockInput);
-      this._engine.input?.toggleEnabled(!transition.blockInput);
+      targetScene.input?.setEnabled(!transition.blockInput);
+      this._engine.input?.setEnabled(!transition.blockInput);
 
       targetScene.events.emit('transitionstart', transition);
       this.currentTransition._addToTargetScene(this._engine, targetScene);
       await this.currentTransition._play();
       targetScene.events.emit('transitionend', transition);
 
-      targetScene.input?.toggleEnabled(sceneInputEnabled);
+      targetScene.input?.setEnabled(sceneInputEnabled);
     }
     this.currentTransition?.kill();
     this.currentTransition?.reset();
@@ -636,7 +636,7 @@ export class Director<TKnownScenes extends string = any> {
   public dispose() {
     for (const scene of this._sceneToInstance.values()) {
       scene.input?.pointers.detach();
-      scene.input?.toggleEnabled(false);
+      scene.input?.setEnabled(false);
     }
   }
 }

@@ -42,32 +42,32 @@ describe('PauseSystem', () => {
     expect(pauseSystem.isPaused).toBe(false);
   });
 
-  it('should update PauseComponent.paused for entities with canPause=true', () => {
+  it('should update PauseComponent.isPaused for entities with canPause=true', () => {
     const entity = new Entity();
     const pauseComponent = new PauseComponent({ canPause: true });
     entity.addComponent(pauseComponent);
     scene.add(entity);
 
-    expect(pauseComponent.paused).toBe(false);
+    expect(pauseComponent.isPaused).toBe(false);
 
     scene.pause();
     pauseSystem.onUpdate();
 
-    expect(pauseComponent.paused).toBe(true);
+    expect(pauseComponent.isPaused).toBe(true);
   });
 
-  it('should not update PauseComponent.paused for entities with canPause=false', () => {
+  it('should not update PauseComponent.isPaused for entities with canPause=false', () => {
     const entity = new Entity();
     const pauseComponent = new PauseComponent({ canPause: false });
     entity.addComponent(pauseComponent);
     scene.add(entity);
 
-    expect(pauseComponent.paused).toBe(false);
+    expect(pauseComponent.isPaused).toBe(false);
 
     scene.pause();
     pauseSystem.onUpdate();
 
-    expect(pauseComponent.paused).toBe(false);
+    expect(pauseComponent.isPaused).toBe(false);
   });
 
   it('should handle multiple entities with different canPause settings', () => {
@@ -84,8 +84,8 @@ describe('PauseSystem', () => {
     scene.pause();
     pauseSystem.onUpdate();
 
-    expect(pausableComponent.paused).toBe(true);
-    expect(nonPausableComponent.paused).toBe(false);
+    expect(pausableComponent.isPaused).toBe(true);
+    expect(nonPausableComponent.isPaused).toBe(false);
   });
 
   it('should resume all pausable entities when scene resumes', () => {
@@ -102,14 +102,14 @@ describe('PauseSystem', () => {
     // Pause
     scene.pause();
     pauseSystem.onUpdate();
-    expect(component1.paused).toBe(true);
-    expect(component2.paused).toBe(true);
+    expect(component1.isPaused).toBe(true);
+    expect(component2.isPaused).toBe(true);
 
     // Resume
     scene.resume();
     pauseSystem.onUpdate();
-    expect(component1.paused).toBe(false);
-    expect(component2.paused).toBe(false);
+    expect(component1.isPaused).toBe(false);
+    expect(component2.isPaused).toBe(false);
   });
 
   it('should toggle pause state multiple times', () => {
@@ -121,22 +121,22 @@ describe('PauseSystem', () => {
     // First pause
     scene.pause();
     pauseSystem.onUpdate();
-    expect(pauseComponent.paused).toBe(true);
+    expect(pauseComponent.isPaused).toBe(true);
 
     // Resume
     scene.resume();
     pauseSystem.onUpdate();
-    expect(pauseComponent.paused).toBe(false);
+    expect(pauseComponent.isPaused).toBe(false);
 
     // Pause again
     scene.pause();
     pauseSystem.onUpdate();
-    expect(pauseComponent.paused).toBe(true);
+    expect(pauseComponent.isPaused).toBe(true);
 
     // Resume again
     scene.resume();
     pauseSystem.onUpdate();
-    expect(pauseComponent.paused).toBe(false);
+    expect(pauseComponent.isPaused).toBe(false);
   });
 
   it('should not affect entities without PauseComponent', () => {
@@ -158,7 +158,7 @@ describe('PauseSystem', () => {
     // Initially pausable
     scene.pause();
     pauseSystem.onUpdate();
-    expect(pauseComponent.paused).toBe(true);
+    expect(pauseComponent.isPaused).toBe(true);
 
     // Make it non-pausable while paused
     pauseComponent.canPause = false;
@@ -168,7 +168,7 @@ describe('PauseSystem', () => {
     // Try to pause again - should not affect it
     scene.pause();
     pauseSystem.onUpdate();
-    expect(pauseComponent.paused).toBe(false);
+    expect(pauseComponent.isPaused).toBe(false);
   });
 
   it('should remove paused tag when canPause becomes false while paused', () => {
@@ -180,13 +180,13 @@ describe('PauseSystem', () => {
     scene.pause();
     pauseSystem.onUpdate();
 
-    expect(pauseComponent.paused).toBe(true);
+    expect(pauseComponent.isPaused).toBe(true);
     expect(entity.hasTag(PauseComponentTag)).toBe(true);
 
     pauseComponent.canPause = false;
     pauseSystem.onUpdate();
 
-    expect(pauseComponent.paused).toBe(false);
+    expect(pauseComponent.isPaused).toBe(false);
     expect(entity.hasTag(PauseComponentTag)).toBe(false);
   });
 });

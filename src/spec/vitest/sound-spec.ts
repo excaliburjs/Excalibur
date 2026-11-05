@@ -276,11 +276,11 @@ describe('Sound resource', () => {
         sut.loop = false;
 
         sut.once('playbackstart', () => {
-          expect(sut.isPlaying()).toBe(true);
+          expect(sut.isPlaying).toBe(true);
         });
 
         sut.play().then(() => {
-          expect(sut.isPlaying()).toBe(false);
+          expect(sut.isPlaying).toBe(false);
 
           done();
         });
@@ -291,10 +291,10 @@ describe('Sound resource', () => {
     new Promise<void>((done) => {
       sut.load().then(() => {
         sut.once('playbackstart', () => {
-          expect(sut.isPlaying(), 'track should be playing').toBe(true);
+          expect(sut.isPlaying, 'track should be playing').toBe(true);
 
           sut.stop();
-          expect(sut.isPlaying(), 'track should be stopped').toBe(false);
+          expect(sut.isPlaying, 'track should be stopped').toBe(false);
 
           done();
         });
@@ -332,12 +332,12 @@ describe('Sound resource', () => {
           done();
         });
 
-        expect(sut.isPlaying(), 'should be playing').toBe(true);
+        expect(sut.isPlaying, 'should be playing').toBe(true);
 
         // pause
         sut.pause();
 
-        expect(sut.isPlaying(), 'should not be playing').toBe(false);
+        expect(sut.isPlaying, 'should not be playing').toBe(false);
 
         // stop and rewind
         sut.stop();
@@ -578,7 +578,7 @@ describe('Sound resource', () => {
       await new Promise<void>((done) => {
         sut.once('playbackstart', () => {
           expect(sut.instanceCount()).toBe(1);
-          expect(sut.isPaused()).toBe(false);
+          expect(sut.isPaused).toBe(false);
           expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(5);
           sut.stop();
           done();
@@ -592,12 +592,12 @@ describe('Sound resource', () => {
       sut.loop = true;
       await sut.load();
       sut.seek(6.5);
-      expect(sut.isPaused()).toBe(true);
+      expect(sut.isPaused).toBe(true);
 
       await new Promise<void>((done) => {
         sut.once('resume', () => {
           expect(sut.instanceCount()).toBe(1);
-          expect(sut.isPlaying()).toBe(true);
+          expect(sut.isPlaying).toBe(true);
           expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(6.5);
           sut.stop();
           done();
@@ -615,7 +615,7 @@ describe('Sound resource', () => {
         sut.play();
       });
       await delay(500);
-      expect(track.isStopped()).toBe(true);
+      expect(track.isStopped).toBe(true);
       expect(sut.instanceCount()).toBe(0);
     });
   });
@@ -635,14 +635,14 @@ describe('Sound resource', () => {
       expect(sut.instanceCount()).toBe(2);
 
       sut.pause();
-      expect(sut.isPaused()).toBe(true);
+      expect(sut.isPaused).toBe(true);
       sut.resume();
 
       await first;
-      expect(firstTrack.isStopped()).toBe(true);
+      expect(firstTrack.isStopped).toBe(true);
       expect(sut.instanceCount(), 'the second track must survive the first ending').toBe(1);
       expect(sut.instances[0]).toBe(secondTrack);
-      expect(sut.isPlaying()).toBe(true);
+      expect(sut.isPlaying).toBe(true);
       sut.stop();
     });
   });
@@ -685,7 +685,7 @@ describe('Sound resource', () => {
       await sut.load();
       const track = sut.start({ duration: 0.2 })!;
       expect(sut.instances).toEqual([track]);
-      expect(track.isPlaying()).toBe(true);
+      expect(track.isPlaying).toBe(true);
       await expect(track.done).resolves.toBe(true);
       expect(sut.instanceCount()).toBe(0);
 
@@ -704,12 +704,12 @@ describe('Sound resource', () => {
       await sut.load();
       const first = sut.start()!;
       sut.pause();
-      expect(first.isPaused()).toBe(true);
+      expect(first.isPaused).toBe(true);
 
       const second = sut.start()!;
       expect(second).not.toBe(first);
-      expect(first.isPaused()).toBe(true);
-      expect(second.isPlaying()).toBe(true);
+      expect(first.isPaused).toBe(true);
+      expect(second.isPlaying).toBe(true);
       expect(sut.instanceCount()).toBe(2);
       sut.stop();
     });
@@ -840,7 +840,7 @@ describe('Sound resource', () => {
       await new Promise<void>((done) => {
         sut.once('playbackstart', () => {
           expect(error).toHaveBeenCalled();
-          expect(sut.isPlaying()).toBe(true);
+          expect(sut.isPlaying).toBe(true);
           sut.stop();
           done();
         });
@@ -874,7 +874,7 @@ describe('Sound resource', () => {
             engine.stop();
 
             expect(sut.instanceCount(), 'should be no tracks').toBe(0);
-            expect(sut.isPlaying(), 'should not be playing').toBe(false);
+            expect(sut.isPlaying, 'should not be playing').toBe(false);
 
             done();
           });
@@ -887,13 +887,13 @@ describe('Sound resource', () => {
         sut.load().then(() => {
           sut.wireEngine(engine);
           sut.once('playbackstart', () => {
-            expect(sut.isPlaying(), 'should be playing').toBe(true);
+            expect(sut.isPlaying, 'should be playing').toBe(true);
 
             engine.stop();
 
             sut.play();
 
-            expect(sut.isPlaying(), 'should not allow playing').toBe(false);
+            expect(sut.isPlaying, 'should not allow playing').toBe(false);
 
             done();
           });
@@ -908,7 +908,7 @@ describe('Sound resource', () => {
           sut.wireEngine(engine);
 
           sut.once('playbackstart', () => {
-            expect(sut.isPlaying(), 'should be playing').toBe(true);
+            expect(sut.isPlaying, 'should be playing').toBe(true);
 
             setTimeout(() => {
               engine.emit('hidden', new ex.HiddenEvent(engine));
@@ -918,7 +918,7 @@ describe('Sound resource', () => {
           sut.play();
 
           engine.once('hidden', () => {
-            expect(sut.isPlaying(), 'should pause when hidden').toBe(false);
+            expect(sut.isPlaying, 'should pause when hidden').toBe(false);
             done();
           });
         });
@@ -931,7 +931,7 @@ describe('Sound resource', () => {
           sut.wireEngine(engine);
 
           sut.once('playbackstart', () => {
-            expect(sut.isPlaying(), 'should be playing').toBe(true);
+            expect(sut.isPlaying, 'should be playing').toBe(true);
 
             setTimeout(() => {
               engine.emit('hidden', new ex.HiddenEvent(engine));
@@ -947,7 +947,7 @@ describe('Sound resource', () => {
           });
 
           engine.once('visible', () => {
-            expect(sut.isPlaying(), 'should resume when visible').toBe(true);
+            expect(sut.isPlaying, 'should resume when visible').toBe(true);
             done();
           });
         });

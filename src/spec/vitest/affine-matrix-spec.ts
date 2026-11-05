@@ -12,7 +12,7 @@ describe('A AffineMatrix', () => {
 
   it('can make an identity matrix', () => {
     const identity = ex.AffineMatrix.identity();
-    expect(identity.isIdentity()).toBe(true);
+    expect(identity.isIdentity).toBe(true);
   });
 
   it('can make a translation matrix', () => {
@@ -128,8 +128,8 @@ describe('A AffineMatrix', () => {
   it('can find the affine inverse', () => {
     const mat = ex.AffineMatrix.identity().translate(100, -200).scale(2, 4);
     const inv = mat.inverse();
-    expect(mat.multiply(inv).isIdentity()).toBe(true);
-    expect(inv.multiply(mat).isIdentity()).toBe(true);
+    expect(mat.multiply(inv).isIdentity).toBe(true);
+    expect(inv.multiply(mat).isIdentity).toBe(true);
   });
 
   it('can find the affine inverse and store it into a target', () => {
@@ -138,8 +138,8 @@ describe('A AffineMatrix', () => {
 
     vi.spyOn(ex.AffineMatrix, 'identity');
     const inv = mat.inverse(target);
-    expect(mat.multiply(inv).isIdentity()).toBe(true);
-    expect(inv.multiply(mat).isIdentity()).toBe(true);
+    expect(mat.multiply(inv).isIdentity).toBe(true);
+    expect(inv.multiply(mat).isIdentity).toBe(true);
     expect(target).toBe(inv);
     expect(ex.AffineMatrix.identity, 'using a target doesnt create a new mat').not.toHaveBeenCalledWith();
   });
@@ -176,7 +176,7 @@ describe('A AffineMatrix', () => {
     const mat = ex.AffineMatrix.identity().translate(100, -200).scale(2, 4);
 
     mat.reset();
-    expect(mat.isIdentity()).toBe(true);
+    expect(mat.isIdentity).toBe(true);
   });
 
   it('can print a matrix', () => {

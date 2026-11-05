@@ -52,13 +52,13 @@ export class Particle extends Entity {
   public endSize?: number;
   public sizeRate: number = 0;
 
-  public visible = true;
+  public isVisible = true;
   public isOffscreen = false;
 
   public transform: TransformComponent;
   public motion: MotionComponent;
   public graphics: GraphicsComponent;
-  public paused: PauseComponent = new PauseComponent({ canPause: true });
+  public readonly pauseComponent: PauseComponent = new PauseComponent({ canPause: true });
   public particleTransform = ParticleTransform.Global;
 
   public override name = `Particle#${this.id}`;
@@ -71,7 +71,7 @@ export class Particle extends Entity {
     this.addComponent((this.transform = new TransformComponent()));
     this.addComponent((this.motion = new MotionComponent()));
     this.addComponent((this.graphics = new GraphicsComponent()));
-    this.addComponent(this.paused);
+    this.addComponent(this.pauseComponent);
     this.configure(options);
   }
 

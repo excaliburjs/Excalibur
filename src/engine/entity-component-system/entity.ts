@@ -163,7 +163,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
     this.emit('kill', new KillEvent(this));
   }
 
-  public isKilled() {
+  public get isKilled() {
     return !this.isActive;
   }
 

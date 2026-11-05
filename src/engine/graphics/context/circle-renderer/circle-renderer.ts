@@ -202,7 +202,7 @@ export class CircleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = strokeThickness / radius;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return this._circleCount !== 0;
   }
 

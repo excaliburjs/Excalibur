@@ -223,7 +223,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
 
     if (this._output) {
       const gain = this._output.gain;
-      if (this.isPlaying() && gain.setTargetAtTime) {
+      if (this.isPlaying && gain.setTargetAtTime) {
         // https://developer.mozilla.org/en-US/docs/Web/API/AudioParam/setTargetAtTime
         // After each .1 seconds timestep, the target value will ~63.2% closer to the target value.
         // This exponential ramp provides a more pleasant transition in gain
@@ -416,7 +416,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     }
   }
 
-  public isLoaded() {
+  public get isLoaded() {
     return !!this.data;
   }
 
@@ -450,7 +450,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
       this._engine = engine;
 
       this._engine.on('hidden', () => {
-        if (engine.pauseAudioWhenHidden && this.isPlaying()) {
+        if (engine.pauseAudioWhenHidden && this.isPlaying) {
           this._wasPlayingOnHidden = true;
           this.pause();
         }
@@ -488,7 +488,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   public playingCount(): number {
     let count = 0;
     for (const track of this._tracks) {
-      if (track.isPlaying()) {
+      if (track.isPlaying) {
         count++;
       }
     }
@@ -498,16 +498,16 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   /**
    * Whether or not the sound is playing right now
    */
-  public isPlaying(): boolean {
-    return this._tracks.some((t) => t.isPlaying());
+  public get isPlaying(): boolean {
+    return this._tracks.some((t) => t.isPlaying);
   }
 
-  public isPaused(): boolean {
-    return this._tracks.some((t) => t.isPaused());
+  public get isPaused(): boolean {
+    return this._tracks.some((t) => t.isPaused);
   }
 
-  public isStopped(): boolean {
-    return this._tracks.some((t) => t.isStopped());
+  public get isStopped(): boolean {
+    return this._tracks.some((t) => t.isStopped);
   }
 
   /**
@@ -547,7 +547,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
 
     let oldest: SoundTrack | null = null;
     for (const track of this.instances) {
-      if (track.isPlaying() && (!oldest || track.id < oldest.id)) {
+      if (track.isPlaying && (!oldest || track.id < oldest.id)) {
         oldest = track;
       }
     }
@@ -566,7 +566,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
    * ```
    */
   public start(options?: PlayOptions): SoundTrack | null {
-    if (!this.isLoaded()) {
+    if (!this.isLoaded) {
       this.logger.warn('Cannot start playing. Resource', this.path, 'is not loaded yet');
       return null;
     }
@@ -610,7 +610,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   public async resume(): Promise<boolean> {
     const resumed: Promise<boolean>[] = [];
     for (const track of this._tracks) {
-      if (!track.isPaused()) {
+      if (!track.isPaused) {
         continue;
       }
       resumed.push(
@@ -635,7 +635,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
    * Stop the sound, and do not rewind
    */
   public pause() {
-    if (!this.isPlaying()) {
+    if (!this.isPlaying) {
       return;
     }
 
@@ -687,7 +687,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   }
 
   public getTotalPlaybackDuration() {
-    if (!this.isLoaded()) {
+    if (!this.isLoaded) {
       this.logger.warnOnce(
         `Sound from ${this.path} is not loaded, cannot return total playback duration.` +
           `Did you forget to add Sound to a loader? https://excaliburjs.com/docs/loaders/`

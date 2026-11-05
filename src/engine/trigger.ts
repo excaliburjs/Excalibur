@@ -28,7 +28,7 @@ export interface TriggerOptions {
   // height of the trigger
   height?: number;
   // whether the trigger is visible or not
-  visible?: boolean;
+  isVisible?: boolean;
   // action to take when triggered
   action?: (entity: Entity) => void;
   // if specified the trigger will only fire on a specific entity and overrides any filter
@@ -42,7 +42,7 @@ export interface TriggerOptions {
 /**
  * Triggers are a method of firing arbitrary code on collision. These are useful
  * as 'buttons', 'switches', or to trigger effects in a game. By default triggers
- * are invisible, and can only be seen when {@apilink Trigger.visible} is set to `true`.
+ * are invisible, and can only be seen when the `isVisible` option is set to `true`.
  */
 export class Trigger extends Actor {
   public override events = new EventEmitter<TriggerEvents & ActorEvents>();
@@ -72,7 +72,7 @@ export class Trigger extends Actor {
     this.action = options.action ?? (() => undefined);
     this.target = options.target;
 
-    this.graphics.isVisible = options.visible ?? false;
+    this.graphics.isVisible = options.isVisible ?? false;
     this.body.collisionType = CollisionType.Passive;
 
     this.events.on('collisionstart', ({ other: collider }: CollisionStartEvent) => {

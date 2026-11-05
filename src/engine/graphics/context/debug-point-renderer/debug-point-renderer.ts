@@ -94,7 +94,7 @@ export class DebugPointRenderer implements RendererPlugin {
     return false;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return this._pointCount !== 0;
   }
 

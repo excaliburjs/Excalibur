@@ -191,7 +191,7 @@ export class DebugCircleRenderer implements RendererPlugin {
     vertexBuffer[this._vertexIndex++] = radius * scale;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return this._circleCount !== 0;
   }
 

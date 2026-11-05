@@ -408,7 +408,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   public async _activate(context: SceneActivationContext<TActivationData>) {
     try {
       this._logger.debug('Scene.onActivate', this);
-      this.input.toggleEnabled(true);
+      this.input.setEnabled(true);
 
       for (const plugin of this.engine.plugins) {
         plugin.onScenePreActivate?.(this);
@@ -438,7 +438,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
       plugin.onScenePreDeactivate?.(this);
     }
 
-    this.input.toggleEnabled(false);
+    this.input.setEnabled(false);
     const result = await this.onDeactivate(context);
 
     this.world.entityManager.findEntitiesForRemoval();
@@ -811,10 +811,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    * Tests whether a {@apilink Timer} is active in the scene
    */
   public isTimerActive(timer: Timer): boolean {
-    return this._timers.indexOf(timer) > -1 && !timer.complete;
+    return this._timers.indexOf(timer) > -1 && !timer.isComplete;
   }
 
-  public isCurrentScene(): boolean {
+  public get isCurrentScene(): boolean {
     if (this.engine) {
       return this.engine.currentScene === this;
     }

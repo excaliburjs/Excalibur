@@ -26,13 +26,13 @@ describe('DebugSystem', () => {
   it('can use a test clock', () => {
     engine.debug.useTestClock();
     expect(engine.clock).toBeInstanceOf(ex.TestClock);
-    expect(engine.clock.isRunning());
+    expect(engine.clock.isRunning);
   });
 
   it('can use a standard clock', () => {
     engine.debug.useStandardClock();
     expect(engine.clock).toBeInstanceOf(ex.StandardClock);
-    expect(engine.clock.isRunning());
+    expect(engine.clock.isRunning);
   });
 
   it('does not crash with an empty collider', async () => {
@@ -252,7 +252,7 @@ describe('DebugSystem', () => {
         rows: 10,
         columns: 10
       });
-      tilemap.tiles[0].solid = true;
+      tilemap.tiles[0].isSolid = true;
       tilemap.update(engine, 1);
       debugSystem.query.checkAndModify(tilemap);
       debugSystem.onUpdate();

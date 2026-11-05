@@ -109,7 +109,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen).toBe(false);
+    expect(actor.isOffscreen).toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -129,7 +129,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
   it('does not draw offscreen Actors left', () => {
@@ -147,7 +147,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -166,7 +166,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -185,7 +185,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -204,7 +204,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -223,7 +223,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -242,7 +242,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be onscreen').toBe(false);
+    expect(actor.isOffscreen, 'Actor should be onscreen').toBe(false);
     expect(actor.graphics.onPostDraw).toHaveBeenCalled();
   });
 
@@ -261,7 +261,7 @@ describe('A scene', () => {
     scene.update(engine, 100);
     scene.draw(engine.graphicsContext, 100);
 
-    expect(actor.isOffScreen, 'Actor should be offscreen').toBe(true);
+    expect(actor.isOffscreen, 'Actor should be offscreen').toBe(true);
     expect(actor.graphics.onPostDraw).not.toHaveBeenCalled();
   });
 
@@ -274,7 +274,7 @@ describe('A scene', () => {
     actor.pos.x = 1000;
     actor.pos.y = 1000;
     scene.update(engine, 100);
-    expect(actor.isOffScreen).toBeFalsy();
+    expect(actor.isOffscreen).toBeFalsy();
 
     actor.pos.x = 1010;
     actor.pos.y = 1010;
@@ -290,7 +290,7 @@ describe('A scene', () => {
     expect(engine.drawWidth).toBe(100);
     expect(engine.drawHeight).toBe(100);
 
-    expect(actor.isOffScreen).toBeTruthy();
+    expect(actor.isOffscreen).toBeTruthy();
   });
 
   it('draws visible Actors', () => {
@@ -749,7 +749,7 @@ describe('A scene', () => {
 
     scene.remove(actor);
 
-    expect(actor.isKilled()).toBe(true);
+    expect(actor.isKilled).toBe(true);
     expect(actor.kill).toHaveBeenCalledTimes(1);
   });
 
@@ -770,7 +770,7 @@ describe('A scene', () => {
     actor.kill();
     scene.update(engine, 100);
     expect(scene.actors).not.toContain(actor);
-    expect(actor.isKilled()).toBe(true);
+    expect(actor.isKilled).toBe(true);
   });
 
   it('will update TileMaps that were added in a Timer callback', () => {
@@ -804,12 +804,12 @@ describe('A scene', () => {
 
   it('will return true if it is the current engine scene', () => {
     engine.goToScene('root');
-    expect(scene.isCurrentScene()).toBe(true);
+    expect(scene.isCurrentScene).toBe(true);
   });
 
   it('will not be the current scene if no engine is given', () => {
     const otherScene = new ex.Scene();
-    expect(otherScene.isCurrentScene()).toBe(false);
+    expect(otherScene.isCurrentScene).toBe(false);
   });
 
   it('will not be the current scene if the scene was switched', async () => {
@@ -818,8 +818,8 @@ describe('A scene', () => {
     engine.addScene('secondaryScene', otherScene);
     await engine.goToScene('secondaryScene');
 
-    expect(scene.isCurrentScene()).toBe(false);
-    expect(otherScene.isCurrentScene()).toBe(true);
+    expect(scene.isCurrentScene).toBe(false);
+    expect(otherScene.isCurrentScene).toBe(true);
   });
 
   describe('lifecycle overrides', () => {

@@ -1329,7 +1329,7 @@ O|===|* >________________>\n\
     if (showPlayerMessage === undefined) {
       showPlayerMessage = Engine._DEFAULT_ENGINE_OPTIONS.configurePerformanceCanvas2DFallback!.showPlayerMessage;
     }
-    if (!Flags.isEnabled('use-canvas-context') && allow && this.ready && !this._performanceThresholdTriggered) {
+    if (!Flags.isEnabled('use-canvas-context') && allow && this.isReady && !this._performanceThresholdTriggered) {
       // Calculate Average fps for last X number of frames after start
       if (this._fpsSamples.length === threshold!.numberOfFrames) {
         this._fpsSamples.splice(0, 1);
@@ -1430,7 +1430,7 @@ O|===|* >________________>\n\
       this._disposed = true;
       this.stop();
       this._garbageCollector.forceCollectAll();
-      this.input.toggleEnabled(false);
+      this.input.setEnabled(false);
       this.input.pointers.detach();
       this.director.dispose();
 
@@ -1449,7 +1449,7 @@ O|===|* >________________>\n\
     }
   }
 
-  public isDisposed() {
+  public get isDisposed() {
     return this._disposed;
   }
 
@@ -1714,7 +1714,7 @@ O|===|* >________________>\n\
 
   public toggleInputEnabled(enabled: boolean) {
     this._inputEnabled = enabled;
-    this.input.toggleEnabled(this._inputEnabled);
+    this.input.setEnabled(this._inputEnabled);
   }
 
   public onInitialize(engine: Engine) {
@@ -1902,17 +1902,24 @@ O|===|* >________________>\n\
   /**
    * Returns true when loading is totally complete and the player has clicked start
    */
-  public get loadingComplete() {
+  public get isLoaded(): boolean {
     return !this._isLoading;
   }
 
   private _isLoading = false;
   private _hideLoader = false;
   private _isReadyFuture = new Future<void>();
-  public get ready() {
+  /**
+   * True once the engine has finished starting up, see {@apilink Engine.ready} to await it
+   */
+  public get isReady(): boolean {
     return this._isReadyFuture.isCompleted;
   }
-  public isReady(): Promise<void> {
+
+  /**
+   * Resolves when the engine is ready, `await engine.ready`
+   */
+  public get ready(): Promise<void> {
     return this._isReadyFuture.promise;
   }
 
@@ -2035,7 +2042,7 @@ O|===|* >________________>\n\
    * Stops Excalibur's main loop, useful for pausing the game.
    */
   public stop() {
-    if (this.clock.isRunning()) {
+    if (this.clock.isRunning) {
       this.emit('stop', new GameStopEvent(this));
       this.browser.pause();
       this.clock.stop();
@@ -2047,8 +2054,8 @@ O|===|* >________________>\n\
   /**
    * Returns the Engine's running status, Useful for checking whether engine is running or paused.
    */
-  public isRunning() {
-    return this.clock.isRunning();
+  public get isRunning() {
+    return this.clock.isRunning;
   }
 
   private _screenShotRequests: { preserveHiDPIResolution: boolean; resolve: (image: HTMLImageElement) => void }[] = [];
@@ -2100,7 +2107,7 @@ O|===|* >________________>\n\
     await this.scope(async () => {
       try {
         // early exit if loaded
-        if (loader.isLoaded()) {
+        if (loader.isLoaded) {
           return;
         }
         this._loader = loader;

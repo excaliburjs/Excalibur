@@ -85,7 +85,7 @@ export class Transition extends Entity {
     return this._currentDistance;
   }
 
-  get complete(): boolean {
+  get isComplete(): boolean {
     if (this.direction === 'out') {
       return this.progress >= 1;
     } else {
@@ -124,7 +124,7 @@ export class Transition extends Entity {
    * @param elapsed
    */
   public updateTransition(engine: Engine, elapsed: number): void {
-    if (this.complete) {
+    if (this.isComplete) {
       return;
     }
 
@@ -223,7 +223,7 @@ export class Transition extends Entity {
     this._co = coroutine(
       engine,
       function* () {
-        while (!self.complete) {
+        while (!self.isComplete) {
           const elapsed = yield; // per frame
           self.updateTransition(self._engine!, elapsed);
           self._execute();
@@ -272,7 +272,7 @@ export class Transition extends Entity {
 
     this.onUpdate(this.progress);
 
-    if (this.complete && !this._completeFuture.isCompleted) {
+    if (this.isComplete && !this._completeFuture.isCompleted) {
       this.onEnd(this.progress);
       this._completeFuture.resolve();
     }

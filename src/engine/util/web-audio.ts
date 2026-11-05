@@ -73,7 +73,7 @@ export class WebAudio {
     return promise;
   }
 
-  static isUnlocked() {
+  static get isUnlocked() {
     return this._UNLOCKED;
   }
 }

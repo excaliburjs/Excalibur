@@ -209,18 +209,18 @@ export class LimitCameraBoundsStrategy implements CameraStrategy<BoundingBox> {
    * @param target The bounding box to limit the camera to
    */
 
-  boundSizeChecked: boolean = false; // Check and warn only once
+  private _boundSizeChecked: boolean = false; // Check and warn only once
 
   constructor(public target: BoundingBox) {}
 
   public action = (target: BoundingBox, cam: Camera, _eng: Engine, elapsed: number) => {
     const focus = cam.getFocus();
 
-    if (!this.boundSizeChecked) {
+    if (!this._boundSizeChecked) {
       if (target.bottom - target.top < _eng.drawHeight || target.right - target.left < _eng.drawWidth) {
         Logger.getInstance().warn('Camera bounds should not be smaller than the engine viewport');
       }
-      this.boundSizeChecked = true;
+      this._boundSizeChecked = true;
     }
 
     let focusX = focus.x;
@@ -337,7 +337,7 @@ export class Camera implements CanUpdate, CanInitialize {
   /**
    * Has the position changed since the last update
    */
-  public hasChanged(): boolean {
+  public get hasChanged(): boolean {
     return this._posChanged;
   }
   /**
@@ -654,7 +654,7 @@ export class Camera implements CanUpdate, CanInitialize {
 
       const currentRes = this._screen.contentArea;
       let center = vec(currentRes.width / 2, currentRes.height / 2);
-      if (!this._engine.loadingComplete) {
+      if (!this._engine.isLoaded) {
         // If there was a loading screen, we peek the configured resolution
         const res = this._screen.peekResolution();
         if (res) {
