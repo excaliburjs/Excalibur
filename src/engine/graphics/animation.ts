@@ -464,7 +464,7 @@ export class Animation extends Graphic implements HasTick {
    *
    * See the `ex.Animation.canFinish()` method to know if an animation type can end
    */
-  public get isDone(): boolean {
+  public get isComplete(): boolean {
     return this._done;
   }
 
