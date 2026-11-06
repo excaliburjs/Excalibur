@@ -68,10 +68,10 @@ export const PlayingASound: StoryObj = {
 
     guitarLoopSound.on('playbackstart', (e: NativeSoundEvent) => {
       playHead.pos.setTo(playheadStartPos, playHead.pos.y);
-      if (guitarLoopSound.duration > 0) {
+      if ((guitarLoopSound.duration ?? 0) > 0) {
         startTime = Date.now();
         elapsedTime = 0;
-        playHead.actions.moveTo({ pos: vec(playheadEndPos, playHead.pos.y), duration: guitarLoopSound.duration * 1000, easing: linear });
+        playHead.actions.moveTo({ pos: vec(playheadEndPos, playHead.pos.y), duration: guitarLoopSound.duration! * 1000, easing: linear });
       }
       startOrPauseBtn.graphics.use('pause');
       action('playbackstart')(e);
@@ -86,10 +86,10 @@ export const PlayingASound: StoryObj = {
 
     guitarLoopSound.on('resume', (e: NativeSoundEvent) => {
       startTime = Date.now();
-      if (guitarLoopSound.duration > 0) {
+      if ((guitarLoopSound.duration ?? 0) > 0) {
         playHead.actions.moveTo({
           pos: vec(playheadEndPos, playHead.pos.y),
-          duration: guitarLoopSound.duration * 1000 - elapsedTime,
+          duration: guitarLoopSound.duration! * 1000 - elapsedTime,
           easing: linear
         });
       }

@@ -22,7 +22,7 @@ class Cross extends Actor {
     };
   }
 
-  onInitialize() {
+  override onInitialize() {
     const canvas = new Canvas({
       draw: (ctx) => {
         ctx.beginPath();
