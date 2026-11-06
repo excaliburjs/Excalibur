@@ -25,7 +25,7 @@ describe('A Transition', () => {
 
     expect(sut.progress).toBe(1);
     expect(sut.isComplete).toBe(false);
-    expect(sut.started).toBe(false);
+    expect(sut.hasStarted).toBe(false);
   });
 
   it('can be constructed with defaults', () => {
@@ -41,7 +41,7 @@ describe('A Transition', () => {
 
     expect(sut.progress).toBe(0);
     expect(sut.isComplete).toBe(false);
-    expect(sut.started).toBe(false);
+    expect(sut.hasStarted).toBe(false);
   });
 
   it('can be started with execute()', () => {
@@ -56,7 +56,7 @@ describe('A Transition', () => {
     sut._initialize(engine);
 
     sut._execute();
-    expect(sut.started).toBe(true);
+    expect(sut.hasStarted).toBe(true);
     expect(sut.progress).toBe(0);
     expect(sut.onStart).toHaveBeenCalledWith(0);
     expect(sut.onUpdate).toHaveBeenCalledWith(0);
@@ -95,7 +95,7 @@ describe('A Transition', () => {
     sut._initialize(engine);
 
     sut._execute();
-    expect(sut.started).toBe(true);
+    expect(sut.hasStarted).toBe(true);
     expect(sut.progress).toBe(0);
     expect(sut.onStart).toHaveBeenCalledWith(0);
     expect(sut.onUpdate).toHaveBeenCalledWith(0);
@@ -122,7 +122,7 @@ describe('A Transition', () => {
     sut.reset();
 
     expect(sut.isComplete).toBe(false);
-    expect(sut.started).toBe(false);
+    expect(sut.hasStarted).toBe(false);
     expect(sut.onReset).toHaveBeenCalledTimes(1);
     engine.dispose();
   });
