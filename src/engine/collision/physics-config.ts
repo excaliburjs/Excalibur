@@ -42,7 +42,7 @@ export interface PhysicsConfig {
     /**
      * Integrate on screen only entities, defaults to false meaning all entities are integrated
      */
-    onscreenOnly?: boolean;
+    onScreenOnly?: boolean;
   };
   /**
    * Configure gravity that applies to all {@apilink CollisionType.Active} bodies.
@@ -252,7 +252,7 @@ export type BodyConfig = DeepRequired<Pick<PhysicsConfig, 'bodies'>['bodies']>;
 export const getDefaultPhysicsConfig: () => DeepRequired<PhysicsConfig> = () => ({
   enabled: true,
   integration: {
-    onscreenOnly: false
+    onScreenOnly: false
   },
   gravity: vec(0, 0).clone(),
   solver: SolverStrategy.Arcade,

@@ -47,7 +47,7 @@ export class Slide extends Transition {
     this.name = `Slide#${this.id}`;
     this.slideDirection = options.slideDirection;
     this.transform.coordPlane = CoordPlane.Screen;
-    this.graphics.forceOnscreen = true;
+    this.graphics.forceOnScreen = true;
     this._easing = options.easingFunction ?? this._easing;
   }
 
