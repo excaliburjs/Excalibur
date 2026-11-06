@@ -25,7 +25,7 @@ describe('A gamepad', () => {
   it('should fire an event on connect', () => {
     let fired = false;
 
-    engine.input.gamepads.enabled = true;
+    engine.input.gamepads.pollingEnabled = true;
     engine.input.gamepads.on('connect', (padEvent: ex.GamepadConnectEvent) => {
       fired = true;
     });
@@ -48,7 +48,7 @@ describe('A gamepad', () => {
 
   it('should fire an event on disconnect', () => {
     let fired = false;
-    engine.input.gamepads.enabled = true;
+    engine.input.gamepads.pollingEnabled = true;
     engine.input.gamepads.on('disconnect', (padEvent: ex.GamepadConnectEvent) => {
       fired = true;
     });
@@ -72,29 +72,29 @@ describe('A gamepad', () => {
   });
 
   it('should be implicitly enabled when an event is added', () => {
-    expect(engine.input.gamepads.enabled).toBe(false);
+    expect(engine.input.gamepads.pollingEnabled).toBe(false);
     engine.input.gamepads.on('disconnect', (padEvent: ex.GamepadConnectEvent) => {
       // do something awesome
     });
-    expect(engine.input.gamepads.enabled).toBe(true);
+    expect(engine.input.gamepads.pollingEnabled).toBe(true);
   });
 
   it('should be implicitly enabled when an event is removed', () => {
-    expect(engine.input.gamepads.enabled).toBe(false);
+    expect(engine.input.gamepads.pollingEnabled).toBe(false);
     engine.input.gamepads.off('disconnect');
-    expect(engine.input.gamepads.enabled).toBe(true);
+    expect(engine.input.gamepads.pollingEnabled).toBe(true);
   });
 
   it('should be implicitly enabled when a minimum config is add', () => {
-    expect(engine.input.gamepads.enabled).toBe(false);
+    expect(engine.input.gamepads.pollingEnabled).toBe(false);
     engine.input.gamepads.setMinimumGamepadConfiguration({ axis: 2, buttons: 4 });
-    expect(engine.input.gamepads.enabled).toBe(true);
+    expect(engine.input.gamepads.pollingEnabled).toBe(true);
   });
 
   it('should be implicitly enabled when a specific pad is requested', () => {
-    expect(engine.input.gamepads.enabled).toBe(false);
+    expect(engine.input.gamepads.pollingEnabled).toBe(false);
     engine.input.gamepads.at(0);
-    expect(engine.input.gamepads.enabled).toBe(true);
+    expect(engine.input.gamepads.pollingEnabled).toBe(true);
   });
 
   it('should be of a valid configuration', () => {

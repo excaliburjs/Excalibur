@@ -27,9 +27,10 @@ export const GamepadEvents = {
 export class Gamepads {
   public events = new EventEmitter<GamepadEvents>();
   /**
-   * Whether or not to poll for Gamepad input (default: `false`)
+   * Opt in to polling for Gamepad input (default: `false`). Independent of the input host switch
+   * set by `engine.input.setEnabled()`, polling only happens when both are on.
    */
-  public enabled = false;
+  public pollingEnabled = false;
 
   /**
    * Whether or not Gamepad API is supported
@@ -81,11 +82,11 @@ export class Gamepads {
   }
 
   /**
-   * When implicitly enabled, set the enabled flag and run an update so information is updated
+   * When implicitly enabled, set the pollingEnabled flag and run an update so information is updated
    */
   private _enableAndUpdate() {
-    if (!this.enabled) {
-      this.enabled = true;
+    if (!this.pollingEnabled) {
+      this.pollingEnabled = true;
       this.update();
     }
   }
@@ -138,7 +139,7 @@ export class Gamepads {
    * Updates Gamepad state and publishes Gamepad events
    */
   public update() {
-    if (!this.enabled || !this.supported) {
+    if (!this.pollingEnabled || !this.supported) {
       return;
     }
     if (!this._enabled) {

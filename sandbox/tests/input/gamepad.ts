@@ -11,7 +11,7 @@ function start() {
   var padSprite = padTexture.toSprite();
 
   // Enable Gamepad support
-  game.input.gamepads.enabled = true;
+  game.input.gamepads.pollingEnabled = true;
   game.input.gamepads.setMinimumGamepadConfiguration({
     axis: 0,
     buttons: 8
