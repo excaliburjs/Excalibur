@@ -462,7 +462,7 @@ export class Animation extends Graphic implements HasTick {
    * Returns `true` if the animation is done, for looping type animations
    * `ex.AnimationStrategy.PingPong` and `ex.AnimationStrategy.Loop` this will always return `false`
    *
-   * See the `ex.Animation.canFinish()` method to know if an animation type can end
+   * See the `ex.Animation.canFinish` property to know if an animation type can end
    */
   public get isComplete(): boolean {
     return this._done;
