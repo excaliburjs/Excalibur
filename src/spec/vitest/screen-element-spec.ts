@@ -39,6 +39,15 @@ describe('A ScreenElement', () => {
     expect(logger.warn).not.toHaveBeenCalled();
   });
 
+  it('does not pause by default so UI stays interactive', () => {
+    expect(new ScreenElement().canPause).toBe(false);
+  });
+
+  it('respects an explicit canPause option', () => {
+    expect(new ScreenElement({ canPause: true }).canPause).toBe(true);
+    expect(new ScreenElement({ canPause: false }).canPause).toBe(false);
+  });
+
   it('can be constructed with a non-default anchor', () => {
     const sut = new ScreenElement({
       width: 100,
