@@ -208,7 +208,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
     const lastDownPerPointer = new Map<number, PointerEvent>();
     // Loop through down and dispatch to entities
     for (const event of receiver.currentFrameDown) {
-      if (event.active && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
+      if (event.isActive && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
         object.events.emit('pointerdown', event as any);
         if (receiver.isDragStart(event.pointerId)) {
           object.events.emit('pointerdragstart', event as any);
@@ -223,7 +223,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
     const lastUpPerPointer = new Map<number, PointerEvent>();
     // Loop through up and dispatch to entities
     for (const event of receiver.currentFrameUp) {
-      if (event.active && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
+      if (event.isActive && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
         object.events.emit('pointerup', event as any);
         if (receiver.isDragEnd(event.pointerId)) {
           object.events.emit('pointerdragend', event as any);
@@ -238,7 +238,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
     const lastMovePerPointer = new Map<number, PointerEvent>();
     // Loop through move and dispatch to entities
     for (const event of receiver.currentFrameMove) {
-      if (event.active && object.active() && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
+      if (event.isActive && object.active() && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
         // move
         object.events.emit('pointermove', event as any);
 
@@ -258,7 +258,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
   ) {
     // up, down, and move are considered for enter and leave
     for (const event of lastUpDownMoveEvents) {
-      const isActive = event.active && object.active();
+      const isActive = event.isActive && object.active();
       const isTouchOrPenEvent = event.pointerType === PointerType.Pen || event.pointerType === PointerType.Touch;
       // enter
       if (
@@ -293,7 +293,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
   private _processCancelAndEmit(receiver: PointerEventReceiver, object: PointerTargetObjectProxy<any>) {
     // cancel
     for (const event of receiver.currentFrameCancel) {
-      if (event.active && object.active() && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
+      if (event.isActive && object.active() && this._objectCurrentlyUnderPointer(object, event.pointerId)) {
         object.events.emit('pointerleave', event as any);
         if (receiver.isDragging(event.pointerId)) {
           object.events.emit('pointerdragleave', event as any);
@@ -310,7 +310,7 @@ export class PointerEventsToObjectDispatcher<TObject extends { events: EventEmit
     // wheel
     for (const event of receiver.currentFrameWheel) {
       // Currently the wheel only fires under the primary pointer '0'
-      if (event.active && object.active() && this._objectCurrentlyUnderPointer(object, 0)) {
+      if (event.isActive && object.active() && this._objectCurrentlyUnderPointer(object, 0)) {
         object.events.emit('pointerwheel', event as any);
       }
     }

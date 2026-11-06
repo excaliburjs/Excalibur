@@ -225,7 +225,7 @@ export class PointerEventReceiver {
     this.lastFramePointerCoords = new Map(this.currentFramePointerCoords);
 
     for (const event of this.currentFrameDown) {
-      if (!event.active) {
+      if (!event.isActive) {
         continue;
       }
       this.emit('down', event);
@@ -235,7 +235,7 @@ export class PointerEventReceiver {
     }
 
     for (const event of this.currentFrameUp) {
-      if (!event.active) {
+      if (!event.isActive) {
         continue;
       }
       this.emit('up', event);
@@ -244,7 +244,7 @@ export class PointerEventReceiver {
     }
 
     for (const event of this.currentFrameMove) {
-      if (!event.active) {
+      if (!event.isActive) {
         continue;
       }
       this.emit('move', event);
@@ -253,7 +253,7 @@ export class PointerEventReceiver {
     }
 
     for (const event of this.currentFrameCancel) {
-      if (!event.active) {
+      if (!event.isActive) {
         continue;
       }
       this.emit('cancel', event);
@@ -262,7 +262,7 @@ export class PointerEventReceiver {
     }
 
     for (const event of this.currentFrameWheel) {
-      if (!event.active) {
+      if (!event.isActive) {
         continue;
       }
       this.emit('pointerwheel', event);

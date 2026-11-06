@@ -1885,10 +1885,10 @@ O|===|* >________________>\n\
 
   /**
    * Enable or disable Excalibur debugging functionality.
-   * @param toggle a value that debug drawing will be changed to
+   * @param show whether debug drawing is shown
    */
-  public showDebug(toggle: boolean): void {
-    this._isDebug = toggle;
+  public showDebug(show: boolean): void {
+    this._isDebug = show;
   }
 
   /**

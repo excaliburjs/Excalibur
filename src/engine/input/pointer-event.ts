@@ -4,9 +4,9 @@ import type { PointerButton } from './pointer-button';
 import type { PointerType } from './pointer-type';
 
 export class PointerEvent {
-  public active = true;
+  public isActive = true;
   public cancel() {
-    this.active = false;
+    this.isActive = false;
   }
 
   get pagePos(): Vector {
