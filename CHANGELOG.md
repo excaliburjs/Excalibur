@@ -11,8 +11,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `Entity.isKilled` (and `Actor`), `Engine.isRunning`, `Engine.isDisposed`, `Clock.isRunning`, `Scene.isCurrentScene`, `CollisionContact.isCanceled`, `CoroutineInstance.isRunning/isComplete`
   - `Sound` and `SoundTrack`: `isPlaying`, `isPaused`, `isStopped`
   - `Loadable.isLoaded` (`Resource`, `ImageSource`, `Font`, `Gif`, `Sound`, `SoundManager`, `DefaultLoader`)
-  - `PolygonCollider.isConvex`, `Matrix/AffineMatrix.isIdentity`, `Transform.isMirrored`, `BoundingBox.hasZeroDimensions`, `Camera.hasChanged`, `ActionQueue.hasNext/isComplete`, `Graphic.isStale`, `RendererPlugin.hasPendingDraws`, `WebAudio.isUnlocked`, `Serializer.isInitialized`
-  - Methods that mutate or do real work stay verbs: `Actor.isOffScreen` -> `Actor.isOffscreen` (casing matches `Particle.isOffscreen`/`OffscreenSystem`), `PolygonCollider.isConvex` -> `checkConvex()` (O(n)), and every `toggleEnabled(enabled)` on the input classes -> `setEnabled(enabled)` (it takes an explicit value, it never toggled)
+  - `Matrix/AffineMatrix.isIdentity`, `Transform.isMirrored`, `BoundingBox.hasZeroDimensions`, `Camera.hasChanged`, `ActionQueue.hasNext/isComplete`, `Graphic.isStale`, `RendererPlugin.hasPendingDraws`, `WebAudio.isUnlocked`, `Serializer.isInitialized`
+  - Methods that mutate or do real work stay verbs: `PolygonCollider.isConvex` -> `checkConvex()` (O(n)), the mutating `hasChanged` getter on `SparseHashGrid` and its collision processor -> `refreshAndCheckChanged()`, and every `toggleEnabled(enabled)` on the input classes -> `setEnabled(enabled)` (it takes an explicit value, it never toggled)
   - Settable booleans follow the same `isX` naming as the already-shipped `isVisible`: the `visible` option on `ActorOptions`, `TriggerOptions` and `GraphicsComponentOptions` is now `isVisible`, and `Particle.visible` is now `Particle.isVisible`
   - `Tile.solid` (`TileMap` and `IsometricMap` tiles) and the `solid` tile option are now `isSolid`
   - `GarbageCollector.running()` is now the getter `isRunning`; `FontTextInstance.disposed` is now `isDisposed`
