@@ -50,7 +50,7 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      const edges = graph.addEdge(nodeA, nodeB, { weight: 5, directed: true });
+      const edges = graph.addEdge(nodeA, nodeB, { weight: 5, isDirected: true });
 
       expect(edges.length).toBe(1);
       expect(edges[0].source).toBe(nodeA);
@@ -64,7 +64,7 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      const edges = graph.addEdge(nodeA, nodeB, { weight: 5, directed: false });
+      const edges = graph.addEdge(nodeA, nodeB, { weight: 5, isDirected: false });
 
       expect(edges.length).toBe(2);
       expect(graph.adjacencyList.get(nodeA.id)?.has(nodeB.id)).toBe(true);
@@ -79,8 +79,8 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      graph.addEdge(nodeA, nodeB, { directed: true });
-      const duplicateEdges = graph.addEdge(nodeA, nodeB, { directed: true });
+      graph.addEdge(nodeA, nodeB, { isDirected: true });
+      const duplicateEdges = graph.addEdge(nodeA, nodeB, { isDirected: true });
 
       expect(duplicateEdges.length).toBe(0);
       expect(graph.edges.size).toBe(1);
@@ -90,7 +90,7 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      const edges = graph.addEdge(nodeA, nodeB, { directed: true });
+      const edges = graph.addEdge(nodeA, nodeB, { isDirected: true });
       expect(graph.edges.size).toBe(1);
 
       graph.deleteEdge(edges[0]);
@@ -103,7 +103,7 @@ describe('A Graph', () => {
       const nodeA = graph.addNode('A');
       const nodeB = graph.addNode('B');
 
-      const edges = graph.addEdge(nodeA, nodeB, { weight: 5, directed: false });
+      const edges = graph.addEdge(nodeA, nodeB, { weight: 5, isDirected: false });
       expect(graph.edges.size).toBe(2);
 
       graph.deleteEdge(edges[0]);
@@ -131,7 +131,7 @@ describe('A Graph', () => {
       const nodeB = graph.addNode('B');
       const nodeC = graph.addNode('C');
 
-      graph.addEdge(nodeA, nodeB, { directed: true });
+      graph.addEdge(nodeA, nodeB, { isDirected: true });
 
       expect(graph.areNodesConnected(nodeA, nodeB)).toBe(true);
       expect(graph.areNodesConnected(nodeA, nodeC)).toBe(false);

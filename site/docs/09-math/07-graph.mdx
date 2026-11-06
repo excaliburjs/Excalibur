@@ -40,7 +40,7 @@ graph.addEdge(nodeC, nodeD);
 graph.addEdge(nodeD, nodeE);
 
 // Connect nodes in one direction only 
-graph.addEdge(nodeA, nodeC, { directed: true });
+graph.addEdge(nodeA, nodeC, { isDirected: true });
 
 // Connect nodes with weighted edges
 graph.addEdge(nodeA, nodeB, { weight: 5 });
@@ -103,12 +103,12 @@ You cannot pass a weighting parameter and direct the Edge to use Euclidean posit
 Edges connect nodes and can have properties:
 
 weight: Numeric value representing distance or cost (default: 0)
-directed: Whether the edge is one-way or bidirectional (default: true)
+isDirected: Whether the edge is one-way (default: false, edges are bidirectional)
 partner: reference to a paired edge if a bidirectional edge was created
 
 ```ts
 // Connect the nodes
-spatialGraph.addEdge(nodeA, nodeB, { weight: 11.2, directed: false }); // Euclidean distance
+spatialGraph.addEdge(nodeA, nodeB, { weight: 11.2, isDirected: false }); // Euclidean distance
 
 ```
 

@@ -1712,7 +1712,7 @@ O|===|* >________________>\n\
     }
   }
 
-  public toggleInputEnabled(enabled: boolean) {
+  public setInputEnabled(enabled: boolean) {
     this._inputEnabled = enabled;
     this.input.setEnabled(this._inputEnabled);
   }
