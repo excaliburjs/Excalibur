@@ -69,7 +69,7 @@ export class MyCustomRenderer extends ex.RendererPlugin {
   /**
    * @returns if there are any pending draws in the renderer
    */
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     // if there are any un-flushed drawings
     return false;
   }
@@ -154,7 +154,7 @@ export class PointRenderer implements RendererPlugin {
     return false;
   }
 
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return this._pointCount !== 0;
   }
 
