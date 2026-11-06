@@ -1,9 +1,9 @@
 import type { WheelDeltaMode } from './wheel-delta-mode';
 
 export class WheelEvent {
-  public active = true;
+  public isActive = true;
   public cancel() {
-    this.active = false;
+    this.isActive = false;
   }
   constructor(
     public x: number,

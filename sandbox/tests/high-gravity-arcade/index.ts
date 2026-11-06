@@ -172,7 +172,7 @@ class ControlSystem extends ex.System {
 
   getGamepad() {
     return [this.input.gamepads.at(0), this.input.gamepads.at(1), this.input.gamepads.at(2), this.input.gamepads.at(3)].find(
-      (g) => g.connected
+      (g) => g.isConnected
     );
   }
 }

@@ -128,7 +128,7 @@ describe('PointerEventsToObjectDispatcher', () => {
       expect(emitSpy).not.toHaveBeenCalledWith('pointerenter', expect.anything());
     });
 
-    it('does NOT fire pointerenter when the event is cancelled (active = false)', () => {
+    it('does NOT fire pointerenter when the event is cancelled (isActive = false)', () => {
       const dispatcher = new PointerEventsToObjectDispatcher();
       const obj = makeTrackedObject();
       const emitSpy = vi.spyOn(obj.events, 'emit');
@@ -141,7 +141,7 @@ describe('PointerEventsToObjectDispatcher', () => {
       dispatcher.addPointerToObject(obj, 0);
 
       const downEvent = makePointerEvent('down', ex.PointerType.Touch);
-      downEvent.cancel(); // event.active = false
+      downEvent.cancel(); // event.isActive = false
       dispatcher.dispatchEvents(makeReceiver({ currentFrameDown: [downEvent] }), [obj]);
 
       expect(emitSpy).not.toHaveBeenCalledWith('pointerenter', expect.anything());
@@ -156,7 +156,7 @@ describe('PointerEventsToObjectDispatcher', () => {
         obj,
         () => false,
         () => false
-      ); // active = false
+      ); // isActive = false
       dispatcher.addPointerToObject(obj, 0);
 
       const downEvent = makePointerEvent('down', ex.PointerType.Touch);
@@ -275,7 +275,7 @@ describe('PointerEventsToObjectDispatcher', () => {
       expect(emitSpy).not.toHaveBeenCalledWith('pointerleave', expect.anything());
     });
 
-    it('does NOT fire pointerleave when the event is cancelled (active = false)', () => {
+    it('does NOT fire pointerleave when the event is cancelled (isActive = false)', () => {
       const dispatcher = new PointerEventsToObjectDispatcher();
       const obj = makeTrackedObject();
       const emitSpy = vi.spyOn(obj.events, 'emit');
@@ -290,7 +290,7 @@ describe('PointerEventsToObjectDispatcher', () => {
       dispatcher.addPointerToObject(obj, 0);
 
       const upEvent = makePointerEvent('up', ex.PointerType.Touch);
-      upEvent.cancel(); // event.active = false
+      upEvent.cancel(); // event.isActive = false
       dispatcher.dispatchEvents(makeReceiver({ currentFrameUp: [upEvent] }), [obj]);
 
       expect(emitSpy).not.toHaveBeenCalledWith('pointerleave', expect.anything());
@@ -305,7 +305,7 @@ describe('PointerEventsToObjectDispatcher', () => {
         obj,
         () => false,
         () => false
-      ); // active = false
+      ); // isActive = false
       dispatcher.addPointerToObject(obj, 0);
       dispatcher.clear();
       dispatcher.addPointerToObject(obj, 0);
@@ -440,7 +440,7 @@ describe('PointerEventsToObjectDispatcher', () => {
       expect(emitSpy).toHaveBeenCalledWith('pointerdragleave', cancelEvent);
     });
 
-    it('does NOT fire pointerleave or pointercancel when the cancel event is deactivated (active = false)', () => {
+    it('does NOT fire pointerleave or pointercancel when the cancel event is deactivated (isActive = false)', () => {
       const dispatcher = new PointerEventsToObjectDispatcher();
       const obj = makeTrackedObject();
       const emitSpy = vi.spyOn(obj.events, 'emit');
@@ -453,7 +453,7 @@ describe('PointerEventsToObjectDispatcher', () => {
       dispatcher.addPointerToObject(obj, 0);
 
       const cancelEvent = makePointerEvent('cancel', ex.PointerType.Touch);
-      cancelEvent.cancel(); // event.active = false
+      cancelEvent.cancel(); // event.isActive = false
       dispatcher.dispatchEvents(makeReceiver({ currentFrameCancel: [cancelEvent] }), [obj]);
 
       expect(emitSpy).not.toHaveBeenCalledWith('pointerleave', expect.anything());
@@ -490,7 +490,7 @@ describe('PointerEventsToObjectDispatcher', () => {
         obj,
         () => false,
         () => false
-      ); // active = false
+      ); // isActive = false
       dispatcher.addPointerToObject(obj, 0);
 
       const cancelEvent = makePointerEvent('cancel', ex.PointerType.Touch);

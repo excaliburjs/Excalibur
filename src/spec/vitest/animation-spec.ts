@@ -303,13 +303,13 @@ describe('A Graphics Animation', () => {
       ]
     });
     expect(anim.canFinish).toBe(true);
-    expect(anim.isDone).toBe(false);
+    expect(anim.isComplete).toBe(false);
     anim.play();
     anim.tick(50, 0);
     expect(anim.currentFrame).toBe(anim.frames[0]);
     anim.tick(50, 1);
     expect(anim.currentFrame).toBe(null);
-    expect(anim.isDone).toBe(true);
+    expect(anim.isComplete).toBe(true);
   });
 
   it('can be played with loop strategy', () => {

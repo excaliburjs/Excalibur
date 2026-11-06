@@ -698,8 +698,8 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
   /**
    * Returns whether excalibur detects the current screen to be HiDPI
    */
-  public get isHiDpi(): boolean {
-    return this.screen.isHiDpi;
+  public get isHiDPI(): boolean {
+    return this.screen.isHiDPI;
   }
 
   /**
@@ -1712,7 +1712,7 @@ O|===|* >________________>\n\
     }
   }
 
-  public toggleInputEnabled(enabled: boolean) {
+  public setInputEnabled(enabled: boolean) {
     this._inputEnabled = enabled;
     this.input.setEnabled(this._inputEnabled);
   }
@@ -1885,10 +1885,10 @@ O|===|* >________________>\n\
 
   /**
    * Enable or disable Excalibur debugging functionality.
-   * @param toggle a value that debug drawing will be changed to
+   * @param show whether debug drawing is shown
    */
-  public showDebug(toggle: boolean): void {
-    this._isDebug = toggle;
+  public showDebug(show: boolean): void {
+    this._isDebug = show;
   }
 
   /**
@@ -1913,7 +1913,7 @@ O|===|* >________________>\n\
    * True once the engine has finished starting up, see {@apilink Engine.ready} to await it
    */
   public get isReady(): boolean {
-    return this._isReadyFuture.isCompleted;
+    return this._isReadyFuture.isComplete;
   }
 
   /**

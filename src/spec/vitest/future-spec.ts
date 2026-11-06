@@ -15,10 +15,10 @@ describe('A Future', () => {
     new Promise<void>((done) => {
       const future = new ex.Future<void>();
 
-      expect(future.isCompleted).toBe(false);
+      expect(future.isComplete).toBe(false);
 
       future.promise.then(() => {
-        expect(future.isCompleted).toBe(true);
+        expect(future.isComplete).toBe(true);
         done();
       });
       future.resolve();
@@ -28,10 +28,10 @@ describe('A Future', () => {
     new Promise<void>((done) => {
       const future = new ex.Future<void>();
 
-      expect(future.isCompleted).toBe(false);
+      expect(future.isComplete).toBe(false);
 
       future.promise.then(() => {
-        expect(future.isCompleted).toBe(true);
+        expect(future.isComplete).toBe(true);
         done();
       });
       expect(() => {
@@ -46,11 +46,11 @@ describe('A Future', () => {
     new Promise<void>((done) => {
       const future = new ex.Future<void>();
 
-      expect(future.isCompleted).toBe(false);
+      expect(future.isComplete).toBe(false);
 
       future.promise.catch((err) => {
         expect(err).toEqual(new Error('Some error'));
-        expect(future.isCompleted).toBe(true);
+        expect(future.isComplete).toBe(true);
         done();
       });
       future.reject(new Error('Some error'));
@@ -60,10 +60,10 @@ describe('A Future', () => {
     new Promise<void>((done) => {
       const future = new ex.Future<void>();
 
-      expect(future.isCompleted).toBe(false);
+      expect(future.isComplete).toBe(false);
 
       future.promise.catch(() => {
-        expect(future.isCompleted).toBe(true);
+        expect(future.isComplete).toBe(true);
         done();
       });
       expect(() => {

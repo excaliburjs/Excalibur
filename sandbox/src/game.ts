@@ -154,7 +154,7 @@ class CustomRenderer implements ex.RendererPlugin {
   draw(...args: any[]): void {
     console.log('custom draw', ...args);
   }
-  hasPendingDraws(): boolean {
+  get hasPendingDraws(): boolean {
     return false;
   }
   flush(): void {

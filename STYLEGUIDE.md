@@ -55,9 +55,11 @@
 - Use JavaScript getters/setters for things that feel like properties, but have logic behind them
 - Use getters for things that should be strict `readonly` properties
 - Use properties for quantities that have no logic behind them
-- Use methods for commands, performing an action, or making queries
-- Prefer verbs like `show()` or `hide()` for booleans instead of properties like `.isVisible = true`
-  - Example: `isDebug` should be `enableDebug()`/`disableDebug()` or `toggleDebug() // returns current mode`
+- Use methods for commands, performing an action, or queries that take arguments
+- Name synchronous boolean state `isX`/`hasX` and expose it as a property or getter, never a zero-arg `isX()` method (`actor.isKilled`, `actor.isVisible = false`)
+  - Use a verb method when the call has a side effect or does real work (`engine.start()`, `contact.cancel()`, `input.setEnabled(false)`)
+  - Async state is a Promise property without the `is` (`await engine.ready`), the synchronous check is `engine.isReady`
+  - See the API Naming section of `site/docs/02-fundamentals/02-conventions.mdx` for the full rules and exceptions
 
 #### CONSIDER
 

@@ -6,7 +6,7 @@ section: Input
 
 You can query any [[Input.Gamepad|Gamepads]] that are connected or listen to events ("button" and "axis").
 
-You must opt-in to controller support ([[Input.Gamepads.enabled|engine.inputs.gamepads.enabled]]) because it is a polling-based
+You must opt-in to controller support ([[Input.Gamepads.pollingEnabled|engine.inputs.gamepads.pollingEnabled]]) because it is a polling-based
 API, so we have to check it each update frame. If an gamepad related event handler is set, you will
 automatically opt-in to controller polling.
 
@@ -74,7 +74,7 @@ a [[GamepadButtonEvent]] to your handler.
 
 ```js
 // enable gamepad support
-engine.input.gamepads.enabled = true
+engine.input.gamepads.pollingEnabled = true
 // query gamepad on update
 engine.on('update', function (ev) {
   // access any gamepad by index
@@ -104,7 +104,7 @@ which passes a [[GamepadAxisEvent]] to your handler.
 
 ```js
 // enable gamepad support
-engine.input.gamepads.enabled = true;
+engine.input.gamepads.pollingEnabled = true;
 // query gamepad on update
 engine.on('update', function(ev) {
   // access any gamepad by index

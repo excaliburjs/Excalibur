@@ -65,7 +65,7 @@ export class Transition extends Entity {
   private _co?: CoroutineInstance;
 
   // State needs to be reset between uses
-  public started = false;
+  public hasStarted = false;
   private _currentDistance: number = 0;
   private _currentProgress: number = 0;
 
@@ -193,7 +193,7 @@ export class Transition extends Entity {
    * reset() is called by the engine to reset transitions
    */
   reset() {
-    this.started = false;
+    this.hasStarted = false;
     this._completeFuture = new Future<void>();
     this.done = this._completeFuture.promise;
     this._currentDistance = 0;
@@ -210,7 +210,7 @@ export class Transition extends Entity {
    */
   _addToTargetScene(engine: Engine, targetScene: Scene): CoroutineInstance {
     const currentScene = targetScene;
-    if (this.started) {
+    if (this.hasStarted) {
       this._logger.warn(`Attempted to add a transition ${this.name} that is already playing.`);
     }
 
@@ -241,7 +241,7 @@ export class Transition extends Entity {
    * @internal
    */
   async _play() {
-    if (this.started) {
+    if (this.hasStarted) {
       this.reset();
       this._logger.warn(`Attempted to play a transition ${this.name} that is already playing, reset transition.`);
     }
@@ -265,14 +265,14 @@ export class Transition extends Entity {
       return;
     }
 
-    if (!this.started) {
-      this.started = true;
+    if (!this.hasStarted) {
+      this.hasStarted = true;
       this.onStart(this.progress);
     }
 
     this.onUpdate(this.progress);
 
-    if (this.isComplete && !this._completeFuture.isCompleted) {
+    if (this.isComplete && !this._completeFuture.isComplete) {
       this.onEnd(this.progress);
       this._completeFuture.resolve();
     }

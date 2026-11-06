@@ -43,3 +43,4 @@ There are a few things that Excalibur does that are good to know before you star
 * Booleans that name a behavior to perform, or mirror a web platform property, keep their plain name: `sound.loop`, `sound.muted`, `graphics.smoothing`, `flipHorizontal`. Text formatting attributes follow CSS and typography vocabulary (`font.bold`, `font.family`), and common computer jargon like `enabled` is also left as is.
 * Anything that has a side effect or does real work is a verb method: `engine.start()`, `contact.cancel()`, `input.setEnabled(false)`.
 * Async state is a Promise property, never `isX()`: `await engine.ready`, `await track.done`. The synchronous check is `engine.isReady`.
+* Compound words are spelled consistently: `offscreen` is one word, matching `OffscreenCanvas` (`isOffscreen`, `OffscreenSystem`), while "on screen" splits in camelCase (`isOnScreen`, `forceOnScreen`, `onScreenOnly`). The acronym stays `HiDPI` (`isHiDPI`).

@@ -29,7 +29,7 @@ interface EdgeOptionsWithWeight {
    * Whether the edge is directed.
    * @default false
    */
-  directed?: boolean;
+  isDirected?: boolean;
 }
 
 interface EdgeOptionsWeightless {
@@ -39,7 +39,7 @@ interface EdgeOptionsWeightless {
    * Whether the edge is directed.
    * @default false
    */
-  directed?: boolean;
+  isDirected?: boolean;
 }
 
 interface EdgeOptionsWithEuclidean {
@@ -49,7 +49,7 @@ interface EdgeOptionsWithEuclidean {
    * Whether the edge is directed.
    * @default false
    */
-  directed?: boolean;
+  isDirected?: boolean;
 }
 
 /**
@@ -147,12 +147,12 @@ export class Graph<T> {
       return [];
     }
 
-    let directed;
+    let isDirected;
 
     if (options) {
-      directed = 'directed' in options ? options.directed : false;
+      isDirected = 'isDirected' in options ? options.isDirected : false;
     } else {
-      directed = false;
+      isDirected = false;
     }
 
     const newEdge = new Edge(from, to, options);
@@ -162,7 +162,7 @@ export class Graph<T> {
     to.registerNewEdge(newEdge);
     this.adjacencyList.get(from.id)?.add(to.id);
 
-    if (!directed) {
+    if (!isDirected) {
       const duplicateEdge = new Edge(to, from, options);
       this.adjacencyList.get(to.id)?.add(from.id);
       this._edges.add(duplicateEdge);

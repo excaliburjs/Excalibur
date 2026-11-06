@@ -484,7 +484,7 @@ export class Screen {
     this._pixelRatioOverride = value;
   }
 
-  public get isHiDpi() {
+  public get isHiDPI() {
     return this.pixelRatio !== 1;
   }
 

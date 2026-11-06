@@ -18,7 +18,7 @@ export const SubscribingToEvents: StoryObj = {
         });
       }
 
-      onInitialize() {
+      override onInitialize() {
         this.on(ex.EventTypes.PointerUp, () => {
           this.color = ex.Color.Black;
         });
@@ -77,7 +77,7 @@ export const ConfiguringPointerTarget: StoryObj = {
         this.get(ex.PointerComponent).useGraphicsBounds = useGraphics;
       }
 
-      onInitialize() {
+      override onInitialize() {
         this.on(ex.EventTypes.PointerUp, () => {
           this.rectangle.color = ex.Color.Black;
         });
@@ -143,7 +143,7 @@ export const DragEvents: StoryObj = {
         });
       }
 
-      onInitialize() {
+      override onInitialize() {
         this.on(ex.EventTypes.PointerDragStart, () => {
           this.color = ex.Color.Black;
         });
