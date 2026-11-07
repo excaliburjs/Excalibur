@@ -208,44 +208,49 @@ export class MaterialRenderer implements RendererPlugin {
     const bottomLeft = vec(dest[0] - padDestX, dest[1] + height + padDestY);
     const bottomRight = vec(dest[0] + width + padDestX, dest[1] + height + padDestY);
 
-    const topLeftScreen = transform.getPosition();
-    const bottomRightScreen = topLeftScreen.add(bottomRight);
-    const screenUVX0 = topLeftScreen.x / this._context.width;
-    const screenUVY0 = topLeftScreen.y / this._context.height;
-    const screenUVX1 = bottomRightScreen.x / this._context.width;
-    const screenUVY1 = bottomRightScreen.y / this._context.height;
+    // The screen texture covers the whole canvas, so the screen UV of each corner is its position after the full
+    // transform (scale, rotation, zoom, anchor offset included) in resolution space divided by the resolution.
+    // The projection is in resolution space, not physical pixels, so don't divide by the canvas size (wrong at DPR != 1)
+    // The screen texture is stored bottom-up (GL convention) while resolution space is top-down, so flip y to make
+    // texture(u_screen_texture, v_screenuv) show what is behind the pixel
+    const resolutionWidth = this._context.resolutionWidth;
+    const resolutionHeight = this._context.resolutionHeight;
+    const topLeftScreen = transform.multiply(topLeft);
+    const topRightScreen = transform.multiply(topRight);
+    const bottomLeftScreen = transform.multiply(bottomLeft);
+    const bottomRightScreen = transform.multiply(bottomRight);
 
     // (0, 0) - 0
     vertexBuffer[vertexIndex++] = topLeft.x;
     vertexBuffer[vertexIndex++] = topLeft.y;
     vertexBuffer[vertexIndex++] = uvx0;
     vertexBuffer[vertexIndex++] = uvy0;
-    vertexBuffer[vertexIndex++] = screenUVX0;
-    vertexBuffer[vertexIndex++] = screenUVY0;
+    vertexBuffer[vertexIndex++] = topLeftScreen.x / resolutionWidth;
+    vertexBuffer[vertexIndex++] = 1 - topLeftScreen.y / resolutionHeight;
 
     // (0, 1) - 1
     vertexBuffer[vertexIndex++] = bottomLeft.x;
     vertexBuffer[vertexIndex++] = bottomLeft.y;
     vertexBuffer[vertexIndex++] = uvx0;
     vertexBuffer[vertexIndex++] = uvy1;
-    vertexBuffer[vertexIndex++] = screenUVX0;
-    vertexBuffer[vertexIndex++] = screenUVY1;
+    vertexBuffer[vertexIndex++] = bottomLeftScreen.x / resolutionWidth;
+    vertexBuffer[vertexIndex++] = 1 - bottomLeftScreen.y / resolutionHeight;
 
     // (1, 0) - 2
     vertexBuffer[vertexIndex++] = topRight.x;
     vertexBuffer[vertexIndex++] = topRight.y;
     vertexBuffer[vertexIndex++] = uvx1;
     vertexBuffer[vertexIndex++] = uvy0;
-    vertexBuffer[vertexIndex++] = screenUVX1;
-    vertexBuffer[vertexIndex++] = screenUVY0;
+    vertexBuffer[vertexIndex++] = topRightScreen.x / resolutionWidth;
+    vertexBuffer[vertexIndex++] = 1 - topRightScreen.y / resolutionHeight;
 
     // (1, 1) - 3
     vertexBuffer[vertexIndex++] = bottomRight.x;
     vertexBuffer[vertexIndex++] = bottomRight.y;
     vertexBuffer[vertexIndex++] = uvx1;
     vertexBuffer[vertexIndex++] = uvy1;
-    vertexBuffer[vertexIndex++] = screenUVX1;
-    vertexBuffer[vertexIndex++] = screenUVY1;
+    vertexBuffer[vertexIndex++] = bottomRightScreen.x / resolutionWidth;
+    vertexBuffer[vertexIndex++] = 1 - bottomRightScreen.y / resolutionHeight;
 
     material.use();
 

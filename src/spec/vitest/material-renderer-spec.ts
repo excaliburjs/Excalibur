@@ -533,4 +533,130 @@ describe('A Material', () => {
       );
     });
   });
+
+  describe('screen uvs', () => {
+    const readPixel = (canvas: HTMLCanvasElement, x: number, y: number) => {
+      const copy = document.createElement('canvas');
+      copy.width = canvas.width;
+      copy.height = canvas.height;
+      const ctx2d = copy.getContext('2d')!;
+      ctx2d.drawImage(canvas, 0, 0);
+      return ctx2d.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
+    };
+
+    // Draws a quad with a material that outputs v_screenuv as (r, g) and checks the uv at the quad's center
+    const drawAndCheck = async (
+      physical: number,
+      resolution: number,
+      setup: (ctx: ex.ExcaliburGraphicsContextWebGL) => void,
+      center: ex.Vector
+    ) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = physical;
+      canvas.height = physical;
+      const context = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvas,
+        backgroundColor: ex.Color.Black,
+        antialiasing: false,
+        snapToPixel: false
+      });
+      context.updateViewport({ width: resolution, height: resolution });
+
+      const material = context.createMaterial({
+        name: 'screen-uv',
+        fragmentSource: `#version 300 es
+      precision highp float;
+      in vec2 v_screenuv;
+      out vec4 fragColor;
+      void main() {
+        fragColor = vec4(v_screenuv, 0.0, 1.0);
+      }`
+      });
+
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
+      await tex.load();
+
+      context.clear();
+      context.save();
+      context.material = material;
+      setup(context);
+      context.drawImage(tex.image, 0, 0, tex.width, tex.height, 0, 0, 20, 20);
+      context.flush();
+      context.restore();
+
+      // center is in resolution space, the canvas is physical pixels
+      const ratio = physical / resolution;
+      const pixel = readPixel(canvas, center.x * ratio, center.y * ratio);
+      context.dispose();
+      return { pixel, tex };
+    };
+
+    it('sampling u_screen_texture at v_screenuv shows what is behind the quad (not flipped)', async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 100;
+      canvas.height = 100;
+      const context = new ex.ExcaliburGraphicsContextWebGL({
+        canvasElement: canvas,
+        backgroundColor: ex.Color.Black,
+        antialiasing: false,
+        snapToPixel: false
+      });
+      context.updateViewport({ width: 100, height: 100 });
+      const material = context.createMaterial({
+        name: 'see-through',
+        fragmentSource: `#version 300 es
+      precision highp float;
+      in vec2 v_screenuv;
+      uniform sampler2D u_screen_texture;
+      out vec4 fragColor;
+      void main() {
+        fragColor = texture(u_screen_texture, v_screenuv);
+      }`
+      });
+      const tex = new ex.ImageSource('/src/spec/assets/images/material-renderer-spec/sword.png');
+      await tex.load();
+
+      context.clear();
+      // red on top, blue on the bottom
+      context.drawRectangle(ex.vec(0, 0), 100, 50, ex.Color.Red);
+      context.drawRectangle(ex.vec(0, 50), 100, 50, ex.Color.Blue);
+      context.flush();
+
+      // a quad covering the right half of the screen that just shows the screen behind it
+      context.save();
+      context.material = material;
+      context.drawImage(tex.image, 0, 0, tex.width, tex.height, 50, 0, 50, 100);
+      context.flush();
+      context.restore();
+
+      const top = readPixel(canvas, 75, 10);
+      const bottom = readPixel(canvas, 75, 90);
+      context.dispose();
+      expect([top[0], top[1], top[2]]).toEqual([255, 0, 0]);
+      expect([bottom[0], bottom[1], bottom[2]]).toEqual([0, 0, 255]);
+    });
+
+    it('are relative to the resolution, not the physical canvas size (DPR 2)', async () => {
+      const resolution = 100;
+      const center = ex.vec(10, 10); // quad spans (0, 0) -> (20, 20)
+      const { pixel } = await drawAndCheck(200, resolution, () => undefined, center);
+      expect(pixel[0]).toBeCloseTo((center.x / resolution) * 255, -1);
+      expect(pixel[1]).toBeCloseTo((1 - center.y / resolution) * 255, -1);
+    });
+
+    it('follow the full transform (translate + scale) and are the same at DPR 1 and 2', async () => {
+      const resolution = 100;
+      const setup = (ctx: ex.ExcaliburGraphicsContextWebGL) => {
+        ctx.translate(10, 20);
+        ctx.scale(2, 2);
+      };
+      const center = ex.vec(30, 40); // quad spans (10, 20) -> (50, 60)
+      const dpr1 = await drawAndCheck(100, resolution, setup, center);
+      const dpr2 = await drawAndCheck(200, resolution, setup, center);
+      for (const { pixel } of [dpr1, dpr2]) {
+        expect(pixel[0]).toBeCloseTo((center.x / resolution) * 255, -1);
+        expect(pixel[1]).toBeCloseTo((1 - center.y / resolution) * 255, -1);
+      }
+    });
+  });
 });

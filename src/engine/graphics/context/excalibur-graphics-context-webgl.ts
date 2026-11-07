@@ -257,6 +257,25 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     return this._ortho;
   }
 
+  private _resolutionWidth = 0;
+  private _resolutionHeight = 0;
+  /**
+   * Width of the drawing coordinate space the {@apilink ortho} projection maps onto the screen (the screen resolution),
+   * differs from {@apilink width} (physical canvas pixels) whenever the device pixel ratio is not 1
+   * @internal
+   */
+  public get resolutionWidth(): number {
+    return this._resolutionWidth || this.width;
+  }
+
+  /**
+   * Height of the drawing coordinate space the {@apilink ortho} projection maps onto the screen (the screen resolution)
+   * @internal
+   */
+  public get resolutionHeight(): number {
+    return this._resolutionHeight || this.height;
+  }
+
   /**
    * The {@apilink Framebuffer} the current frame is being drawn into.
    *
@@ -624,6 +643,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public updateViewport(resolution: Resolution): void {
     const gl = this.__gl;
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
+    this._resolutionWidth = resolution.width;
+    this._resolutionHeight = resolution.height;
 
     this._renderTarget.resize(gl.canvas.width, gl.canvas.height);
     this._msaaTarget?.resize(gl.canvas.width, gl.canvas.height);
