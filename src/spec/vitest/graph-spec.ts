@@ -109,6 +109,26 @@ describe('A Graph', () => {
       graph.deleteEdge(edges[0]);
       expect(graph.edges.size).toBe(0);
     });
+    it('should update the adjacency list when deleting edges', () => {
+      const nodeA = graph.addNode('A');
+      const nodeB = graph.addNode('B');
+      const nodeC = graph.addNode('C');
+
+      const undirected = graph.addEdge(nodeA, nodeB);
+      const directed = graph.addEdge(nodeB, nodeC, { isDirected: true });
+      expect(graph.areNodesConnected(nodeA, nodeB)).toBe(true);
+      expect(graph.areNodesConnected(nodeB, nodeA)).toBe(true);
+
+      graph.deleteEdge(undirected[0]);
+      expect(graph.areNodesConnected(nodeA, nodeB)).toBe(false);
+      expect(graph.areNodesConnected(nodeB, nodeA)).toBe(false);
+      expect(graph.getNeighbors(nodeA)).toEqual([]);
+      expect(graph.bfs(nodeA)).toEqual([nodeA.id]);
+
+      expect(graph.areNodesConnected(nodeB, nodeC)).toBe(true);
+      graph.deleteEdge(directed[0]);
+      expect(graph.areNodesConnected(nodeB, nodeC)).toBe(false);
+    });
   });
 
   describe('Graph queries', () => {
@@ -372,7 +392,32 @@ describe('A Graph', () => {
       expect(result.path?.[0]).toBe(nodeA as ex.PositionNode<string>);
       expect(result.path?.[1]).toBe(nodeB as ex.PositionNode<string>);
       expect(result.path?.[2]).toBe(nodeD as ex.PositionNode<string>);
-      expect(result.distance).toBe(5);
+      // A->B (3) + B->D (4), weightless edges cost the euclidean distance between nodes
+      expect(result.distance).toBe(7);
+    });
+
+    it('prefers a cheaper weighted route over a fewer-hop expensive one', () => {
+      const a = graph.addNode('A', new ex.Vector(0, 0));
+      const b = graph.addNode('B', new ex.Vector(10, 0));
+      const c = graph.addNode('C', new ex.Vector(5, 1));
+      const d = graph.addNode('D', new ex.Vector(8, 1));
+      graph.addEdge(a, b, { weight: 100 }); // direct but expensive
+      graph.addEdge(a, c, { weight: 6 });
+      graph.addEdge(c, d, { weight: 3 });
+      graph.addEdge(d, b, { weight: 3 });
+
+      const result = graph.aStar(a as ex.PositionNode<string>, b as ex.PositionNode<string>);
+
+      expect(result.path?.map((n) => n.data)).toEqual(['A', 'C', 'D', 'B']);
+      expect(result.distance).toBe(12);
+      expect(result.pathSteps).toBe(3);
+    });
+
+    it('returns distance 0 when start is the end', () => {
+      const a = graph.addNode('A', new ex.Vector(0, 0));
+      const result = graph.aStar(a as ex.PositionNode<string>, a as ex.PositionNode<string>);
+      expect(result.distance).toBe(0);
+      expect(result.path?.length).toBe(1);
     });
 
     it('should throw error when A* is used with non-PositionNodes', () => {

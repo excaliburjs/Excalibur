@@ -186,15 +186,23 @@ export class Graph<T> {
    */
 
   deleteEdge(edge: Edge<T>) {
+    this._removeEdge(edge);
+
+    const partnerEdge = edge.partnerEdge;
+    if (partnerEdge) {
+      this._removeEdge(partnerEdge);
+    }
+  }
+
+  private _removeEdge(edge: Edge<T>) {
     edge.source.breakEdge(edge);
     edge.target.breakEdge(edge);
     this._edges.delete(edge);
 
-    const partnerEdge = edge.partnerEdge;
-    if (partnerEdge) {
-      partnerEdge.source.breakEdge(partnerEdge);
-      partnerEdge.target.breakEdge(partnerEdge);
-      this._edges.delete(partnerEdge);
+    // Keep the adjacency list in sync, unless another edge still connects source -> target
+    const stillConnected = Array.from(edge.source.edges).some((e) => e !== edge && e.source === edge.source && e.target === edge.target);
+    if (!stillConnected) {
+      this.adjacencyList.get(edge.source.id)?.delete(edge.target.id);
     }
   }
 
@@ -505,15 +513,17 @@ export class Graph<T> {
   /**
    * Finds the shortest path between two nodes in the graph using the A* algorithm.
    *
-   * This method calculates the shortest path from the specified start node to the
-   * specified end node in the graph. It returns an object containing the path and
-   * the total distance of the path.
+   * The cost of an edge is its weight. Edges created without a weight (weight 0) cost the euclidean
+   * distance between their two nodes. The heuristic is the euclidean distance to the end node, so for
+   * the result to be optimal edge weights should not be smaller than the straight line distance
+   * between the nodes they connect.
    * @param startNode - The node from which the search for the shortest path begins.
    * @param endNode - The node where the search for the shortest path ends.
    * @returns An object containing:
    *   - `path`: An array of nodes representing the shortest path from startNode to endNode.
-   *     If no path is found, this will be `null`.
-   *   - `distance`: The total distance of the shortest path. If no path is found, this will
+   *     If no path is found, this will be an empty array.
+   *   - `pathSteps`: The number of edges in the path.
+   *   - `distance`: The total cost of the shortest path. If no path is found, this will
    *     be `Infinity`.
    *   - `skippedNodes`: A set of all nodes that were skipped during the search (because they
    *     were not `PositionNode`s).
@@ -532,112 +542,58 @@ export class Graph<T> {
       throw new Error('A* algorithm requires PositionNode with position vectors');
     }
 
-    // Initialize data structures
-    const openSet: Set<G_UUID> = new Set([startNode.id]);
-    const closedSet: Set<G_UUID> = new Set();
     const skippedNodes: Set<G_UUID> = new Set();
-
-    // Track g scores (distance from start) and f scores (estimated total cost)
-    const gScore: Map<G_UUID, number> = new Map();
-    const hScore: Map<G_UUID, number> = new Map();
-    const fScore: Map<G_UUID, number> = new Map();
-
-    // Track the path
-    const cameFrom: Map<G_UUID, G_UUID | null> = new Map();
-
-    // Initialize scores
-
-    //remap positionNodes from this._nodes where node is type of PositionNode
-    const positionNodes: Map<G_UUID, PositionNode<T>> = new Map();
     for (const [nodeId, node] of this._nodes) {
-      if ('pos' in node) {
-        positionNodes.set(nodeId, node as PositionNode<T>);
-      } else {
+      if (!('pos' in node)) {
         skippedNodes.add(nodeId);
       }
     }
 
-    for (const [nodeId] of positionNodes) {
-      gScore.set(nodeId, this._euclideanDistance(positionNodes.get(nodeId)!, startNode));
-      hScore.set(nodeId, this._euclideanDistance(positionNodes.get(nodeId)!, endNode));
-      fScore.set(nodeId, gScore.get(nodeId)! + hScore.get(nodeId)!);
-      cameFrom.set(nodeId, null);
-    }
+    // g score: cheapest known cost from the start to each node
+    const gScore: Map<G_UUID, number> = new Map([[startNode.id, 0]]);
+    const cameFrom: Map<G_UUID, G_UUID> = new Map();
+    const closedSet: Set<G_UUID> = new Set();
 
-    // Continue until we've visited all nodes or found the target
-    while (openSet.size > 0) {
-      // Find node with lowest fScore
-      let currentId: G_UUID | null = null;
-      let lowestFScore = Infinity;
+    // Min-heap on f = g + h, stale entries are skipped lazily when popped
+    const open = new MinHeap<G_UUID>();
+    open.push(startNode.id, this._euclideanDistance(startNode, endNode));
 
-      for (const nodeId of openSet) {
-        const score = fScore.get(nodeId) || Infinity;
-        if (score < lowestFScore) {
-          lowestFScore = score;
-          currentId = nodeId;
-        }
+    while (open.size > 0) {
+      const currentId = open.pop()!;
+      if (closedSet.has(currentId)) {
+        continue; // stale heap entry
       }
 
-      // If we can't find a node, there's no path
-      if (currentId === null) {
-        break;
-      }
-
-      // If we found the target, we're done
       if (currentId === endNode.id) {
-        // Reconstruct path
         const path: PositionNode<T>[] = [];
-        let current: G_UUID | null = endNode.id;
-
-        while (current !== null) {
-          const node = this._nodes.get(current)! as PositionNode<T>;
-          path.unshift(node);
-          current = cameFrom.get(current)!;
+        let current: G_UUID | undefined = endNode.id;
+        while (current !== undefined) {
+          path.unshift(this._nodes.get(current)! as PositionNode<T>);
+          current = cameFrom.get(current);
         }
-
-        return {
-          path,
-          pathSteps: path.length - 1,
-          distance: gScore.get(endNode.id) || Infinity,
-          skippedNodes
-        };
+        return { path, pathSteps: path.length - 1, distance: gScore.get(endNode.id)!, skippedNodes };
       }
 
-      // Move from open to closed set
-      openSet.delete(currentId);
       closedSet.add(currentId);
-
-      // Get current node
       const currentNode = this._nodes.get(currentId)! as PositionNode<T>;
+      const currentG = gScore.get(currentId)!;
 
-      // Check all neighbors
-      const neighbors = this.getNeighbors(currentNode);
-
-      for (const neighbor of neighbors) {
-        const neighborId = neighbor.id;
-
-        // Skip if neighbor has been processed
-        if (closedSet.has(neighborId)) {
+      for (const edge of currentNode.edges) {
+        if (edge.source.id !== currentId) {
+          continue; // incoming edge
+        }
+        const neighbor = edge.target as PositionNode<T>;
+        if (!('pos' in neighbor) || closedSet.has(neighbor.id)) {
           continue;
         }
 
-        // Ensure neighbor is a PositionNode
-        const positionNeighbor = neighbor as PositionNode<T>;
-        if (!('pos' in positionNeighbor)) {
-          continue;
-        }
-
-        // Find the edge connecting current to neighbor
-        const edge: Edge<T> = Array.from(currentNode.edges).find((e: Edge<T>) => e.source.id === currentId && e.target.id === neighborId)!;
-
-        if (!edge) {
-          continue;
-        }
-
-        cameFrom.set(neighborId, currentId);
-        // Add to open set if not already there
-        if (!openSet.has(neighborId)) {
-          openSet.add(neighborId);
+        const cost = edge.weight > 0 ? edge.weight : this._euclideanDistance(currentNode, neighbor);
+        const tentativeG = currentG + cost;
+        // Relax: only keep this route if it is cheaper than the best known one
+        if (tentativeG < (gScore.get(neighbor.id) ?? Infinity)) {
+          gScore.set(neighbor.id, tentativeG);
+          cameFrom.set(neighbor.id, currentId);
+          open.push(neighbor.id, tentativeG + this._euclideanDistance(neighbor, endNode));
         }
       }
     }
@@ -650,6 +606,61 @@ export class Graph<T> {
     const a = currentNode.pos;
     const b = testNode.pos;
     return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
+  }
+}
+
+/**
+ * Minimal binary min-heap keyed by priority, used by A*
+ */
+class MinHeap<V> {
+  private _items: { value: V; priority: number }[] = [];
+
+  get size() {
+    return this._items.length;
+  }
+
+  push(value: V, priority: number) {
+    const items = this._items;
+    items.push({ value, priority });
+    let i = items.length - 1;
+    while (i > 0) {
+      const parent = (i - 1) >> 1;
+      if (items[parent].priority <= items[i].priority) {
+        break;
+      }
+      [items[parent], items[i]] = [items[i], items[parent]];
+      i = parent;
+    }
+  }
+
+  pop(): V | undefined {
+    const items = this._items;
+    if (items.length === 0) {
+      return undefined;
+    }
+    const top = items[0];
+    const last = items.pop()!;
+    if (items.length > 0) {
+      items[0] = last;
+      let i = 0;
+      for (;;) {
+        const left = 2 * i + 1;
+        const right = left + 1;
+        let smallest = i;
+        if (left < items.length && items[left].priority < items[smallest].priority) {
+          smallest = left;
+        }
+        if (right < items.length && items[right].priority < items[smallest].priority) {
+          smallest = right;
+        }
+        if (smallest === i) {
+          break;
+        }
+        [items[smallest], items[i]] = [items[i], items[smallest]];
+        i = smallest;
+      }
+    }
+    return top.value;
   }
 }
 
