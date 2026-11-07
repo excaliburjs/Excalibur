@@ -955,7 +955,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'up'
       })
     });
@@ -963,7 +963,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'down'
       })
     });
@@ -971,7 +971,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'left'
       })
     });
@@ -979,7 +979,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'right'
       })
     });

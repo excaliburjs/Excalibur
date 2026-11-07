@@ -189,7 +189,7 @@ describe('A Slide transition', () => {
       const sut = new ex.Slide({
         duration: 1000,
         slideDirection: 'up',
-        easingFunction: ex.easeInOutCubic
+        easing: ex.easeInOutCubic
       });
       const scene = new ex.Scene();
       scene.add(
