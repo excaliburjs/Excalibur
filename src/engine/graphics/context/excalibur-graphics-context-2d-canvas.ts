@@ -1,3 +1,5 @@
+import type { ExcaliburGraphicsContextWebGL } from './excalibur-graphics-context-webgl';
+import { Logger } from '../../util/log';
 import type {
   ExcaliburGraphicsContext,
   LineGraphicsOptions,
@@ -376,12 +378,19 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
     // pass
   }
 
+  public asWebGL(feature: string): ExcaliburGraphicsContextWebGL | null {
+    Logger.getInstance().warnOnce(
+      `${feature} requires the WebGL graphics context, but Excalibur is using the Canvas 2D fallback, it will have no effect.`
+    );
+    return null;
+  }
+
   public register<T extends RendererPlugin>(_renderer: T): void {
-    // WebGL only - no-op in Canvas 2D fallback
+    this.asWebGL('ExcaliburGraphicsContext.register()');
   }
 
   public lazyRegister<TRenderer extends RendererPlugin>(_type: TRenderer['type'], _renderer: () => TRenderer): void {
-    // WebGL only - no-op in Canvas 2D fallback
+    this.asWebGL('ExcaliburGraphicsContext.lazyRegister()');
   }
 
   public get(_rendererName: string): RendererPlugin | null {
@@ -390,7 +399,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   public draw<TRenderer extends RendererPlugin>(_rendererName: TRenderer['type'], ..._args: Parameters<TRenderer['draw']>): void {
-    // WebGL only - no-op in Canvas 2D fallback
+    this.asWebGL('ExcaliburGraphicsContext.draw()');
   }
 
   public beginDrawLifecycle() {
@@ -410,7 +419,7 @@ export class ExcaliburGraphicsContext2DCanvas implements ExcaliburGraphicsContex
   }
 
   public createMaterial(options: Omit<MaterialOptions, 'graphicsContext'>): Material {
-    // pass
+    this.asWebGL('ExcaliburGraphicsContext.createMaterial()');
     return null as any;
   }
 

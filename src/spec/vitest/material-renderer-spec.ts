@@ -283,7 +283,7 @@ describe('A Material', () => {
         antialiasing: false,
         snapToPixel: true
       });
-      const graphicsContext = engine.graphicsContext as ex.ExcaliburGraphicsContextWebGL;
+      const graphicsContext = engine.graphicsContext;
       const material = new ex.Material({
         name: 'test',
         graphicsContext,

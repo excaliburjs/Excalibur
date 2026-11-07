@@ -3,6 +3,25 @@ import { TextureLoader } from '@excalibur';
 
 describe('The ExcaliburGraphicsContext', () => {
   describe('2D', () => {
+    it('asWebGL() returns null and warns once for WebGL only features', () => {
+      const logger = ex.Logger.getInstance();
+      const warnSpy = vi.spyOn(logger, 'warnOnce');
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement: document.createElement('canvas') });
+
+      expect(ctx.asWebGL('MyFeature')).toBeNull();
+      expect(ctx.asWebGL('MyFeature')).toBeNull();
+      expect(warnSpy).toHaveBeenCalledTimes(2); // dedupes inside the logger
+      expect(warnSpy.mock.calls[0]).toEqual(warnSpy.mock.calls[1]);
+      expect(String(warnSpy.mock.calls[0][0])).toContain('MyFeature');
+      warnSpy.mockRestore();
+    });
+
+    it('does not throw when WebGL only effects are created against it', () => {
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement: document.createElement('canvas') });
+      expect(() => new ex.BlurEffect({ graphicsContext: ctx })).not.toThrow();
+      expect(() => new ex.BloomEffect({ graphicsContext: ctx })).not.toThrow();
+    });
+
     let testCanvasElement: HTMLCanvasElement;
     let testContext: CanvasRenderingContext2D;
     beforeAll(() => {

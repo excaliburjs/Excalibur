@@ -166,7 +166,7 @@ class CustomRenderer implements ex.RendererPlugin {
 }
 const customRenderer = new CustomRenderer();
 
-(game.graphicsContext as ex.ExcaliburGraphicsContextWebGL).register(customRenderer);
+game.graphicsContext.register(customRenderer);
 
 game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);

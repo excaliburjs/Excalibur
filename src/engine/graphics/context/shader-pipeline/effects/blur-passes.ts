@@ -1,5 +1,5 @@
 import { vec } from '../../../../math/vector';
-import type { ExcaliburGraphicsContextWebGL } from '../../excalibur-graphics-context-webgl';
+import type { ExcaliburGraphicsContext } from '../../excalibur-graphics-context';
 import { glsl } from '../../glsl';
 import type { Shader } from '../../shader';
 import type { ShaderPassDestination, ShaderPassSource } from '../shader-pass';
@@ -8,7 +8,7 @@ import type { ShaderPipelineLike, ShaderPipelineProcessOptions } from '../shader
 import { ShaderPipeline } from '../shader-pipeline';
 
 export interface BlurPassesOptions {
-  graphicsContext: ExcaliburGraphicsContextWebGL;
+  graphicsContext: ExcaliburGraphicsContext;
   /**
    * Resolution the blur runs at relative to the source, default 0.5 (half resolution).
    *

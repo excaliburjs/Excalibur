@@ -1,6 +1,7 @@
 import { vec } from '../../../../math/vector';
 import { ImageFiltering } from '../../../filtering';
 import type { ExcaliburGraphicsContextWebGL } from '../../excalibur-graphics-context-webgl';
+import type { ExcaliburGraphicsContext } from '../../excalibur-graphics-context';
 import { Framebuffer } from '../../framebuffer';
 import { glsl } from '../../glsl';
 import type { Shader } from '../../shader';
@@ -10,7 +11,7 @@ import type { ShaderPipelineLike, ShaderPipelineProcessOptions } from '../shader
 import { mergePassSources } from '../shader-pipeline';
 
 export interface BloomEffectOptions {
-  graphicsContext: ExcaliburGraphicsContextWebGL;
+  graphicsContext: ExcaliburGraphicsContext;
   /**
    * Luminance cutoff (0-1) above which pixels contribute to the bloom, default 0.8
    */
@@ -138,7 +139,7 @@ void main() {
  * ```
  */
 export class BloomEffect implements ShaderPipelineLike {
-  private _graphicsContext: ExcaliburGraphicsContextWebGL;
+  private _graphicsContext: ExcaliburGraphicsContextWebGL | null;
   private _levels: number;
   private _threshold: ShaderPass;
   private _downsample: ShaderPass;
@@ -150,7 +151,7 @@ export class BloomEffect implements ShaderPipelineLike {
 
   constructor(options: BloomEffectOptions) {
     const { graphicsContext, threshold, intensity, levels } = options;
-    this._graphicsContext = graphicsContext;
+    this._graphicsContext = graphicsContext.asWebGL('BloomEffect');
     this._levels = Math.max(1, levels ?? 4);
     this._threshold = new ShaderPass({
       graphicsContext,
@@ -204,7 +205,7 @@ export class BloomEffect implements ShaderPipelineLike {
     this._combine.uniforms.u_intensity = value;
   }
 
-  private _ensureFramebuffers(sourceWidth: number, sourceHeight: number): void {
+  private _ensureFramebuffers(graphicsContext: ExcaliburGraphicsContextWebGL, sourceWidth: number, sourceHeight: number): void {
     let width = sourceWidth;
     let height = sourceHeight;
     for (let level = 0; level < this._levels; level++) {
@@ -213,7 +214,7 @@ export class BloomEffect implements ShaderPipelineLike {
       if (!this._downFramebuffers[level]) {
         // linear filtering is what makes the bilinear tap patterns work
         this._downFramebuffers[level] = new Framebuffer({
-          graphicsContext: this._graphicsContext,
+          graphicsContext,
           width,
           height,
           filtering: ImageFiltering.Blended
@@ -225,7 +226,7 @@ export class BloomEffect implements ShaderPipelineLike {
       if (level < this._levels - 1) {
         if (!this._upFramebuffers[level]) {
           this._upFramebuffers[level] = new Framebuffer({
-            graphicsContext: this._graphicsContext,
+            graphicsContext,
             width,
             height,
             filtering: ImageFiltering.Blended
@@ -244,8 +245,11 @@ export class BloomEffect implements ShaderPipelineLike {
     const elapsed = options?.elapsed;
     const uniforms = options?.uniforms;
     const extraSources = options?.sources;
+    if (!this._graphicsContext) {
+      return; // Canvas 2D fallback, already warned
+    }
     const [sourceWidth, sourceHeight] = getSourceDimensions(this._graphicsContext, source);
-    this._ensureFramebuffers(sourceWidth, sourceHeight);
+    this._ensureFramebuffers(this._graphicsContext, sourceWidth, sourceHeight);
 
     // extract bright areas into the first half-resolution level
     this._threshold.draw({

@@ -513,6 +513,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
   }
 
+  public asWebGL(_feature: string): ExcaliburGraphicsContextWebGL {
+    return this;
+  }
+
   public register<T extends RendererPlugin>(renderer: T) {
     this._renderers.set(renderer.type, renderer);
     renderer.initialize(this.__gl, this);
