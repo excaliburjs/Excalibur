@@ -130,6 +130,30 @@ describe('Clocks', () => {
       expect(scheduledCb).not.toHaveBeenCalled();
     });
 
+    it('does not accumulate cancelled schedule ids', () => {
+      const testClock = new ex.TestClock({
+        tick: () => {
+          /* nothing */
+        },
+        defaultUpdateMs: 10
+      });
+      testClock.start();
+
+      const cb = vi.fn();
+      for (let i = 0; i < 100; i++) {
+        testClock.clearSchedule(testClock.schedule(cb, 1000));
+      }
+      // clearing an id that already fired or never existed is also harmless
+      testClock.clearSchedule(9999);
+      testClock.step(10);
+
+      expect((testClock as any)._idsToRemove.size).toBe(0);
+      expect((testClock as any)._scheduledCbs.length).toBe(0);
+
+      testClock.step(2000);
+      expect(cb).not.toHaveBeenCalled();
+    });
+
     it('can clear scheduled callbacks during dispatch of callbacks', () => {
       const testClock = new ex.TestClock({
         tick: () => {
