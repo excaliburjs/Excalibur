@@ -543,8 +543,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
   /**
    * Sets the color of the actor's current graphic
    */
-  public get color(): Color {
-    return this.graphics.color!;
+  public get color(): Color | undefined {
+    return this.graphics.color;
   }
   public set color(v: Color) {
     this.graphics.color = v;
@@ -679,12 +679,16 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
 
   public override clone(): Actor {
     const clone = new Actor({
-      color: this.color.clone(),
+      color: this.color?.clone(),
       anchor: this.anchor.clone(),
       offset: this.offset.clone()
     });
     clone.clearComponents();
     clone.processComponentRemoval();
+
+    // clearComponents removed the pause component, restore it with the source's setting
+    clone.pauseComponent.canPause = this.pauseComponent.canPause;
+    clone.addComponent(clone.pauseComponent, true);
 
     // Clone builtins, order is important, same as ctor
     clone.addComponent((clone.transform = this.transform.clone() as TransformComponent), true);
@@ -704,7 +708,8 @@ export class Actor extends Entity implements Eventable, PointerEvents, CanInitia
       this.motion,
       this.actions,
       this.body,
-      this.collider
+      this.collider,
+      this.pauseComponent
     ];
 
     // Clone non-builtin the current actors components

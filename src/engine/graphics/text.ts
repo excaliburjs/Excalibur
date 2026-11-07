@@ -48,7 +48,7 @@ export class Text extends Graphic {
   public clone(): Text {
     return new Text({
       text: this.text.slice(),
-      color: this.color?.clone() ?? Color.Black,
+      color: this.color?.clone(),
       font: this.font.clone(),
       maxWidth: this.maxWidth
     });

@@ -157,6 +157,7 @@ export class TransformComponent extends Component {
   override clone(): TransformComponent {
     const component = new TransformComponent();
     component._transform = this._transform.clone();
+    component._coordPlane = this._coordPlane;
     return component;
   }
 

@@ -205,16 +205,18 @@ export class Animation extends Graphic implements HasTick {
 
   public clone<T extends typeof Animation>(): InstanceType<T> {
     const ctor = this.constructor as T;
-    return new ctor({
+    // this.frames are already in (possibly reversed) play order, so copy them as is and carry the flag over
+    const clone = new ctor({
       frames: this.frames.map((f) => ({ ...f })),
       frameDuration: this.frameDuration,
       speed: this.speed,
-      reverse: this._reversed,
       strategy: this.strategy,
       shouldAlwaysTick: this.shouldAlwaysTick,
-      data: this.data,
+      data: Object.fromEntries(this.data),
       ...this.cloneGraphicOptions()
     }) as InstanceType<T>;
+    (clone as Animation)._reversed = this._reversed;
+    return clone;
   }
 
   public override get width(): number {

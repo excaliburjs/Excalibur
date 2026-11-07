@@ -372,6 +372,10 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    */
   public clone(): Entity {
     const newEntity = new Entity();
+    newEntity.name = this.name;
+    for (const tag of this._tags) {
+      newEntity.addTag(tag);
+    }
     for (const c of this.types) {
       const componentInstance = this.get(c);
       if (componentInstance) {

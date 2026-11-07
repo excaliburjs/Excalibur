@@ -56,6 +56,7 @@ export class GraphicsGroup extends Graphic implements HasTick {
     return new GraphicsGroup({
       members: [...this.members],
       shouldAlwaysTick: this.shouldAlwaysTick,
+      useAnchor: this.useAnchor,
       ...this.cloneGraphicOptions()
     });
   }

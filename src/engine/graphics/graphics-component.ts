@@ -522,9 +522,9 @@ export class GraphicsComponent extends Component {
     if (this.color) {
       graphics.color = this.color.clone();
     }
-    if (this.current) {
-      this.use(this.current);
-    }
+    graphics._current = this._current;
+    graphics.flipHorizontal = this.flipHorizontal;
+    graphics.flipVertical = this.flipVertical;
     graphics.opacity = this.opacity;
     graphics.anchor = this.anchor.clone();
     graphics.copyGraphics = this.copyGraphics;

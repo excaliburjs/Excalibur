@@ -124,7 +124,8 @@ export class EdgeCollider extends Collider {
   public clone(): EdgeCollider {
     return new EdgeCollider({
       begin: this.begin.clone(),
-      end: this.end.clone()
+      end: this.end.clone(),
+      offset: this.offset.clone()
     });
   }
 
