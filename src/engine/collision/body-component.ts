@@ -182,7 +182,8 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
   public sleepMotion!: number;
 
   /**
-   * Can this body sleep, by default bodies do not sleep
+   * Can this body sleep, by default bodies can sleep (see `canSleepByDefault` in the physics config `bodies` section).
+   * Only {@apilink CollisionType.Active} bodies will actually fall asleep.
    */
   public canSleep: boolean = this.collisionType === CollisionType.Active;
 
