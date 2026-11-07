@@ -1,5 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
-
 var game = new ex.Engine({ width: 500, height: 500 });
 game.backgroundColor = ex.Color.fromHex('#eeeeee');
 
@@ -63,8 +61,8 @@ class PointLabel extends ex.Actor {
 
     var xx = this.point.expectedX;
     var xy = this.point.expectedY;
-    var ax = this.point.getGlobalPos().x;
-    var ay = this.point.getGlobalPos().y;
+    var ax = this.point.globalPos.x;
+    var ay = this.point.globalPos.y;
 
     this._expectLabel.text = `(${xx}, ${xy})`;
     this._actualLabel.text = `(${ax}, ${ay})`;

@@ -1,5 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
-
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 600,
@@ -61,19 +59,8 @@ game.onPostUpdate = (engine) => {
 var vectorPos = new ex.Vector(100, 100);
 game.onPostDraw = (ctx) => {
   if (collisionVector) {
-    ctx.beginPath();
-    ctx.strokeStyle = 'yellow';
-    ctx.moveTo(vectorPos.x, vectorPos.y);
-    ctx.arc(vectorPos.x, vectorPos.y, 3, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.strokeStyle = 'yellow';
-    ctx.moveTo(vectorPos.x, vectorPos.y);
-    ctx.lineTo(vectorPos.x + collisionVector.x, vectorPos.y + collisionVector.y);
-    ctx.stroke();
-    ctx.closePath();
+    ctx.drawCircle(vectorPos, 3, ex.Color.Transparent, ex.Color.Yellow, 1);
+    ctx.drawLine(vectorPos, vectorPos.add(collisionVector), ex.Color.Yellow, 1);
   }
 };
 

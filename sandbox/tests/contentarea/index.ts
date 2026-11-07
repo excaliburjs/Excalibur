@@ -32,7 +32,7 @@ engine.currentScene.onPreDraw = (ctx: ex.ExcaliburGraphicsContext) => {
   bb.left++;
   bb.bottom--;
   bb.right--;
-  bb.draw(ctx, ex.Color.Yellow);
+  ctx.drawRectangle(ex.vec(bb.left, bb.top), bb.width, bb.height, ex.Color.Transparent, ex.Color.Yellow, 1);
 
   ctx.drawCircle(ex.vec(bb.left + 6, bb.top + 6), 10, green);
   ctx.drawCircle(ex.vec(bb.right - 6, bb.top + 6), 10, blue);

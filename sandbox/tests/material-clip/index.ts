@@ -1,4 +1,3 @@
-/// <reference path="../../lib/excalibur.d.ts" />
 var glsl = ex.glsl;
 
 var game = new ex.Engine({
@@ -301,3 +300,5 @@ game.start(loader).then(async () => {
   // const image = await game.screenshot(true);
   // document.body.appendChild(image);
 });
+
+export {};

@@ -1,5 +1,3 @@
-/// <reference path="../../lib/excalibur.d.ts" />
-
 // identity tagged template literal lights up glsl-literal vscode plugin
 var glsl = (x) => x[0];
 var game = new ex.Engine({

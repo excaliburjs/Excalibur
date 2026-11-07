@@ -278,9 +278,9 @@ export class CollisionSystem extends System {
         const side = Side.fromDirection(c.mtv);
         const opposite = Side.getOpposite(side);
         colliderA.events.emit('collisionstart', new CollisionStartEvent(colliderA, colliderB, side, c));
-        colliderA.events.emit('contactstart', new ContactStartEvent(colliderA, colliderB, side, c) as any);
+        colliderA.events.emit('contactstart', new ContactStartEvent(colliderA, colliderB, side, c));
         colliderB.events.emit('collisionstart', new CollisionStartEvent(colliderB, colliderA, opposite, c));
-        colliderB.events.emit('contactstart', new ContactStartEvent(colliderB, colliderA, opposite, c) as any);
+        colliderB.events.emit('contactstart', new ContactStartEvent(colliderB, colliderA, opposite, c));
       }
     }
 
@@ -294,9 +294,9 @@ export class CollisionSystem extends System {
         const side = Side.fromDirection(c.mtv);
         const opposite = Side.getOpposite(side);
         colliderA.events.emit('collisionend', new CollisionEndEvent(colliderA, colliderB, side, c));
-        colliderA.events.emit('contactend', new ContactEndEvent(colliderA, colliderB, side, c) as any);
+        colliderA.events.emit('contactend', new ContactEndEvent(colliderA, colliderB, side, c));
         colliderB.events.emit('collisionend', new CollisionEndEvent(colliderB, colliderA, opposite, c));
-        colliderB.events.emit('contactend', new ContactEndEvent(colliderB, colliderA, opposite, c) as any);
+        colliderB.events.emit('contactend', new ContactEndEvent(colliderB, colliderA, opposite, c));
       }
     }
   }

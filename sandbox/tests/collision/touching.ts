@@ -1,5 +1,3 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
 var game = new ex.Engine({
   height: 200,
   width: 800
@@ -19,7 +17,7 @@ ball.on('collisionstart', (evt: ex.CollisionStartEvent) => {
 
 ball.on('collisionend', (evt: ex.CollisionEndEvent) => {
   console.log('Ball was being touched on frame:', game.stats.currFrame.id);
-  evt.self.owner.vel = ex.vec(0, -speed);
+  (evt.self.owner as ex.Actor).vel = ex.vec(0, -speed);
 });
 ball.on('postupdate', function () {
   if (ball.pos.y < 0) {

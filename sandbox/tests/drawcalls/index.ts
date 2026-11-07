@@ -1,5 +1,3 @@
-/// <reference path="../../lib/excalibur.d.ts" />
-
 var game = new ex.Engine({
   canvasElementId: 'game',
   width: 600,

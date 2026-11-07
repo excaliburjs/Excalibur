@@ -36,3 +36,5 @@ var game6 = new ex.Engine({
 
 game6.goToScene('a');
 game6.start();
+
+export {};

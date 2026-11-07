@@ -129,7 +129,7 @@ export class RealisticSolver implements CollisionSolver {
         );
         contact.colliderA.events.emit(
           'beforecollisionresolve',
-          new CollisionPreSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
+          new CollisionPreSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact)
         );
         contact.colliderB.events.emit(
           'precollision',
@@ -137,7 +137,7 @@ export class RealisticSolver implements CollisionSolver {
         );
         contact.colliderB.events.emit(
           'beforecollisionresolve',
-          new CollisionPreSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
+          new CollisionPreSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact)
         );
       }
     }
@@ -284,7 +284,7 @@ export class RealisticSolver implements CollisionSolver {
       );
       contact.colliderA.events.emit(
         'aftercollisionresolve',
-        new CollisionPostSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact) as any
+        new CollisionPostSolveEvent(contact.colliderA, contact.colliderB, side, contact.mtv, contact)
       );
       contact.colliderB.events.emit(
         'postcollision',
@@ -292,7 +292,7 @@ export class RealisticSolver implements CollisionSolver {
       );
       contact.colliderB.events.emit(
         'aftercollisionresolve',
-        new CollisionPostSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact) as any
+        new CollisionPostSolveEvent(contact.colliderB, contact.colliderA, Side.getOpposite(side), contact.mtv.negate(), contact)
       );
     }
 

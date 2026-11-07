@@ -163,3 +163,5 @@ game.start(loader).then(() => {
   cardTimer.start();
   game.add(cardTimer);
 });
+
+export {};

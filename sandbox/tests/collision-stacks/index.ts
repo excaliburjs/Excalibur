@@ -1,5 +1,3 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
 var PLAYER_COUNT = 300;
 var engine = new ex.Engine({
   width: 800, // Logical width and height in game pixels

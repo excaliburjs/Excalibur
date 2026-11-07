@@ -35,7 +35,7 @@ export const LoaderEvents = {
   UserAction: 'useraction',
   LoadResourceStart: 'loadresourcestart',
   LoadResourceEnd: 'loadresourceend'
-};
+} as const;
 
 export type LoaderConstructor = new (...args: any[]) => DefaultLoader;
 /**

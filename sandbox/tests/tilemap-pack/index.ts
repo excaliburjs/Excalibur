@@ -1,5 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
-
 var game = new ex.Engine({
   width: 600,
   height: 600
@@ -56,7 +54,7 @@ let currentPointer!: ex.Vector;
 game.input.pointers.primary.on('down', (moveEvent) => {
   if (moveEvent.button === ex.PointerButton.Right) {
     currentPointer = moveEvent.worldPos;
-    game.currentScene.camera.move(currentPointer, 300, ex.EasingFunctions.EaseInOutCubic);
+    game.currentScene.camera.move(currentPointer, 300, ex.easeInOutCubic);
   }
 });
 

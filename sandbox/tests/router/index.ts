@@ -1,4 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
 var scene1 = new ex.Scene();
 scene1.add(
   new ex.Label({

@@ -1,4 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
 const Category = {
   Ground: ex.CollisionGroupManager.create('ground'),
   Player: ex.CollisionGroupManager.create('player')
@@ -42,14 +41,14 @@ class TouchingComponent extends ex.Component {
     owner.on('collisionstart', (ev) => {
       if (ev.other) {
         // console.log(ev.contact.colliderA.worldPos, ev.contact.colliderB.worldPos)
-        if (ev.other.owner.body?.collisionType === ex.CollisionType.Passive) {
-          this.passives.add(ev.other.owner);
+        if ((ev.other.owner as ex.Actor).body?.collisionType === ex.CollisionType.Passive) {
+          this.passives.add(ev.other.owner as ex.Actor);
         } else {
           const side = ev.side;
 
           this.contacts.set(ev.contact.id, {
             contact: ev.contact,
-            actor: ev.other.owner,
+            actor: ev.other.owner as ex.Actor,
             side
           });
           this.updateSides();
@@ -58,8 +57,8 @@ class TouchingComponent extends ex.Component {
     });
 
     owner.on('collisionend', (ev) => {
-      if (ev.other.owner.body?.collisionType === ex.CollisionType.Passive) {
-        this.passives.delete(ev.other.owner);
+      if ((ev.other.owner as ex.Actor).body?.collisionType === ex.CollisionType.Passive) {
+        this.passives.delete(ev.other.owner as ex.Actor);
       } else {
         this.contacts.delete(ev.lastContact.id);
         this.updateSides();
@@ -112,7 +111,7 @@ class ControlSystem extends ex.System {
     this.input = input;
   }
 
-  public update(elapsedMs) {
+  public onUpdate(elapsedMs) {
     if (!this.input) return;
     /**
      * get user controls intent

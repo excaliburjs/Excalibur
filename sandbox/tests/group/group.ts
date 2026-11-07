@@ -1,5 +1,3 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
 (function () {
   var width = 600;
   var height = 400;

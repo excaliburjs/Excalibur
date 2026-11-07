@@ -15,7 +15,7 @@ export interface TriggerEvents extends ActorEvents {
 export const TriggerEvents = {
   ExitTrigger: 'exit',
   EnterTrigger: 'enter'
-};
+} as const;
 
 /**
  * TriggerOptions
