@@ -257,20 +257,20 @@ describe('A color', () => {
     expect(color.r).toBe(0);
     expect(color.g).toBe(0);
     expect(color.b).toBe(0);
-    expect(color.a).toBe(0);
+    expect(color.a).toBe(1);
 
     color = ex.Color.Black.invert();
     expect(color.r).toBe(255);
     expect(color.g).toBe(255);
     expect(color.b).toBe(255);
-    expect(color.a).toBe(0);
+    expect(color.a).toBe(1);
 
     const halfAlpha = new ex.Color(100, 150, 200, 0.3);
     const inverted = halfAlpha.invert();
     expect(inverted.r).toBe(155);
     expect(inverted.g).toBe(105);
     expect(inverted.b).toBe(55);
-    expect(inverted.a).toBe(0.7);
+    expect(inverted.a).toBe(0.3);
   });
 
   it('can be multiplied', () => {
