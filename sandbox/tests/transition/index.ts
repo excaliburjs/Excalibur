@@ -78,7 +78,7 @@ class Level1 extends ex.Scene {
   }
 
   override onDeactivate(context: ex.SceneActivationContext): Promise<any> | void {
-    return 'scene 1 data';
+    return Promise.resolve('scene 1 data');
   }
 }
 

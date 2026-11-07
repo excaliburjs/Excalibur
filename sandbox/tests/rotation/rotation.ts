@@ -1,5 +1,3 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
 var width = 600;
 var height = 400;
 var playerTexture = new ex.ImageSource('rotation-sprite.png');

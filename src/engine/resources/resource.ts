@@ -16,7 +16,7 @@ export const ResourceEvents = {
   LoadStart: 'loadstart',
   Progress: 'progress',
   Error: 'error'
-};
+} as const;
 
 /**
  * Error thrown when a resource fails to load due to network issues,

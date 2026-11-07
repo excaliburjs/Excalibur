@@ -62,6 +62,8 @@
     "type-check": "cd src/engine && tsc --noEmit",
     "type-check:tests": "cd src/spec && tsc --noEmit",
     "type-check:stories": "cd src/stories && tsc --noEmit",
+    "type-check:sandbox": "cd sandbox && tsc --noEmit",
+    "type-check:all": "npm run type-check && npm run type-check:tests && npm run type-check:stories && npm run type-check:sandbox",
     "eslint": "eslint .",
     "visual": "storybook dev -p 6006",
     "build-storybook": "storybook build -o build-storybook",

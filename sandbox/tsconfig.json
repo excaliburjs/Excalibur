@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "noEmit": true,
     "sourceMap": true,
     "target": "ES2022",
     "module": "ESNext",
@@ -8,10 +9,13 @@
     "removeComments": false,
     "useDefineForClassFields": false,
     "skipLibCheck": true,
-    "lib": ["dom", "es5", "es2015", "es2015.promise", "es2015.collection", "es2015.iterable"],
-    "types": ["../src/engine/excalibur.d.ts"],
+    "allowUmdGlobalAccess": true,
+    "strict": false,
+    "lib": ["dom", "dom.iterable", "es2021"],
+    "types": ["node"],
     "paths": {
       "@excalibur": ["../src/engine/index.ts"]
     }
-  }
+  },
+  "include": ["./src/**/*.ts", "./tests/**/*.ts", "../src/engine/*.d.ts"]
 }

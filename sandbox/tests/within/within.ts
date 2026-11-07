@@ -1,5 +1,3 @@
-/// <reference path="../../lib/excalibur.d.ts" />
-
 (function () {
   var game = new ex.Engine({
     width: 600,

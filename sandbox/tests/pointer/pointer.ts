@@ -1,5 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
-
 class Player extends ex.Actor {
   constructor(color: ex.Color, size = 100) {
     super({ x: 300, y: 200, width: size, height: size, color });

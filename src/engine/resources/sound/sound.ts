@@ -27,7 +27,7 @@ export const SoundEvents = {
   PlaybackEnd: 'playbackend',
   Resume: 'resume',
   PlaybackStart: 'playbackstart'
-};
+} as const;
 
 export interface SoundOptions<TName extends string = string> {
   /**

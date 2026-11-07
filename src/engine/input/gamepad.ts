@@ -18,7 +18,7 @@ export const GamepadEvents = {
   GamepadButtonDown: 'buttondown',
   GamepadButtonUp: 'buttonup',
   GamepadAxis: 'axis'
-};
+} as const;
 
 /**
  * Excalibur leverages the HTML5 Gamepad API [where it is supported](http://caniuse.com/#feat=gamepad)

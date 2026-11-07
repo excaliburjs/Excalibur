@@ -1,5 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
-
 const font = new ex.Font({
   size: 48,
   family: 'sans-serif',

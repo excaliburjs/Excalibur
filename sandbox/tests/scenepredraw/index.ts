@@ -36,12 +36,12 @@ class CustomDraw extends ex.System {
     this.query = this.world.query([ex.GraphicsComponent]);
   }
 
-  public initialize(world: ex.World, scene: ex.Scene): void {
+  public onInitialize(world: ex.World, scene: ex.Scene): void {
     this._graphicsContext = scene.engine.graphicsContext;
     this._engine = scene.engine;
   }
 
-  public preupdate(): void {
+  public onPreUpdate(): void {
     // Graphics context could be switched to fallback in a new frame
     if (this._engine == null) {
       throw new Error('Uninitialized ObjectSystem');
@@ -49,7 +49,7 @@ class CustomDraw extends ex.System {
     this._graphicsContext = this._engine.graphicsContext;
   }
 
-  public update(delta: number) {
+  public onUpdate(delta: number) {
     if (this._graphicsContext == null) {
       throw new Error('Uninitialized ObjectSystem');
     }

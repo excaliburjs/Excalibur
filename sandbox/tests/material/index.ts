@@ -1,5 +1,3 @@
-/// <reference path="../../lib/excalibur.d.ts" />
-
 // identity tagged template literal lights up glsl-literal vscode plugin
 var glsl = (x) => x[0];
 
@@ -297,3 +295,5 @@ game.start(loader).then(async () => {
   // const image = await game.screenshot(true);
   // document.body.appendChild(image);
 });
+
+export {};

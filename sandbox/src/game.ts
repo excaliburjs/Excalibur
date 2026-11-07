@@ -955,7 +955,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        easingFunction: ex.easeInOutCubic,
         slideDirection: 'up'
       })
     });
@@ -963,7 +963,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        easingFunction: ex.easeInOutCubic,
         slideDirection: 'down'
       })
     });
@@ -971,7 +971,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        easingFunction: ex.easeInOutCubic,
         slideDirection: 'left'
       })
     });
@@ -979,7 +979,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.EasingFunctions.EaseInOutCubic,
+        easingFunction: ex.easeInOutCubic,
         slideDirection: 'right'
       })
     });
@@ -1010,8 +1010,8 @@ player.on('postcollision', (data: ex.PostCollisionEvent) => {
         game.input.keyboard.isHeld(ex.Keys.Down)
       )
     ) {
-      player.vel.x = data.other.owner.vel.x;
-      player.vel.y = data.other.owner.vel.y;
+      player.vel.x = (data.other.owner as ex.Actor).vel.x;
+      player.vel.y = (data.other.owner as ex.Actor).vel.y;
     }
 
     if (!data.other) {
@@ -1022,7 +1022,7 @@ player.on('postcollision', (data: ex.PostCollisionEvent) => {
 
   if (data.side === ex.Side.Top) {
     if (data.other) {
-      player.vel.y = data.other.owner.vel.y - player.vel.y;
+      player.vel.y = (data.other.owner as ex.Actor).vel.y - player.vel.y;
     } else {
       player.vel.y = 0;
     }

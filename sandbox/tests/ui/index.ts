@@ -1,5 +1,3 @@
-/// <reference path="../../lib/excalibur.d.ts" />
-
 var Resources = {
   Background: new ex.ImageSource('../../images/Background.png')
 };

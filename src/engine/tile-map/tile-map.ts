@@ -104,7 +104,7 @@ export const TileMapEvents = {
   PointerDown: 'pointerdown',
   PointerMove: 'pointermove',
   PointerCancel: 'pointercancel'
-};
+} as const;
 
 /**
  * The TileMap provides a mechanism for doing flat 2D tiles rendered in a grid.

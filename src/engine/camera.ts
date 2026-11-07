@@ -251,7 +251,7 @@ export const CameraEvents = {
   Initialize: 'initialize',
   PreUpdate: 'preupdate',
   PostUpdate: 'postupdate'
-};
+} as const;
 
 /**
  * Cameras
