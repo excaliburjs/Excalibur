@@ -53,7 +53,7 @@ game.add(pillar);
 
 var wedge = new ex.Actor({
   pos: ex.vec(460, 460),
-  collider: ex.Shape.Polygon([ex.vec(-30, 20), ex.vec(30, 20), ex.vec(0, -30)])
+  collider: ex.Colliders.Polygon([ex.vec(-30, 20), ex.vec(30, 20), ex.vec(0, -30)])
 });
 wedge.graphics.use(new ex.Polygon({ points: [ex.vec(-30, 20), ex.vec(30, 20), ex.vec(0, -30)], color: ex.Color.DarkGray }));
 wedge.addComponent(

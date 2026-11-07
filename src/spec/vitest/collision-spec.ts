@@ -449,7 +449,7 @@ describe('A Collision', () => {
     block1.vel.x = 100;
 
     const block2 = new ex.Actor({ x: 400, y: 200, width: 50, height: 50, color: ex.Color.DarkGray.clone() });
-    block2.collider.useCompositeCollider([ex.Shape.Box(50, 50), ex.Shape.Box(50, 50)]);
+    block2.collider.useCompositeCollider([ex.Colliders.Box(50, 50), ex.Colliders.Box(50, 50)]);
     block2.body.collisionType = ex.CollisionType.Fixed;
     block2.vel.x = -100;
 
@@ -506,7 +506,7 @@ describe('A Collision', () => {
     expect(collisionStart).toHaveBeenCalled();
     expect(collisionEnd).not.toHaveBeenCalled();
 
-    activeBlock.collider.set(ex.Shape.Circle(5));
+    activeBlock.collider.use(ex.Colliders.Circle(5));
 
     clock.run(10, 100);
 

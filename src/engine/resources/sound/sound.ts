@@ -525,14 +525,8 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
    * To continue paused tracks use {@apilink Sound.resume}, to get a handle on the track
    * use {@apilink Sound.start}.
    */
-  public play(options?: PlayOptions): Promise<boolean>;
-  /**
-   * Play a new track at a volume [0-1] (multiplied with {@apilink Sound.volume}) for this track only
-   * @deprecated Use `play({ volume })` instead. Will be removed in v1.x
-   */
-  public play(volume: number): Promise<boolean>;
-  public play(volumeOrOptions?: number | PlayOptions): Promise<boolean> {
-    const track = this.start(volumeOrOptions as PlayOptions);
+  public play(options?: PlayOptions): Promise<boolean> {
+    const track = this.start(options);
     return track ? track.done : Promise.resolve(false);
   }
 
@@ -581,7 +575,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
       return null;
     }
 
-    const overrides: PlayOptions = typeof options === 'number' ? { volume: options } : (options ?? {});
+    const overrides: PlayOptions = options ?? {};
     const track = this._createTrack(overrides);
     track.scheduledStartTime = (overrides.scheduledStartTime ?? 0) / 1000;
     const position = overrides.position ?? this.position;

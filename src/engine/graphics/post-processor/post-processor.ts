@@ -1,5 +1,3 @@
-import type { VertexLayout } from '../context/vertex-layout';
-import type { Shader } from '../context/shader';
 import type { ExcaliburGraphicsContextWebGL } from '../context/excalibur-graphics-context-webgl';
 import type { Framebuffer } from '../context/framebuffer';
 
@@ -26,10 +24,6 @@ import type { Framebuffer } from '../context/framebuffer';
  * * `uniform float u_time_ms` - total time in milliseconds
  * * `uniform float u_elapsed_ms` - elapsed milliseconds since the last frame
  * * `in vec2 v_uv` - 0-1 UV over the screen
- *
- * The deprecated single-pass path receives `u_image` at slot 0 plus `u_time_ms`,
- * `u_elapsed_ms`, and `u_resolution` when declared; custom uniforms can be updated in
- * {@apilink PostProcessor.onUpdate}.
  */
 export interface PostProcessor {
   /**
@@ -41,26 +35,10 @@ export interface PostProcessor {
    * `source` is the current (MSAA-resolved) screen framebuffer, render the result into
    * `destination`, for example with a {@apilink ShaderPass} or {@apilink ShaderPipeline}.
    */
-  process?(source: Framebuffer, destination: Framebuffer): void;
-
-  /**
-   * @deprecated implement {@apilink PostProcessor.process} instead, the single-pass
-   * shader/layout path will be removed in v1.x. The screen texture is bound to slot 0 as
-   * `uniform sampler2D u_image` and default uniforms (`u_time_ms`, `u_elapsed_ms`,
-   * `u_resolution`) are set when declared.
-   */
-  getShader?(): Shader;
-
-  /**
-   * @deprecated implement {@apilink PostProcessor.process} instead, the single-pass
-   * shader/layout path will be removed in v1.x.
-   */
-  getLayout?(): VertexLayout;
+  process(source: Framebuffer, destination: Framebuffer): void;
 
   /**
    * Use the onUpdate hook to update any uniforms in the postprocessors shader
-   *
-   * The shader has already been bound so there is no need to call shader.use();
    * @param elapsed
    */
   onUpdate?(elapsed: number): void;

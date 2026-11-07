@@ -24,7 +24,7 @@ const sound = new Sound('./path/to/my.mp3', './path/to/fallback.wav');
 const loader = new Loader([sound]);
 await game.start(loader);
 
-sound.play(0.5);
+sound.play({ volume: 0.5 });
 ```
 
 See the [examples](https://excaliburjs.com/examples/?path=/docs/audio) or API documentation for [[Sound]] for additional features available such as looping, volume setting, and more.

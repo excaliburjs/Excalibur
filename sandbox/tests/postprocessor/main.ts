@@ -69,49 +69,31 @@ void main()
     fragColor = vec4(col,1.0);
 }`;
 
-class CRTPostProcessors implements ex.PostProcessor {
-  private _shader: ex.ScreenShader;
-  constructor() {}
-  initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
-    this._shader = new ex.ScreenShader(graphicsContext, crtFragmentSource);
-  }
-  getShader(): ex.Shader {
-    return this._shader.getShader();
-  }
-  getLayout(): ex.VertexLayout {
-    return this._shader.getLayout();
-  }
-  onUpdate(delta: number): void {
-    // set your own uniforms here
-    const shader = this.getShader();
-    shader.trySetUniformBoolean('u_some_uniform', true);
+class CRTPostProcessors extends ex.ShaderPipelinePostProcessor {
+  constructor() {
+    super({ name: 'crt', passes: [crtFragmentSource] });
   }
 }
 
-class GrayScalePostProcessor implements ex.PostProcessor {
-  private _shader: ex.ScreenShader;
-  initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
-    this._shader = new ex.ScreenShader(
-      graphicsContext,
-      `#version 300 es
+class GrayScalePostProcessor extends ex.ShaderPipelinePostProcessor {
+  constructor() {
+    super({
+      name: 'grayscale',
+      passes: [
+        `#version 300 es
     precision mediump float;
     // our texture
     uniform sampler2D u_image;
-    // the texCoords passed in from the vertex shader.
-    in vec2 v_texcoord;
+    // the uvs passed in from the vertex shader.
+    in vec2 v_uv;
     out vec4 fragColor;
     void main() {
-      vec4 tex = texture(u_image, v_texcoord);
+      vec4 tex = texture(u_image, v_uv);
       float avg = 0.2126 * tex.r + 0.7152 * tex.g + 0.0722 * tex.b;
       fragColor = vec4(avg, avg, avg, 1.0);
     }`
-    );
-  }
-  getLayout(): ex.VertexLayout {
-    return this._shader.getLayout();
-  }
-  getShader(): ex.Shader {
-    return this._shader.getShader();
+      ]
+    });
   }
 }
 

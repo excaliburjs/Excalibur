@@ -124,7 +124,7 @@ export interface ExcaliburGraphicsContextOptions {
    */
   backgroundColor?: Color;
   /**
-   * Feature flag that enables draw sorting will removed in v0.29
+   * Enables draw call sorting (by z, material, and texture) to reduce state changes, defaults to `true`
    */
   useDrawSorting?: boolean;
 

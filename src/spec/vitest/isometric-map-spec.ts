@@ -214,7 +214,7 @@ describe('A IsometricMap', () => {
     const collider = sut.collider.get() as ex.CompositeCollider;
     expect(collider.getColliders()).toEqual([]);
     sut.tiles[0].isSolid = true;
-    sut.tiles[0].addCollider(ex.Shape.Box(10, 10));
+    sut.tiles[0].addCollider(ex.Colliders.Box(10, 10));
 
     sut.update();
 
@@ -228,7 +228,7 @@ describe('A IsometricMap', () => {
 
     sut.update();
 
-    const box = ex.Shape.Box(10, 10);
+    const box = ex.Colliders.Box(10, 10);
     sut.tiles[0].addCollider(box);
 
     sut.update();

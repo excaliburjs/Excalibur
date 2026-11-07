@@ -99,8 +99,3 @@ export class ArenaPool<Type> {
     return objects;
   }
 }
-
-/**
- * @deprecated Use ArenaPool
- */
-export class Pool<T> extends ArenaPool<T> {}

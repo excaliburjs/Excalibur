@@ -122,16 +122,6 @@ export class ColliderComponent extends Component {
     return null as unknown as T;
   }
 
-  /**
-   * Set the collider geometry
-   * @param collider
-   * @returns the collider you set
-   * @deprecated Use .use(collider) instead
-   */
-  public set<T extends Collider>(collider: T): T {
-    return this.use(collider);
-  }
-
   private _collidersToRemove: Collider[] = [];
   /**
    * Remove collider geometry from collider component

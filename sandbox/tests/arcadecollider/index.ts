@@ -54,10 +54,10 @@ var collider = new ex.Actor({
 });
 var points = [ex.vec(6.0625, 8.875), ex.vec(9.125, 8.875), ex.vec(9.0625, 14.9375), ex.vec(6, 14.875)];
 collider.graphics.use(new ex.Polygon({ points, color: ex.Color.Red }), { offset });
-const polygon = ex.Shape.Polygon(points);
+const polygon = ex.Colliders.Polygon(points);
 polygon.offset = offset;
 var composite = collider.collider.useCompositeCollider([polygon]);
-// collider.collider.set(polygon);
+// collider.collider.use(polygon);
 game.add(collider);
 
 game.currentScene.camera.strategy.elasticToActor(player, 0.8, 0.9);

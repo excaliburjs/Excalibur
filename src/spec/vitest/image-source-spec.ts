@@ -1,5 +1,5 @@
 import * as ex from '@excalibur';
-import { ImageRenderer } from '../../engine/graphics/context/image-renderer/image-renderer';
+import { ImageRendererV2 as ImageRenderer } from '../../engine/graphics/context/image-renderer-v2/image-renderer-v2';
 
 describe('A ImageSource', () => {
   let canvasElement: HTMLCanvasElement;

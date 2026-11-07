@@ -37,7 +37,6 @@ export * from './context/debug-text';
 
 // post processor
 export type * from './post-processor/post-processor';
-export * from './post-processor/screen-shader';
 export * from './post-processor/shader-pipeline-post-processor';
 export * from './post-processor/color-blindness-mode';
 export * from './post-processor/color-blindness-post-processor';

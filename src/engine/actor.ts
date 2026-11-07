@@ -201,12 +201,6 @@ type ColliderArgs =
       height?: undefined;
     };
 
-/**
- * Actor constructor options
- * @deprecated use ActorOptions
- */
-export type ActorArgs = ActorOptions;
-
 export interface ActorEvents extends EntityEvents {
   collisionstart: CollisionStartEvent;
   collisionend: CollisionEndEvent;

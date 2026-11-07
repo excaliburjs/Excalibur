@@ -119,10 +119,10 @@ class MyBlock extends ex.Actor {
 //*******************************/
 class MyRoom extends ex.Actor {
 
-  TopWall = ex.Shape.Box(420, 10, ex.Vector.Zero, ex.vec(-210, -210));
-  BottomWall = ex.Shape.Box(420, 10, ex.Vector.Zero, ex.vec(-210, 200));
-  LeftWall = ex.Shape.Box(10, 420, ex.Vector.Zero, ex.vec(-210, -210));
-  RightWall = ex.Shape.Box(10, 420, ex.Vector.Zero, ex.vec(200, -210));
+  TopWall = ex.Colliders.Box(420, 10, ex.Vector.Zero, ex.vec(-210, -210));
+  BottomWall = ex.Colliders.Box(420, 10, ex.Vector.Zero, ex.vec(-210, 200));
+  LeftWall = ex.Colliders.Box(10, 420, ex.Vector.Zero, ex.vec(-210, -210));
+  RightWall = ex.Colliders.Box(10, 420, ex.Vector.Zero, ex.vec(200, -210));
 
   background = new ex.Rectangle({
     width: 400,
@@ -142,7 +142,7 @@ class MyRoom extends ex.Actor {
     let compCollider = new ex.CompositeCollider([this.TopWall, this.BottomWall, this.LeftWall, this.RightWall]);
     // This is important to prevent the overlap escape issue
     compCollider.compositeStrategy = 'separate';
-    this.collider.set(compCollider);
+    this.collider.use(compCollider);
     this.graphics.use(this.background);
   }
 }

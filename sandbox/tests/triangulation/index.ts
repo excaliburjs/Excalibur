@@ -33,12 +33,12 @@ console.log('Graphic Bounds', starGraphic.localBounds);
 var actor = new ex.Actor({ x: 200, y: 200, collisionType: ex.CollisionType.Active });
 // This is an odd quirk but because we center graphics by default, and the star is asymmetric
 actor.graphics.use(starGraphic, { offset: ex.vec(0, -10) });
-actor.collider.set(starCollider.triangulate());
+actor.collider.use(starCollider.triangulate());
 actor.angularVelocity = 3;
 game.add(actor);
 
 var actor2 = new ex.Actor({ x: 400, y: 200, collisionType: ex.CollisionType.Active });
-actor2.collider.set(ex.Shape.Box(100, 100).tessellate());
+actor2.collider.use(ex.Colliders.Box(100, 100).tessellate());
 actor2.graphics.use(new ex.Rectangle({ width: 100, height: 100, color: ex.Color.Black }));
 actor2.rotation = (Math.PI / 2) * 3;
 game.add(actor2);

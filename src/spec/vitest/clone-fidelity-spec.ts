@@ -208,7 +208,7 @@ const cases: CloneCase[] = [
     name: 'CompositeCollider',
     ignore: ['_collisionProcessor', '_dynamicAABBTree', '_colliderTreeIds'], // spatial index internals, rebuilt per instance
     make: () => {
-      const c = new ex.CompositeCollider([ex.Shape.Box(2, 2), ex.Shape.Circle(3)]);
+      const c = new ex.CompositeCollider([ex.Colliders.Box(2, 2), ex.Colliders.Circle(3)]);
       c.compositeStrategy = 'separate';
       c.offset = ex.vec(5, 6);
       return c;
@@ -267,7 +267,7 @@ const cases: CloneCase[] = [
   {
     file: 'collision/collider-component.ts',
     name: 'ColliderComponent',
-    make: () => new ex.ColliderComponent(ex.Shape.Box(4, 4, ex.vec(0.5, 0.5), ex.vec(1, 1)))
+    make: () => new ex.ColliderComponent(ex.Colliders.Box(4, 4, ex.vec(0.5, 0.5), ex.vec(1, 1)))
   },
   {
     file: 'actor.ts',

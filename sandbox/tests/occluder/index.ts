@@ -28,7 +28,7 @@ void main() {
 `;
 
 class LightingPostProcessor implements ex.PostProcessor {
-  private _shader: ex.ScreenShader | undefined;
+  private _pass: ex.ShaderPass | undefined;
   gctx: ex.ExcaliburGraphicsContextWebGL;
   texture: WebGLTexture;
 
@@ -45,30 +45,22 @@ class LightingPostProcessor implements ex.PostProcessor {
   }
 
   initialize(graphicsContext: ex.ExcaliburGraphicsContextWebGL): void {
-    this._shader = new ex.ScreenShader(graphicsContext, shader);
+    this._pass = new ex.ShaderPass({
+      graphicsContext,
+      fragmentSource: shader,
+      uniforms: {
+        u_texturePosition: new ex.Vector(100.0, 100.0),
+        u_textureSize: new ex.Vector(64.0, 64.0)
+      }
+    });
   }
-  getLayout(): ex.VertexLayout {
-    return this._shader.getLayout();
-  }
-  getShader(): ex.Shader {
-    return this._shader.getShader();
-  }
-  onUpdate(elapsed: number): void {
-    let myShader = this._shader?.getShader();
 
-    if (myShader) {
-      myShader.trySetUniformInt('u_myTexture', 1);
-      myShader.trySetUniformFloatVector('u_texturePosition', new ex.Vector(100.0, 100.0));
-      myShader.trySetUniformFloatVector('u_textureSize', new ex.Vector(64.0, 64.0));
-    }
-  }
-  onDraw(): void {
-    let myShader = this._shader?.getShader();
-    if (myShader) {
-      this.gctx.textureLoader.load(occluder.image);
-      myShader.setTexture(1, this.texture as WebGLTexture);
-      myShader.trySetUniformInt('u_myTexture', 1);
-    }
+  process(source: ex.Framebuffer, destination: ex.Framebuffer): void {
+    this._pass?.draw({
+      source,
+      sources: { u_myTexture: this.texture },
+      destination
+    });
   }
 }
 

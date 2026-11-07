@@ -1,7 +1,6 @@
 import type { ComponentCtor } from './component';
 import { Component, isComponentCtor } from './component';
 
-import type { Message } from '../util/observable';
 import { Observable } from '../util/observable';
 import type { OnInitialize, OnPreUpdate, OnPostUpdate, OnAdd, OnRemove } from '../interfaces/lifecycle-events';
 import type { Engine } from '../engine';
@@ -19,36 +18,6 @@ import type { MaybeKnownComponent } from './types';
 export interface EntityComponent {
   component: Component;
   entity: Entity;
-}
-
-/**
- * AddedComponent message
- */
-export class AddedComponent implements Message<EntityComponent> {
-  readonly type: 'Component Added' = 'Component Added';
-  constructor(public data: EntityComponent) {}
-}
-
-/**
- * Type guard to know if message is f an Added Component
- */
-export function isAddedComponent(x: Message<EntityComponent>): x is AddedComponent {
-  return !!x && x.type === 'Component Added';
-}
-
-/**
- * RemovedComponent message
- */
-export class RemovedComponent implements Message<EntityComponent> {
-  readonly type: 'Component Removed' = 'Component Removed';
-  constructor(public data: EntityComponent) {}
-}
-
-/**
- * Type guard to know if message is for a Removed Component
- */
-export function isRemovedComponent(x: Message<EntityComponent>): x is RemovedComponent {
-  return !!x && x.type === 'Component Removed';
 }
 
 /**
@@ -168,7 +137,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
   }
 
   /**
-   * Specifically get the tags on the entity from {@apilink TagsComponent}
+   * Specifically get the tags on the entity
    */
   public get tags(): Set<string> {
     return this._tags;

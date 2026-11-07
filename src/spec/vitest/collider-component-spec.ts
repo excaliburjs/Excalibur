@@ -6,20 +6,20 @@ describe('A ColliderComponent', () => {
   });
 
   it('can be built with a collider', () => {
-    const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
     expect(comp).toBeDefined();
   });
 
   it('can collide with other components', () => {
-    const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
-    const comp2 = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
+    const comp2 = new ex.ColliderComponent(ex.Colliders.Circle(50));
     const contacts = comp.collide(comp2);
 
     expect(contacts.length).toBe(1);
   });
 
   it('can be cloned', () => {
-    const collider = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const collider = new ex.ColliderComponent(ex.Colliders.Circle(50));
     const owner = new ex.Entity([collider]);
 
     const originalCollisionHandler = vi.fn();
@@ -47,7 +47,7 @@ describe('A ColliderComponent', () => {
       .get()!
       .events.emit(
         'collisionstart',
-        new ex.CollisionStartEvent<ex.Collider>(ex.Shape.Circle(50), ex.Shape.Circle(50), null as any, null as any)
+        new ex.CollisionStartEvent<ex.Collider>(ex.Colliders.Circle(50), ex.Colliders.Circle(50), null as any, null as any)
       );
 
     expect(originalCollisionHandler).toHaveBeenCalledTimes(1);
@@ -55,9 +55,9 @@ describe('A ColliderComponent', () => {
   });
 
   it('can handle composite components', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10)]);
 
-    const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
     const comp2 = new ex.ColliderComponent(compCollider);
     const contacts = comp.collide(comp2);
 
@@ -65,7 +65,7 @@ describe('A ColliderComponent', () => {
   });
 
   it('wires up collision events to the owner onAdd', () => {
-    const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
     vi.spyOn(comp.events, 'on');
 
     const e = new ex.Entity();
@@ -78,7 +78,7 @@ describe('A ColliderComponent', () => {
   });
 
   it('clears out collision events on the owner onRemove', () => {
-    const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
     vi.spyOn(comp.events, 'clear');
 
     const e = new ex.Entity();
@@ -89,7 +89,7 @@ describe('A ColliderComponent', () => {
   });
 
   it('clear a collider', () => {
-    const collider = ex.Shape.Circle(50);
+    const collider = ex.Colliders.Circle(50);
     const comp = new ex.ColliderComponent(collider);
     vi.spyOn(collider.events, 'unpipe');
     vi.spyOn(comp.$colliderRemoved, 'notifyAll');
@@ -113,27 +113,27 @@ describe('A ColliderComponent', () => {
     expect(collider.owner).toBeNull();
   });
 
-  it('returns null and warns once when set() is called with no collider on an owned component', () => {
-    const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+  it('returns null and warns once when use() is called with no collider on an owned component', () => {
+    const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
     const e = new ex.Entity();
     e.addComponent(comp);
 
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warnOnce');
 
-    const result = comp.set(undefined as any);
+    const result = comp.use(undefined as any);
 
     expect(result).toBeNull();
     expect(comp.get()).toBeNull();
     expect(logger.warnOnce).toHaveBeenCalled();
   });
 
-  it('returns null and does not warn when set() is called with no collider and no owner', () => {
-    const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+  it('returns null and does not warn when use() is called with no collider and no owner', () => {
+    const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warnOnce');
 
-    const result = comp.set(undefined as any);
+    const result = comp.use(undefined as any);
 
     expect(result).toBeNull();
     expect(logger.warnOnce).not.toHaveBeenCalled();
@@ -148,7 +148,7 @@ describe('A ColliderComponent', () => {
 
   it('collide() returns no contacts if either side has no collider', () => {
     const empty = new ex.ColliderComponent();
-    const withCollider = new ex.ColliderComponent(ex.Shape.Circle(50));
+    const withCollider = new ex.ColliderComponent(ex.Colliders.Circle(50));
 
     expect(empty.collide(withCollider)).toEqual([]);
     expect(withCollider.collide(empty)).toEqual([]);
@@ -161,7 +161,7 @@ describe('A ColliderComponent', () => {
     });
 
     it('updates the collider transform when the owner has a TransformComponent', () => {
-      const collider = ex.Shape.Circle(10);
+      const collider = ex.Colliders.Circle(10);
       const comp = new ex.ColliderComponent(collider);
       const e = new ex.Entity([new ex.TransformComponent(), comp]);
       e.get(ex.TransformComponent).pos = ex.vec(50, 75);
@@ -211,7 +211,7 @@ describe('A ColliderComponent', () => {
 
     it('useCompositeCollider sets a composite collider', () => {
       const comp = new ex.ColliderComponent();
-      const collider = comp.useCompositeCollider([ex.Shape.Circle(10), ex.Shape.Box(10, 10)]);
+      const collider = comp.useCompositeCollider([ex.Colliders.Circle(10), ex.Colliders.Box(10, 10)]);
 
       expect(comp.get()).toBe(collider);
       expect(collider).toBeInstanceOf(ex.CompositeCollider);
@@ -252,7 +252,7 @@ describe('A ColliderComponent', () => {
 
     it('round-trips a composite collider made of circle and polygon parts', () => {
       const comp = new ex.ColliderComponent();
-      comp.useCompositeCollider([ex.Shape.Circle(15), ex.Shape.Polygon([ex.vec(0, 0), ex.vec(5, 0), ex.vec(5, 5)])]);
+      comp.useCompositeCollider([ex.Colliders.Circle(15), ex.Colliders.Polygon([ex.vec(0, 0), ex.vec(5, 0), ex.vec(5, 5)])]);
       const data = comp.serialize();
 
       expect(data.colliderType).toBe('composite');
@@ -292,7 +292,7 @@ describe('A ColliderComponent', () => {
 
     it('round-trips a composite collider with an edge part', () => {
       const comp = new ex.ColliderComponent();
-      comp.useCompositeCollider([ex.Shape.Circle(15), ex.Shape.Edge(ex.vec(0, 0), ex.vec(20, 0))]);
+      comp.useCompositeCollider([ex.Colliders.Circle(15), ex.Colliders.Edge(ex.vec(0, 0), ex.vec(20, 0))]);
       const data = comp.serialize();
 
       const roundTripped = new ex.ColliderComponent();
@@ -307,7 +307,7 @@ describe('A ColliderComponent', () => {
 
   describe('event wiring on add', () => {
     it('propagates precollision/postcollision/collisionstart/collisionend to the owning entity', () => {
-      const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+      const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
       const e = new ex.Entity([comp]);
 
       const precollision = vi.fn();
@@ -319,7 +319,7 @@ describe('A ColliderComponent', () => {
       e.events.on('collisionstart', collisionstart);
       e.events.on('collisionend', collisionend);
 
-      const other = ex.Shape.Circle(50);
+      const other = ex.Colliders.Circle(50);
       const self = comp.get()!;
 
       comp.events.emit('precollision', new ex.PreCollisionEvent(self, other, ex.Side.None, ex.Vector.Zero, null as any));
@@ -334,7 +334,7 @@ describe('A ColliderComponent', () => {
     });
 
     it('calls the Actor-specific collision resolve hooks when the owner is an Actor', () => {
-      const comp = new ex.ColliderComponent(ex.Shape.Circle(50));
+      const comp = new ex.ColliderComponent(ex.Colliders.Circle(50));
       const actor = new ex.Actor({ collider: comp.get()! });
       actor.removeComponent(ex.ColliderComponent, true);
       actor.addComponent(comp);
@@ -344,7 +344,7 @@ describe('A ColliderComponent', () => {
       vi.spyOn(actor, 'onCollisionStart');
       vi.spyOn(actor, 'onCollisionEnd');
 
-      const other = ex.Shape.Circle(50);
+      const other = ex.Colliders.Circle(50);
       const self = comp.get()!;
       comp.events.emit('precollision', new ex.PreCollisionEvent(self, other, ex.Side.None, ex.Vector.Zero, null as any));
       comp.events.emit('postcollision', new ex.PostCollisionEvent(self, other, ex.Side.None, ex.Vector.Zero, null as any));

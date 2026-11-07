@@ -177,7 +177,7 @@ describe('DebugSystem', () => {
       await (engine.graphicsContext.debug as any)._debugText.load();
 
       const actor = new ex.Actor({ name: 'thingy', x: -100 + center.x, y: center.y, width: 50, height: 50, color: ex.Color.Yellow });
-      actor.collider.useCompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(150, 20), ex.Shape.Box(10, 150)]);
+      actor.collider.useCompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(150, 20), ex.Colliders.Box(10, 150)]);
       actor.id = 0;
       debugSystem.query.checkAndModify(actor);
       engine.debug.collider.showAll = true;

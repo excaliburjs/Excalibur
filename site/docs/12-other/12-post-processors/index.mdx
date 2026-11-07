@@ -71,39 +71,32 @@ game.graphicsContext.addPostProcessor(colorblind);
 
 Post processors can also be use to produce some interesting custom effects.
 
-There is a helper class [[ScreenShader]] to help build shaders for post processing. The only things that come predefined are the:
+Implement `process(source, destination)` to render the screen (`source`) into `destination`, typically with a [[ShaderPass]]
+or [[ShaderPipeline]]. [[ShaderPipelinePostProcessor]] is a shortcut that builds one from fragment sources. The only things that
+come predefined are:
 
-1.  `v_texcoord` representing the current UV from [0, 1]
+1.  `v_uv` representing the current UV from [0, 1]
 2.  `u_image` which is the texture representing the screen pixels
 
 In this example we can make the entire game gray scale:
 
 ```typescript
-class GrayScalePostProcessor implements ex.PostProcessor {
-  private _shader: ex.ScreenShader;
-  initialize(gl: WebGL2RenderingContext): void {
-    this._shader = new ex.ScreenShader(gl,
-      `#version 300 es
+const grayscale = new ex.ShaderPipelinePostProcessor({
+  name: 'grayscale',
+  passes: [`#version 300 es
     precision mediump float;
     // our texture
     uniform sampler2D u_image;
-    // the texCoords passed in from the vertex shader.
-    in vec2 v_texcoord;
+    // the uvs passed in from the vertex shader.
+    in vec2 v_uv;
     out vec4 fragColor;
     void main() {
-      vec4 tex = texture(u_image, v_texcoord);
+      vec4 tex = texture(u_image, v_uv);
       float avg = 0.2126 * tex.r + 0.7152 * tex.g + 0.0722 * tex.b;
       fragColor = vec4(avg, avg, avg, 1.0);
-    }`
-    );
-  }
-  getLayout(): ex.VertexLayout {
-    return this._shader.getLayout();
-  }
-  getShader(): ex.Shader {
-    return this._shader.getShader();
-  }
-}
+    }`]
+});
+game.graphicsContext.addPostProcessor(grayscale);
 ```
 
 ![Gray Scale PostProcessor](grayscale.png)

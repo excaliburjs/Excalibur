@@ -18,17 +18,6 @@ import type { ParticleEmitter } from './particle-emitter';
  * CPU Particle is used in a {@apilink ParticleEmitter}
  */
 export class Particle extends Entity {
-  public static DefaultConfig: ParticleConfig = {
-    beginColor: Color.White,
-    endColor: Color.White,
-    life: 300,
-    fade: false,
-    size: 5,
-    graphic: undefined,
-    startSize: undefined,
-    endSize: undefined
-  };
-
   public focus?: Vector;
   public focusAccel?: number;
   public beginColor: Color = Color.White;
@@ -335,8 +324,3 @@ export interface ParticleEmitterOptions {
   radius?: number;
   random?: Random;
 }
-
-/**
- * @deprecated use ParticleEmitterOptions
- */
-export type ParticleEmitterArgs = ParticleEmitterOptions;

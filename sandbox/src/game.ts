@@ -685,7 +685,7 @@ game.add(
 var player = new ex.Actor({
   name: 'player',
   pos: new ex.Vector(100, -200),
-  collider: ex.Shape.Capsule(32, 96),
+  collider: ex.Colliders.Capsule(32, 96),
   collisionType: ex.CollisionType.Active
 });
 player.onPostUpdate = (engine) => {
@@ -761,7 +761,7 @@ player.onPostUpdate = () => {
 // };
 
 class OtherActor extends ex.Actor {
-  constructor(args: ex.ActorArgs) {
+  constructor(args: ex.ActorOptions) {
     super(args);
   }
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
