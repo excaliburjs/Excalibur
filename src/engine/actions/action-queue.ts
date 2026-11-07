@@ -48,6 +48,7 @@ export class ActionQueue {
     this._completedActions.length = 0;
     if (this._currentAction) {
       this._currentAction.stop();
+      this._currentAction = null;
     }
   }
 
@@ -106,13 +107,16 @@ export class ActionQueue {
         this._entity.emit('actionstart', new ActionStartEvent(this._currentAction, this._entity));
       }
 
-      this._currentAction.update(elapsed);
+      // Capture the running action, the action itself or an actioncomplete listener may clear/re-fill the queue
+      const running = this._currentAction;
+      running.update(elapsed);
 
-      if (this._currentAction.isComplete(this._entity)) {
-        this._entity.emit('actioncomplete', new ActionCompleteEvent(this._currentAction, this._entity));
-        const complete = this._actions.shift();
-        if (complete) {
-          this._completedActions.push(complete);
+      if (running.isComplete(this._entity)) {
+        this._entity.emit('actioncomplete', new ActionCompleteEvent(running, this._entity));
+        // Only remove the action that just finished, if the queue was cleared and re-filled the new head must survive
+        if (this._actions[0] === running) {
+          this._actions.shift();
+          this._completedActions.push(running);
         }
       }
     }

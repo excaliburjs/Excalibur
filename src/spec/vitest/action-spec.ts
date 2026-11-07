@@ -2209,5 +2209,40 @@ describe('Action', () => {
       expect(completeCalls[1][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.MoveTo) }));
       expect(completeCalls[2][0]).toEqual(expect.objectContaining({ target: actor, action: expect.any(ex.Repeat) }));
     });
+
+    it('keeps the new first action when a callMethod clears and re-fills the queue', () => {
+      const ran: string[] = [];
+      actor.actions
+        .callMethod(() => {
+          actor.actions.clearActions();
+          actor.actions.callMethod(() => ran.push('first-new')).callMethod(() => ran.push('second-new'));
+        })
+        .callMethod(() => ran.push('old'));
+
+      actor.actions.update(100);
+      actor.actions.update(100);
+      actor.actions.update(100);
+      actor.actions.update(100);
+
+      expect(ran).toEqual(['first-new', 'second-new']);
+    });
+
+    it('keeps the new first action when an actioncomplete listener clears and re-fills the queue', () => {
+      const ran: string[] = [];
+      let once = true;
+      actor.on('actioncomplete', () => {
+        if (once) {
+          once = false;
+          actor.actions.clearActions();
+          actor.actions.callMethod(() => ran.push('new'));
+        }
+      });
+      actor.actions.callMethod(() => ran.push('old'));
+
+      actor.actions.update(100);
+      actor.actions.update(100);
+
+      expect(ran).toEqual(['old', 'new']);
+    });
   });
 });
