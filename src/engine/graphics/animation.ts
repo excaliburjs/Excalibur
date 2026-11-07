@@ -565,10 +565,28 @@ export class Animation extends Graphic implements HasTick {
     }
 
     this._timeLeftInFrame -= elapsed * this._speed;
-    if (this._timeLeftInFrame <= 0) {
+
+    // Carry the overshoot into the next frame(s) so playback is frame-rate independent,
+    // a single large update (or speed > 1) can advance multiple frames
+    let steps = 0;
+    while (this._timeLeftInFrame <= 0) {
+      const overshoot = this._timeLeftInFrame;
       this.goToFrame(this._nextFrame());
+      if (this._done || !this._playing) {
+        break;
+      }
+      this._timeLeftInFrame += overshoot;
+      // Safety valve for zero length frames or enormous elapsed times (tab was backgrounded), drop the rest
+      if (++steps >= Animation._MAX_FRAMES_PER_TICK) {
+        if (this._timeLeftInFrame <= 0) {
+          this._timeLeftInFrame = this.frames[this._currentFrame]?.duration || this.frameDuration;
+        }
+        break;
+      }
     }
   }
+
+  private static readonly _MAX_FRAMES_PER_TICK = 256;
 
   protected _drawImage(ctx: ExcaliburGraphicsContext, x: number, y: number) {
     if (this.currentFrame && this.currentFrame.graphic) {

@@ -971,4 +971,68 @@ describe('A Graphics Animation', () => {
 
     expect(clone).toBeInstanceOf(ChildAnimation);
   });
+
+  describe('tick timing', () => {
+    const makeAnim = (opts: Partial<ConstructorParameters<typeof ex.Animation>[0]> = {}, frameCount = 4) =>
+      new ex.Animation({
+        frames: Array.from({ length: frameCount }, () => ({
+          graphic: new ex.Rectangle({ width: 5, height: 5, color: ex.Color.Blue })
+        })),
+        frameDuration: 40,
+        strategy: ex.AnimationStrategy.Loop,
+        ...opts
+      });
+
+    it('is frame-rate independent (40ms frames play at 25 fps at 60Hz and 144Hz)', () => {
+      for (const hz of [30, 60, 144]) {
+        const anim = makeAnim();
+        let frames = 0;
+        anim.events.on('frame', () => frames++);
+        const step = 1000 / hz;
+        for (let i = 0; i < hz; i++) {
+          anim.tick(step, i + 1);
+        }
+        // 1 initial frame event + 25 frame changes in 1s (allow 1 for float rounding at the boundary)
+        expect(frames - 1).toBeGreaterThanOrEqual(24);
+        expect(frames - 1).toBeLessThanOrEqual(25);
+      }
+    });
+
+    it('can advance multiple frames in a single tick and keeps the remainder', () => {
+      const anim = makeAnim({}, 10);
+      anim.tick(100, 1); // 2.5 frames
+      expect(anim.currentFrameIndex).toBe(2);
+      expect(anim.currentFrameTimeLeft).toBeCloseTo(20);
+    });
+
+    it('speed greater than one frame per tick is not capped', () => {
+      const anim = makeAnim({ speed: 4 }, 20);
+      anim.tick(40, 1); // 160ms of animation time = 4 frames
+      expect(anim.currentFrameIndex).toBe(4);
+    });
+
+    it('does not run past the end of an End animation and fires end once', () => {
+      const anim = makeAnim({ strategy: ex.AnimationStrategy.End }, 3);
+      const end = vi.fn();
+      anim.events.on('end', end);
+      anim.tick(1000, 1);
+      expect(anim.isComplete).toBe(true);
+      expect(end).toHaveBeenCalledTimes(1);
+    });
+
+    it('freezes on the last frame for Freeze animations', () => {
+      const anim = makeAnim({ strategy: ex.AnimationStrategy.Freeze }, 3);
+      anim.tick(1000, 1);
+      expect(anim.isComplete).toBe(true);
+      expect(anim.currentFrameIndex).toBe(2);
+    });
+
+    it('terminates for zero length frames and enormous elapsed times', () => {
+      const anim = makeAnim({ frameDuration: 0 }, 3);
+      expect(() => anim.tick(16, 1)).not.toThrow();
+      const anim2 = makeAnim({}, 3);
+      expect(() => anim2.tick(1_000_000_000, 1)).not.toThrow();
+      expect(anim2.currentFrameTimeLeft).toBeGreaterThan(0);
+    });
+  });
 });
