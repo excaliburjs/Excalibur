@@ -44,11 +44,11 @@ Systems execute in this order
    * Initialize your query here
 2. one-time `initialize(world: World, scene: Scene)`
    * Initialize anything that relies on the scene/engine here
-3. every frame `preupdate(scene: Scene, elapsedMs: number)`
+3. every frame `preupdate(scene: Scene, elapsed: number)` (`elapsed` is in milliseconds)
    * Run setup code for the update
 4. every frame `update(delta: number)`
    * Update all your entities here
-5. every frame `postupdate(scene: Scene, elapsedMs: number)`
+5. every frame `postupdate(scene: Scene, elapsed: number)`
    * Run cleanup code for the update
 
 ## Built in Systems

@@ -16,7 +16,7 @@ export class EntityManager {
   /**
    * Runs the entity lifecycle
    * @param scene
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   public updateEntities(scene: Scene, elapsed: number) {
     for (let entityIndex = 0; entityIndex < this.entities.length; entityIndex++) {

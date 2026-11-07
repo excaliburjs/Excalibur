@@ -435,7 +435,7 @@ export interface ExcaliburGraphicsContext {
    * Updates all post processors in the graphics context
    *
    * Called internally by Excalibur
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    * @internal
    */
   updatePostProcessors(elapsed: number): void;

@@ -73,14 +73,14 @@ export interface SoundOptions<TName extends string = string> {
    */
   pitch?: number;
   /**
-   * Seconds?
+   * Duration in milliseconds.
    *
    * By default unset, will play the natural length of the clip
    */
   duration?: number;
 
   /**
-   * Advance to a position in the audio clip
+   * Advance to a position (in milliseconds) in the audio clip
    */
   position?: number;
 
@@ -128,11 +128,11 @@ export interface PlayOptions {
    */
   loop?: boolean;
   /**
-   * Position in seconds to start this track from, overrides {@apilink Sound.position}
+   * Position in milliseconds to start this track from, overrides {@apilink Sound.position}
    */
   position?: number;
   /**
-   * Duration in seconds to play this track for, overrides {@apilink Sound.duration}
+   * Duration in milliseconds to play this track for, overrides {@apilink Sound.duration}
    */
   duration?: number;
   /**
@@ -194,7 +194,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   public readonly name: TName;
 
   /**
-   * Position in seconds new tracks start from, see {@apilink PlayOptions.position} for a one-off
+   * Position in milliseconds new tracks start from, see {@apilink PlayOptions.position} for a one-off
    */
   public position: number | undefined;
   /**
@@ -243,17 +243,17 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
 
   private _duration: number | undefined;
   /**
-   * Get the duration that this audio should play. If unset the total natural playback duration will be used.
+   * Get the duration in milliseconds that this audio should play. If unset the total natural playback duration will be used.
    */
   public get duration(): number | undefined {
     return this._duration;
   }
   /**
-   * Set the duration that this audio should play. If unset the total natural playback duration will be used.
+   * Set the duration in milliseconds that this audio should play. If unset the total natural playback duration will be used.
    *
    * Note: if you seek to a specific point the duration will start from that point, for example
    *
-   * If you have a 10 second clip, seek to 5 seconds, then set the duration to 2, it will play the clip from 5-7 seconds.
+   * If you have a 10 second clip, seek to 5000, then set the duration to 2000, it will play the clip from 5-7 seconds.
    */
   public set duration(duration: number | undefined) {
     this._duration = duration;
@@ -426,7 +426,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     }
     const arraybuffer = await this._resource.load();
     const audiobuffer = await this.decodeAudio(arraybuffer);
-    this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
+    this._duration = this._duration ?? (audiobuffer ? audiobuffer.duration * 1000 : undefined);
     this.events.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
     return (this.data = audiobuffer);
   }
@@ -577,7 +577,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
 
     const overrides: PlayOptions = options ?? {};
     const track = this._createTrack(overrides);
-    track.scheduledStartTime = (overrides.scheduledStartTime ?? 0) / 1000;
+    track.scheduledStartTime = overrides.scheduledStartTime ?? 0;
     const position = overrides.position ?? this.position;
     if (position) {
       track.seek(position);
@@ -668,7 +668,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
   }
 
   /**
-   * Seek a track to a position in seconds, the track is paused until the next {@apilink Sound.resume}.
+   * Seek a track to a position in milliseconds, the track is paused until the next {@apilink Sound.resume}.
    *
    * If no track exists one is created so that `seek(); resume()` starts from the position.
    */
@@ -680,6 +680,9 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     this._tracks[trackId]?.seek(position);
   }
 
+  /**
+   * Return the total duration of the loaded audio clip in milliseconds
+   */
   public getTotalPlaybackDuration() {
     if (!this.isLoaded) {
       this.logger.warnOnce(
@@ -688,11 +691,11 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
       );
       return 0;
     }
-    return this.data.duration;
+    return this.data.duration * 1000;
   }
 
   /**
-   * Return the current playback time of the playing track in seconds from the start.
+   * Return the current playback time of the playing track in milliseconds from the start.
    *
    * Optionally specify the track to query if multiple are playing at once.
    * @param trackId
@@ -781,7 +784,7 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
     const arrayBuffer = await blob.arrayBuffer();
     const decodedBuffer = await AudioContextFactory.create().decodeAudioData(arrayBuffer);
     sound.data = decodedBuffer;
-    sound._duration = decodedBuffer.duration;
+    sound._duration = decodedBuffer.duration * 1000;
 
     return sound;
   }

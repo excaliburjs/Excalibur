@@ -348,7 +348,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   /**
    * Runs the broadphase sweep over tracked colliders and returns possible collision pairs
    * @param targets
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   broadphase(targets: Collider[], elapsed: number): Pair[] {
     const pairs: Pair[] = [];
@@ -433,7 +433,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   /**
    * Draws the internal data structure
    * @param ex
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   debug(ex: ExcaliburGraphicsContext, elapsed: number): void {
     this.hashGrid.debug(ex, elapsed);

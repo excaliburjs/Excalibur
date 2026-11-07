@@ -37,8 +37,8 @@ describe('The engine', () => {
   });
 
   describe('after frame is ended', () => {
-    it('should collect frame elapsedMs', () => {
-      expect(stats.elapsedMs, 'Frame stats elapsedMs should be ~16ms').toBeCloseTo(16.6, 0);
+    it('should collect frame elapsed', () => {
+      expect(stats.elapsed, 'Frame stats elapsed should be ~16ms').toBeCloseTo(16.6, 0);
     });
 
     it('should collect frame fps', () => {
@@ -71,7 +71,7 @@ describe('FrameStats', () => {
   it('can be cloned', () => {
     sut.id = 10;
     sut.fps = 10;
-    sut.elapsedMs = 10;
+    sut.elapsed = 10;
     sut.actors.alive = 3;
     sut.actors.killed = 1;
     sut.actors.ui = 1;

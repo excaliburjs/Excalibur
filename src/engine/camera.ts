@@ -834,7 +834,7 @@ export class Camera implements CanUpdate, CanInitialize {
     // interpolation if fixed update is on
     // must happen on the draw, because more draws are potentially happening than updates
     if (this._engine.fixedUpdateTimestep) {
-      const blend = this._engine.currentFrameLagMs / this._engine.fixedUpdateTimestep;
+      const blend = this._engine.currentFrameLag / this._engine.fixedUpdateTimestep;
       const interpolatedPos = this.pos.scale(blend).add(this._oldPos.scale(1.0 - blend));
       interpolatedPos.clone(this.drawPos);
       this.updateTransform(interpolatedPos);

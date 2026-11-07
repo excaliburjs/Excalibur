@@ -240,7 +240,7 @@ describe('Sound resource', () => {
     track.play();
 
     expect((track as any)._createSource).toHaveBeenCalled();
-    expect(source.start).toHaveBeenCalledWith(0, 0, sut.duration);
+    expect(source.start).toHaveBeenCalledWith(0, 0, sut.duration! / 1000);
   });
 
   it('should apply its volume to the output gain', () =>
@@ -309,7 +309,7 @@ describe('Sound resource', () => {
     sut.play();
     await delay(1000);
     // appveyor is a little fast for some reason
-    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(0.98);
+    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(980);
   });
 
   it('should variable playback rate of the audio track', async () => {
@@ -319,7 +319,7 @@ describe('Sound resource', () => {
     sut.play();
     await delay(1000);
     // appveyor is a little fast for some reason
-    expect(sut.getPlaybackPosition(), 'Twice the speed will be at 2 seconds').toBeGreaterThanOrEqual(1.8);
+    expect(sut.getPlaybackPosition(), 'Twice the speed will be at 2 seconds').toBeGreaterThanOrEqual(1800);
   });
 
   // FIXME: issue for flakey test https://github.com/excaliburjs/Excalibur/issues/1547
@@ -424,14 +424,14 @@ describe('Sound resource', () => {
     sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
     expect(sut.getPlaybackPosition()).toBe(0);
-    sut.seek(6.5);
-    expect(sut.getPlaybackPosition()).toBe(6.5);
+    sut.seek(6500);
+    expect(sut.getPlaybackPosition()).toBe(6500);
   });
 
   it('can get the total duration of the sound', async () => {
     sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
-    expect(sut.getTotalPlaybackDuration()).toBeCloseTo(13.01, 1);
+    expect(sut.getTotalPlaybackDuration()).toBeCloseTo(13010, -2);
   });
 
   it('can set/get the playback rate', async () => {
@@ -447,8 +447,8 @@ describe('Sound resource', () => {
     expect(sut.playbackRate).toBe(1.0);
     sut.playbackRate = 2.5;
     await sut.load();
-    sut.seek(6.5);
-    expect(sut.getPlaybackPosition()).toBe(6.5);
+    sut.seek(6500);
+    expect(sut.getPlaybackPosition()).toBe(6500);
   });
 
   describe('name derivation', () => {
@@ -591,7 +591,7 @@ describe('Sound resource', () => {
       sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
       sut.loop = true;
       await sut.load();
-      sut.seek(6.5);
+      sut.seek(6500);
       expect(sut.isPaused).toBe(true);
 
       await new Promise<void>((done) => {
@@ -1011,7 +1011,7 @@ describe('Sound resource', () => {
       const instance = await ex.Sound.fromBlob(testBlob);
 
       expect(instance.data).toEqual(mockBuffer);
-      expect(instance.duration).toEqual(duration);
+      expect(instance.duration).toEqual(duration * 1000);
     });
   });
 });

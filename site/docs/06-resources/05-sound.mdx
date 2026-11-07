@@ -27,6 +27,12 @@ await game.start(loader);
 sound.play({ volume: 0.5 });
 ```
 
+All times in the [[Sound]] API are in **milliseconds**, including `position`, `duration`, [[Sound.seek|seek]], [[Sound.getPlaybackPosition|getPlaybackPosition]] and `scheduledStartTime`.
+
+```typescript
+sound.play({ position: 2000, duration: 1000 }); // start 2 seconds in and play for 1 second
+```
+
 See the [examples](https://excaliburjs.com/examples/?path=/docs/audio) or API documentation for [[Sound]] for additional features available such as looping, volume setting, and more.
 
 <!-- <Example story="audio" /> -->

@@ -24,7 +24,7 @@ describe('A color', () => {
 
   it('should display an error message', () => {
     const fn = () => color.toString('invalid' as any);
-    expect(fn).toThrowError('Invalid Color format');
+    expect(fn).toThrow('Invalid Color format');
   });
 
   it('should handle alpha values of 0', () => {
@@ -344,12 +344,12 @@ describe('A color', () => {
   });
 
   it('can throw on an invalid rgb string', () => {
-    expect(() => ex.Color.fromRGBString('not-a-color')).toThrowError('Invalid rgb/a string: not-a-color');
+    expect(() => ex.Color.fromRGBString('not-a-color')).toThrow('Invalid rgb/a string: not-a-color');
   });
 
   it('can be compared for equality', () => {
-    expect(ex.Color.Red.equal(ex.Color.fromRGB(255, 0, 0))).toBe(true);
-    expect(ex.Color.Red.equal(ex.Color.Blue)).toBe(false);
+    expect(ex.Color.Red.equals(ex.Color.fromRGB(255, 0, 0))).toBe(true);
+    expect(ex.Color.Red.equals(ex.Color.Blue)).toBe(false);
   });
 
   it('produces a hashCode', () => {

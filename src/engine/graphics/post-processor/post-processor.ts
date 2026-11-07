@@ -39,7 +39,9 @@ export interface PostProcessor {
 
   /**
    * Use the onUpdate hook to update any uniforms in the postprocessors shader
-   * @param elapsed
+   *
+   * The shader has already been bound so there is no need to call shader.use();
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   onUpdate?(elapsed: number): void;
 

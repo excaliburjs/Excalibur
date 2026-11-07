@@ -226,8 +226,12 @@ export class Color {
     return new Color(newR, newG, newB, newA);
   }
 
-  public equal(color: Color): boolean {
-    return this.toString() === color.toString();
+  /**
+   * Returns true if all channels (r, g, b, a) of the two colors are exactly equal
+   * @param color The other color
+   */
+  public equals(color: Color): boolean {
+    return this.r === color.r && this.g === color.g && this.b === color.b && this.a === color.a;
   }
 
   /**

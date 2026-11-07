@@ -174,6 +174,9 @@ export class Animation extends Graphic implements HasTick {
   public events = new EventEmitter<AnimationEvents>();
   public frames: Frame[] = [];
   public strategy: AnimationStrategy = AnimationStrategy.Loop;
+  /**
+   * Default duration of each frame in milliseconds
+   */
   public frameDuration: number = 100;
   public data: Map<string, any>;
   public shouldAlwaysTick: boolean = false;
@@ -476,7 +479,7 @@ export class Animation extends Graphic implements HasTick {
    * Optionally specify an override for the duration of the frame, useful for
    * keeping multiple animations in sync with one another.
    * @param frameNumber
-   * @param duration
+   * @param duration Optional override for the frame duration in milliseconds
    */
   public goToFrame(frameNumber: number, duration?: number) {
     this._currentFrame = frameNumber;

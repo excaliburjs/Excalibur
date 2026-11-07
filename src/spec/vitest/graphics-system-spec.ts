@@ -316,7 +316,7 @@ describe('A Graphics ECS System', () => {
     graphicsSystem.onPreUpdate();
     graphicsSystem.query.checkAndModify(actor);
 
-    game.currentFrameLagMs = 8; // current lag in a 30 fps frame
+    game.currentFrameLag = 8; // current lag in a 30 fps frame
     graphicsSystem.onUpdate(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(24, 24);
@@ -354,7 +354,7 @@ describe('A Graphics ECS System', () => {
     graphicsSystem.onPreUpdate();
     graphicsSystem.query.checkAndModify(actor);
 
-    game.currentFrameLagMs = 1000 / 30 / 2; // current lag in a 30 fps frame
+    game.currentFrameLag = 1000 / 30 / 2; // current lag in a 30 fps frame
     graphicsSystem.onUpdate(16);
 
     expect(translateSpy.mock.calls[0]).toEqual([10, 10]);
@@ -388,7 +388,7 @@ describe('A Graphics ECS System', () => {
     graphicsSystem.query.checkAndModify(actor);
 
     actor.body.enableFixedUpdateInterpolate = false;
-    game.currentFrameLagMs = 8; // current lag in a 30 fps frame
+    game.currentFrameLag = 8; // current lag in a 30 fps frame
     graphicsSystem.onUpdate(30);
 
     expect(game.graphicsContext.translate).toHaveBeenCalledWith(100, 100);

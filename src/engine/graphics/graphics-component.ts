@@ -489,7 +489,7 @@ export class GraphicsComponent extends Component {
 
   /**
    * Update underlying graphics if necessary, called internally
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    * @internal
    */
   public update(elapsed: number, idempotencyToken: number = 0) {
@@ -502,7 +502,7 @@ export class GraphicsComponent extends Component {
   /**
    * Update underlying graphics when offscreen, only ticks if opted in via shouldAlwaysTick on the component or current graphic.
    * Called internally by GraphicsSystem.
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    * @internal
    */
   public updateOffscreen(elapsed: number, idempotencyToken: number = 0) {

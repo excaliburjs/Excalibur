@@ -97,11 +97,11 @@ export class SoundTrack {
   private _playStarted: () => any = () => {};
 
   /**
-   * Buffer offset in seconds to start from on the next (re)start
+   * Buffer offset in milliseconds to start from on the next (re)start
    */
   private _offset = 0;
   /**
-   * Audio context time and buffer offset at which the current source started
+   * Audio context time (seconds) and buffer offset (milliseconds) at which the current source started
    */
   private _startedAt = 0;
   private _startOffset = 0;
@@ -113,12 +113,12 @@ export class SoundTrack {
         onEnter: () => {
           const source = this._createSource();
           this._startOffset = this._offset;
-          this._startedAt = Math.max(this._audioContext.currentTime, this.scheduledStartTime);
+          this._startedAt = Math.max(this._audioContext.currentTime, this.scheduledStartTime / 1000);
           if (this.loop) {
             // when looping don't set a duration
-            source.start(this.scheduledStartTime, this._offset);
+            source.start(this.scheduledStartTime / 1000, this._offset / 1000);
           } else {
-            source.start(this.scheduledStartTime, this._offset, this.duration);
+            source.start(this.scheduledStartTime / 1000, this._offset / 1000, this.duration / 1000);
           }
         },
         onState: () => this._playStarted(),
@@ -283,21 +283,24 @@ export class SoundTrack {
 
   private _duration: number | undefined;
   /**
-   * The duration in seconds this track plays for, or the buffer's total duration when unset.
+   * The duration in milliseconds this track plays for, or the buffer's total duration when unset.
    *
-   * Note: the duration starts from the seeked position, seeking a 10 second clip to 5 seconds and
-   * setting a duration of 2 plays seconds 5-7.
+   * Note: the duration starts from the seeked position, seeking a 10 second clip to 5000 and
+   * setting a duration of 2000 plays seconds 5-7.
    */
   public get duration(): number {
     return this._duration ?? this.getTotalPlaybackDuration();
   }
 
+  /**
+   * Set the duration in milliseconds this track plays for
+   */
   public set duration(duration: number | undefined) {
     this._duration = duration;
   }
 
   /**
-   * Audio context time in seconds at which the next (re)start is scheduled, 0 means immediately
+   * Audio context time in milliseconds at which the next (re)start is scheduled, 0 means immediately
    */
   public scheduledStartTime = 0;
 
@@ -339,18 +342,21 @@ export class SoundTrack {
   }
 
   /**
-   * Move to a position in seconds, the track is paused until the next play()
+   * Move to a position in milliseconds, the track is paused until the next play()
    */
   public seek(position: number) {
     this._stateMachine.go('SEEK', position);
   }
 
+  /**
+   * Total duration of the buffer in milliseconds
+   */
   public getTotalPlaybackDuration() {
-    return this._buffer.duration;
+    return this._buffer.duration * 1000;
   }
 
   /**
-   * Current position in the buffer in seconds
+   * Current position in the buffer in milliseconds
    */
   public getPlaybackPosition() {
     if (!this.isPlaying) {
@@ -359,7 +365,7 @@ export class SoundTrack {
     // detune changes speed by 2^(cents/1200) on top of playbackRate
     const effectiveRate = this._playbackRate * Math.pow(2, this._pitch / 1200);
     const elapsed = Math.max(0, this._audioContext.currentTime - this._startedAt);
-    let position = this._startOffset + elapsed * effectiveRate;
+    let position = this._startOffset + elapsed * 1000 * effectiveRate;
     const total = this.getTotalPlaybackDuration();
     if (this._loop && total > 0) {
       position %= total;

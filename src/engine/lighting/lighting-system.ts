@@ -998,7 +998,7 @@ export class LightingSystem extends System {
   private _drawColorTints(ctx: CanvasRenderingContext2D, roomClips: RoomClip[], camera: Camera): void {
     for (let i = 0; i < this._pointLights.length; i++) {
       const entry = this._pointLights[i];
-      if (!entry.visible || entry.light.color.equal(Color.White)) {
+      if (!entry.visible || entry.light.color.equals(Color.White)) {
         continue;
       }
       this._drawColorTint(ctx, entry.light, entry.screenPos, camera, roomClips);
@@ -1006,7 +1006,7 @@ export class LightingSystem extends System {
 
     for (let i = 0; i < this._coneLights.length; i++) {
       const entry = this._coneLights[i];
-      if (!entry.visible || entry.light.color.equal(Color.White)) {
+      if (!entry.visible || entry.light.color.equals(Color.White)) {
         continue;
       }
       const light = entry.light;

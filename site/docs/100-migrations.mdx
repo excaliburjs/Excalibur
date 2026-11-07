@@ -61,7 +61,7 @@ section: Migration Guides
           super();
           this.query = world.query([MyComponent]);
       }
-      update(elapsedMs: number): void {
+      update(elapsed: number): void {
           for (let entity of this.query.entities) {
               const myComponent = entity.get(MyComponent);
               console.log(myComponent.data);

@@ -104,7 +104,7 @@ export class Gif implements Loadable<ImageSource[]> {
       const frames = images.map((image, index) => {
         return {
           graphic: this._sprites[index],
-          duration: this._gif?.frames[index].delayMs || undefined
+          duration: this._gif?.frames[index].delay || undefined
         };
       });
       this._animation = new Animation({
@@ -137,8 +137,10 @@ export interface GifFrame {
   lctSize: number;
   lzwMinCodeSize: number;
   pixels: number[];
+  /** Raw frame delay in hundredths of a second as stored in the GIF */
   delayTime: number;
-  delayMs: number;
+  /** Frame delay in milliseconds */
+  delay: number;
 }
 
 const bitsToNum = (ba: any) => {
@@ -548,7 +550,7 @@ class GifParser {
     }
 
     if (this._gce?.delayTime) {
-      img.delayMs = this._gce.delayTime * 10;
+      img.delay = this._gce.delayTime * 10;
     }
 
     this.frames.push(img);

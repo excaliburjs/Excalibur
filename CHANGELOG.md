@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Breaking Changes
 
+- Time units are implicitly **milliseconds** everywhere, with no `Ms` suffix on public API:
+  - `Engine.currentFrameElapsedMs` -> `currentFrameElapsed`, `Engine.currentFrameLagMs` -> `currentFrameLag`, `FrameStats.elapsedMs` -> `elapsed`, `GifFrame.delayMs` -> `delay`, `ClockOptions.defaultUpdateMs` -> `defaultUpdate`
+  - `Sound`, `SoundTrack` and `PlayOptions` `position`/`duration`, `seek()`, `getPlaybackPosition()`, `getTotalPlaybackDuration()` and `SoundTrack.scheduledStartTime` are now in **milliseconds** (previously seconds). `sound.play({ duration: 500 })` now plays for half a second.
 - API naming is now consistent: synchronous boolean state is always a **getter** (`isX`), side-effecting calls are **verb methods**, and async state is a **Promise property** that never has an `isX()` form. Zero-arg `isX()`/`hasX()` methods became getters, drop the parentheses:
   - `Entity.isKilled` (and `Actor`), `Engine.isRunning`, `Engine.isDisposed`, `Clock.isRunning`, `Scene.isCurrentScene`, `CollisionContact.isCanceled`, `CoroutineInstance.isRunning/isComplete`
   - `Sound` and `SoundTrack`: `isPlaying`, `isPaused`, `isStopped`
@@ -19,6 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - `Slide({ easingFunction })` is now `Slide({ easing })`, matching every other transition; previously `easing` was silently ignored by `Slide`
   - Pausing: `Actor.paused` (a `PauseComponent`, not a boolean) and `Particle.paused` are now the read-only `pauseComponent`, `PauseComponent.paused` is now the read-only `isPaused`, and `PauseComponentInterface` is now `PauseComponentOptions`. Use `Actor.canPause` and `Actor.isPaused` for everyday code
   - Spelling: `isOffScreen` -> `isOffscreen` (one word, like the web platform's `OffscreenCanvas`; "on screen" stays split: `forceOnScreen`, `onScreenOnly`, `getOnScreenTiles()`), `isHiDpi` -> `isHiDPI` on `Engine` and `Screen`, and `Future.isCompleted` -> `isComplete`
+  - Renamed: `Color.equal` -> `Color.equals`
   - Renamed: `Engine.loadingComplete` -> `Engine.isLoaded`; `Engine.ready` (boolean) -> `Engine.isReady`; `Engine.isReady()` (Promise) -> `await engine.ready`; `Animation.done` -> `Animation.isComplete`; `Timer.complete` and `Transition.complete` -> `isComplete`; `Gamepad.connected` -> `Gamepad.isConnected`; `SystemManager.initialized` -> `isInitialized`; `Engine.toggleInputEnabled(enabled)` -> `Engine.setInputEnabled(enabled)`; graph edge option `directed` -> `isDirected`; `PointerEvent.active`/`WheelEvent.active` -> `isActive`; `Transition.started` -> `hasStarted`; `Gamepads.enabled` (polling opt-in) -> `Gamepads.pollingEnabled`
 
 - Sound: the audio implementation abstraction has been removed and Web Audio is the only implementation. `ex.WebAudioInstance` is replaced by `ex.SoundTrack` (returned by `Sound.instances` and `NativeSoundEvent.track`), and the `ex.Audio`, `ex.AudioImplementation`, `ex.ExResponse`, `ex.ExResponseType` and `ex.ExResponseTypesLookup` exports are gone (pass the response type string to `new ex.Resource(path, 'arraybuffer')` instead). Per-track volume moved to the owning `Sound`, so `SoundTrack` has no `volume`.
