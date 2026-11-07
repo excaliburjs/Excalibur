@@ -29,6 +29,53 @@ describe('Action', () => {
     engine = null;
   });
 
+  describe('flash', () => {
+    it('restores the previous material when the flash completes', () => {
+      const userMaterial = engine.graphicsContext.createMaterial({
+        name: 'user-material',
+        fragmentSource: `#version 300 es
+        precision mediump float;
+        in vec2 v_uv;
+        out vec4 color;
+        void main() { color = vec4(1.0); }`
+      });
+      actor.graphics.material = userMaterial;
+
+      actor.actions.flash(ex.Color.White, 500);
+      scene.update(engine, 100);
+      expect(actor.graphics.material).not.toBe(userMaterial);
+      expect(actor.graphics.material).not.toBeNull();
+
+      scene.update(engine, 1000);
+      expect(actor.graphics.material).toBe(userMaterial);
+    });
+
+    it('restores no material (null) when there was none', () => {
+      actor.actions.flash(ex.Color.White, 500);
+      scene.update(engine, 100);
+      expect(actor.graphics.material).not.toBeNull();
+      scene.update(engine, 1000);
+      expect(actor.graphics.material).toBeNull();
+    });
+
+    it('restores the previous material when stopped early', () => {
+      const userMaterial = engine.graphicsContext.createMaterial({
+        name: 'user-material',
+        fragmentSource: `#version 300 es
+        precision mediump float;
+        in vec2 v_uv;
+        out vec4 color;
+        void main() { color = vec4(1.0); }`
+      });
+      actor.graphics.material = userMaterial;
+
+      actor.actions.flash(ex.Color.White, 500);
+      scene.update(engine, 100);
+      actor.actions.clearActions();
+      expect(actor.graphics.material).toBe(userMaterial);
+    });
+  });
+
   describe('parallel actions', () => {
     it('can run actions in parallel', () => {
       const parallel = new ex.ParallelActions([new ex.MoveTo(actor, 100, 0, 100), new ex.RotateTo(actor, Math.PI / 2, Math.PI / 2)]);
