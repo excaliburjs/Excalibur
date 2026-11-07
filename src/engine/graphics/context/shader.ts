@@ -311,7 +311,19 @@ export class Shader {
   private _uniformBufferBindingPoints: { [blockName: string]: number } = {};
   private _uniformBlockIndexCache: { [blockName: string]: number } = {};
   private _uniformBlockBindingSet: { [blockName: string]: boolean } = {};
-  private _boundBufferBase: Map<number, WebGLBuffer | null> = new Map();
+  /**
+   * Indexed UNIFORM_BUFFER binding points are global state of the GL context (shared by every program), so what is
+   * currently bound at each point is tracked per context, not per shader.
+   */
+  private static _BOUND_BUFFER_BASE = new WeakMap<WebGL2RenderingContext, Map<number, WebGLBuffer | null>>();
+  private _getBoundBufferBase(): Map<number, WebGLBuffer | null> {
+    let bound = Shader._BOUND_BUFFER_BASE.get(this._gl);
+    if (!bound) {
+      bound = new Map();
+      Shader._BOUND_BUFFER_BASE.set(this._gl, bound);
+    }
+    return bound;
+  }
   private _nextUniformBufferBindingPoint = 0;
   private _affineMatrixCache = new Float32Array(16);
   private _compiled = false;
@@ -392,7 +404,6 @@ export class Shader {
     this._uniformBuffers = {};
     this._uniformBlockIndexCache = {};
     this._uniformBlockBindingSet = {};
-    this._boundBufferBase.clear();
     this._uniformBufferBindingPoints = {};
     this._nextUniformBufferBindingPoint = 0;
 
@@ -416,8 +427,30 @@ export class Shader {
       this._setUniforms();
       this._dirtyUniforms = false;
     }
+    // Binding points are shared by every shader, another shader may have bound its own buffer to ours since the last use
+    this._bindUniformBuffers();
 
     this._setImages();
+  }
+
+  /**
+   * (Re)binds this shader's uniform buffers to their binding points if something else is bound there
+   */
+  private _bindUniformBuffers() {
+    const names = Object.keys(this._uniformBuffers);
+    if (!names.length) {
+      return;
+    }
+    const gl = this._gl;
+    const bound = this._getBoundBufferBase();
+    for (const name of names) {
+      const bindingPoint = this._uniformBufferBindingPoints[name];
+      const buffer = this._uniformBuffers[name].buffer;
+      if (bindingPoint !== undefined && bound.get(bindingPoint) !== buffer) {
+        gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, buffer);
+        bound.set(bindingPoint, buffer);
+      }
+    }
   }
 
   unuse() {
@@ -725,9 +758,13 @@ export class Shader {
         bindingPoint = this._uniformBufferBindingPoints[name];
       } else {
         bindingPoint = this._nextUniformBufferBindingPoint++;
-        this._uniformBufferBindingPoints[name] = bindingPoint;
       }
+    } else if (this._uniformBufferBindingPoints[name] !== bindingPoint) {
+      // explicit binding point changed, the program's block must be pointed at the new one
+      this._uniformBlockBindingSet[name] = false;
     }
+    // remember it so use() can re-bind the buffer later
+    this._uniformBufferBindingPoints[name] = bindingPoint;
     let uniformBuffer: UniformBuffer;
     if (this._uniformBuffers[name]) {
       uniformBuffer = this._uniformBuffers[name];
@@ -753,9 +790,10 @@ export class Shader {
       gl.uniformBlockBinding(this.program, index, bindingPoint);
       this._uniformBlockBindingSet[name] = true;
     }
-    if (this._boundBufferBase.get(bindingPoint) !== uniformBuffer.buffer) {
+    const bound = this._getBoundBufferBase();
+    if (bound.get(bindingPoint) !== uniformBuffer.buffer) {
       gl.bindBufferBase(gl.UNIFORM_BUFFER, bindingPoint, uniformBuffer.buffer);
-      this._boundBufferBase.set(bindingPoint, uniformBuffer.buffer);
+      bound.set(bindingPoint, uniformBuffer.buffer);
     }
   }
 
