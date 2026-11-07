@@ -10,7 +10,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Time units are implicitly **milliseconds** everywhere, with no `Ms` suffix on public API:
   - `Engine.currentFrameElapsedMs` -> `currentFrameElapsed`, `Engine.currentFrameLagMs` -> `currentFrameLag`, `FrameStats.elapsedMs` -> `elapsed`, `GifFrame.delayMs` -> `delay`, `ClockOptions.defaultUpdateMs` -> `defaultUpdate`
   - `Sound`, `SoundTrack` and `PlayOptions` `position`/`duration`, `seek()`, `getPlaybackPosition()`, `getTotalPlaybackDuration()` and `SoundTrack.scheduledStartTime` are now in **milliseconds** (previously seconds). `sound.play({ duration: 500 })` now plays for half a second.
-  - Shader uniforms `u_time_ms`/`u_elapsed_ms` are unchanged
 - API naming is now consistent: synchronous boolean state is always a **getter** (`isX`), side-effecting calls are **verb methods**, and async state is a **Promise property** that never has an `isX()` form. Zero-arg `isX()`/`hasX()` methods became getters, drop the parentheses:
   - `Entity.isKilled` (and `Actor`), `Engine.isRunning`, `Engine.isDisposed`, `Clock.isRunning`, `Scene.isCurrentScene`, `CollisionContact.isCanceled`, `CoroutineInstance.isRunning/isComplete`
   - `Sound` and `SoundTrack`: `isPlaying`, `isPaused`, `isStopped`
