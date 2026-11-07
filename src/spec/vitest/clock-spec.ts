@@ -10,7 +10,7 @@ describe('Clocks', () => {
       const tickSpy = vi.fn();
       const testClock = new ex.TestClock({
         tick: tickSpy,
-        defaultUpdateMs: 1000
+        defaultUpdate: 1000
       });
       testClock.start();
       expect(testClock.isRunning).toBe(true);
@@ -36,7 +36,7 @@ describe('Clocks', () => {
         tick: () => {
           /* nothing */
         },
-        defaultUpdateMs: 1000
+        defaultUpdate: 1000
       });
 
       const standard = testClock.toStandardClock();
@@ -51,7 +51,7 @@ describe('Clocks', () => {
         tick: () => {
           /* nothing */
         },
-        defaultUpdateMs: 1000
+        defaultUpdate: 1000
       });
 
       testClock.step();
@@ -65,7 +65,7 @@ describe('Clocks', () => {
           tick: () => {
             /* nothing */
           },
-          defaultUpdateMs: 1000
+          defaultUpdate: 1000
         });
         testClock.start();
         ex.Util.delay(1000, testClock).then(() => {
@@ -81,7 +81,7 @@ describe('Clocks', () => {
         tick: () => {
           /* nothing */
         },
-        defaultUpdateMs: 1000
+        defaultUpdate: 1000
       });
       testClock.start();
 
@@ -111,7 +111,7 @@ describe('Clocks', () => {
         tick: () => {
           /* nothing */
         },
-        defaultUpdateMs: 1000
+        defaultUpdate: 1000
       });
       testClock.start();
 
@@ -135,7 +135,7 @@ describe('Clocks', () => {
         tick: () => {
           /* nothing */
         },
-        defaultUpdateMs: 1000
+        defaultUpdate: 1000
       });
       testClock.start();
 
@@ -175,7 +175,7 @@ describe('Clocks', () => {
       const clock = new ex.TestClock({
         tick: tickSpy,
         maxFps: 15,
-        defaultUpdateMs: null as any
+        defaultUpdate: null as any
       });
 
       clock.start();

@@ -274,7 +274,7 @@ export class GraphicsSystem extends System {
         if (optionalBody && !optionalBody.isSleeping) {
           if (this._engine.fixedUpdateTimestep && optionalBody.__oldTransformCaptured && optionalBody.enableFixedUpdateInterpolate) {
             // Interpolate graphics if needed
-            const blend = this._engine.currentFrameLagMs / this._engine.fixedUpdateTimestep;
+            const blend = this._engine.currentFrameLag / this._engine.fixedUpdateTimestep;
             tx = blendTransform(optionalBody.oldTransform, transform.get(), blend, this._targetInterpolationTransform);
           }
         }

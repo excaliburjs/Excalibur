@@ -89,6 +89,9 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     ...getDefaultPhysicsConfig().bodies
   };
   public wakeThreshold!: number;
+  /**
+   * Time in milliseconds this body has been below the sleep motion threshold
+   */
   public sleepTime: number = 0;
 
   constructor(options?: BodyComponentOptions) {

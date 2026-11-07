@@ -57,6 +57,9 @@ export class Transition extends Entity {
   graphics = new GraphicsComponent();
   readonly hideLoader: boolean;
   readonly blockInput: boolean;
+  /**
+   * Duration of the transition in milliseconds
+   */
   readonly duration: number;
   readonly easing: Easing;
   readonly direction: 'out' | 'in';
@@ -121,7 +124,7 @@ export class Transition extends Entity {
    *
    * **WARNING BE SURE** to call `super.updateTransition()` if overriding in your own custom implementation
    * @param engine
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   public updateTransition(engine: Engine, elapsed: number): void {
     if (this.isComplete) {

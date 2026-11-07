@@ -111,7 +111,7 @@ class ControlSystem extends ex.System {
     this.input = input;
   }
 
-  public onUpdate(elapsedMs) {
+  public update(elapsed) {
     if (!this.input) return;
     /**
      * get user controls intent

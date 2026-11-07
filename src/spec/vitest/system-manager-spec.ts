@@ -17,7 +17,7 @@ class FakeSystemPriority1 extends ex.System {
     super();
     this.query = this.world.query(types);
   }
-  onUpdate(elapsedMs: number): void {
+  onUpdate(elapsed: number): void {
     // fake
   }
 }
@@ -34,7 +34,7 @@ class FakeSystemPriority2 extends ex.System {
     super();
     this.query = this.world.query(types);
   }
-  onUpdate(elapsedMs: number): void {
+  onUpdate(elapsed: number): void {
     // fake
   }
 }

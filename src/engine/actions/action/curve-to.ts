@@ -13,7 +13,7 @@ export interface CurveToOptions {
    */
   controlPoints: [control1: Vector, control2: Vector, end: Vector];
   /**
-   * Total duration for the action to run
+   * Total duration in milliseconds for the action to run
    */
   duration: number;
   /**

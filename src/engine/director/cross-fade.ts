@@ -7,6 +7,9 @@ import { Transition } from './transition';
 import { vec } from '../math/vector';
 
 export interface CrossFadeOptions {
+  /**
+   * Duration of the transition in milliseconds
+   */
   duration: number;
 }
 

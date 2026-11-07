@@ -1001,9 +1001,9 @@ describe('The engine', () => {
       const clock = engine.clock as ex.TestClock;
       expect(engine.clock.isRunning).toBe(true);
 
-      engine.onPostUpdate = (engine, elapsedMs) => {
+      engine.onPostUpdate = (engine, elapsed) => {
         expect(engine).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
 
       vi.spyOn(engine, 'onPostUpdate');
@@ -1021,9 +1021,9 @@ describe('The engine', () => {
       const clock = engine.clock as ex.TestClock;
       expect(engine.clock.isRunning).toBe(true);
 
-      engine.onPreUpdate = (engine, elapsedMs) => {
+      engine.onPreUpdate = (engine, elapsed) => {
         expect(engine).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
 
       vi.spyOn(engine, 'onPreUpdate');
@@ -1042,9 +1042,9 @@ describe('The engine', () => {
       expect(engine.clock.isRunning).toBe(true);
 
       engine.currentScene._initialize(engine);
-      engine.onPreDraw = (ctx, elapsedMs) => {
+      engine.onPreDraw = (ctx, elapsed) => {
         expect(<any>ctx).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
       vi.spyOn(engine, 'onPreDraw');
       vi.spyOn(engine, '_predraw');
@@ -1062,9 +1062,9 @@ describe('The engine', () => {
       expect(engine.clock.isRunning).toBe(true);
 
       engine.currentScene._initialize(engine);
-      engine.onPostDraw = (ctx, elapsedMs) => {
+      engine.onPostDraw = (ctx, elapsed) => {
         expect(<any>ctx).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
 
       vi.spyOn(engine, 'onPostDraw');

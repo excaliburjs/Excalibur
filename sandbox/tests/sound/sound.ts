@@ -66,8 +66,8 @@ var pause = new ex.Actor({
   color: ex.Color.Yellow
 });
 pause.on('pointerdown', () => {
-  sound.duration = 2;
-  sound.seek(5);
+  sound.duration = 2000;
+  sound.seek(5000);
   sound.play();
 });
 game.currentScene.add(pause);
@@ -87,8 +87,8 @@ playbackRate.oninput = () => {
 game.currentScene.onPostUpdate = () => {
   // FIXME This seems to be busted now
   // this is because the track has advanced now with pause(), play() starts a new track now, resume() is the correct way to resume
-  currentTimeLabel.text = 'Current Time: ' + sound.getPlaybackPosition().toFixed(2);
-  totalTimeLabel.text = 'Total Time: ' + sound.getTotalPlaybackDuration().toFixed(2);
+  currentTimeLabel.text = 'Current Time: ' + (sound.getPlaybackPosition() / 1000).toFixed(2);
+  totalTimeLabel.text = 'Total Time: ' + (sound.getTotalPlaybackDuration() / 1000).toFixed(2);
 };
 
 game.start(loader);

@@ -59,7 +59,7 @@ export abstract class Clock {
   }
 
   /**
-   * Get the elapsed time for the last completed frame
+   * Get the elapsed time in milliseconds for the last completed frame
    */
   public elapsed(): number {
     return this._elapsed;
@@ -75,7 +75,7 @@ export abstract class Clock {
   public toTestClock() {
     const testClock = new TestClock({
       ...this._options,
-      defaultUpdateMs: 16.6
+      defaultUpdate: 16.6
     });
     return testClock;
   }
@@ -97,13 +97,13 @@ export abstract class Clock {
    * excalibur update clock, instead of browser time, this means that callbacks wont fire if the game is
    * stopped or paused.
    * @param cb callback to fire
-   * @param timeoutMs Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
+   * @param timeout Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    * @param timing Optionally specify a timeout in milliseconds from now, default is 0ms which means the next possible tick
    * @returns A unique identifier that can be used to clear the scheduled callback with {@apilink clearSchedule}
    */
-  public schedule(cb: (elapsed: number) => any, timeoutMs: number = 0, timing: ScheduledCallbackTiming = 'preframe'): ScheduleId {
+  public schedule(cb: (elapsed: number) => any, timeout: number = 0, timing: ScheduledCallbackTiming = 'preframe'): ScheduleId {
     // Scheduled based on internal elapsed time
-    const scheduledTime = this._totalElapsed + timeoutMs;
+    const scheduledTime = this._totalElapsed + timeout;
     const id = this._nextScheduleId++;
     this._scheduledCbs.push([id, cb, scheduledTime, timing]);
     return id;
@@ -146,7 +146,7 @@ export abstract class Clock {
     }
   }
 
-  protected update(overrideUpdateMs?: number): void {
+  protected update(overrideUpdate?: number): void {
     try {
       this.fpsSampler.start();
       // Get the time to calculate time-elapsed
@@ -173,10 +173,10 @@ export abstract class Clock {
         }
 
         // tick the mainloop and run scheduled callbacks
-        this._elapsed = overrideUpdateMs || elapsed;
+        this._elapsed = overrideUpdate || elapsed;
         this._totalElapsed += this._elapsed;
         this.__runScheduledCbs('preframe');
-        this.tick(overrideUpdateMs || elapsed);
+        this.tick(overrideUpdate || elapsed);
         this.__runScheduledCbs('postframe');
 
         if (fpsInterval !== 0) {
@@ -256,7 +256,7 @@ export interface TestClockOptions {
   /**
    * Specify the update milliseconds to use for each manual step()
    */
-  defaultUpdateMs: number;
+  defaultUpdate: number;
 }
 
 /**
@@ -271,7 +271,7 @@ export class TestClock extends Clock {
     super({
       ...options
     });
-    this._updateMs = options.defaultUpdateMs;
+    this._updateMs = options.defaultUpdate;
   }
 
   /**
@@ -293,10 +293,10 @@ export class TestClock extends Clock {
 
   /**
    * Manually step the clock forward 1 tick, optionally specify an elapsed time in milliseconds
-   * @param overrideUpdateMs
+   * @param overrideUpdate
    */
-  step(overrideUpdateMs?: number): void {
-    const time = overrideUpdateMs ?? this._updateMs;
+  step(overrideUpdate?: number): void {
+    const time = overrideUpdate ?? this._updateMs;
 
     if (this._running) {
       // to be comparable to RAF this needs to be a full blown Task
@@ -311,11 +311,11 @@ export class TestClock extends Clock {
   /**
    * Run a number of steps that tick the clock, optionally specify an elapsed time in milliseconds
    * @param numberOfSteps
-   * @param overrideUpdateMs
+   * @param overrideUpdate
    */
-  run(numberOfSteps: number, overrideUpdateMs?: number): void {
+  run(numberOfSteps: number, overrideUpdate?: number): void {
     for (let i = 0; i < numberOfSteps; i++) {
-      this.step(overrideUpdateMs ?? this._updateMs);
+      this.step(overrideUpdate ?? this._updateMs);
     }
   }
 }

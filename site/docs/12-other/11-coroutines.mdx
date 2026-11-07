@@ -11,7 +11,7 @@ New `ex.coroutine` for running code that changes over time, useful for modeling 
 Coroutines start immediately when the `coroutine()` function is called. Their updates are scheduled using the excalibur [[Clock]].
 
 Coroutines return a promise when they are complete. You can think of each `yield` as a frame.
-  * The result of a yield is the current elapsed time
+  * The result of a yield is the current elapsed time in milliseconds
   * You can yield a number in milliseconds and it will wait that long before resuming
   * You can yield a promise and it will wait until it resolves before resuming
   ```typescript

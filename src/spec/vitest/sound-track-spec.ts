@@ -106,7 +106,7 @@ describe('A SoundTrack', () => {
     track.play();
     track.pause();
     track.play();
-    track.seek(0.05);
+    track.seek(50);
     track.play();
 
     expect(sources.length).toBe(3);
@@ -142,18 +142,18 @@ describe('A SoundTrack', () => {
     track.loop = true;
     expect(track.getPlaybackPosition()).toBe(0);
 
-    track.seek(0.05);
+    track.seek(50);
     expect(track.isPaused).toBe(true);
-    expect(track.getPlaybackPosition()).toBe(0.05);
+    expect(track.getPlaybackPosition()).toBe(50);
 
     track.play();
     expect(track.isPlaying).toBe(true);
-    expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(0.05);
+    expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(50);
     expect(sources[0].start).toBeDefined();
 
     track.pause();
     expect(track.isPaused).toBe(true);
-    expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(0.05);
+    expect(track.getPlaybackPosition()).toBeGreaterThanOrEqual(50);
 
     track.stop();
     expect(track.isStopped).toBe(true);
@@ -185,11 +185,11 @@ describe('A SoundTrack', () => {
 
   it('honors the duration when not looping', () => {
     const track = new ex.SoundTrack(buffer, destination);
-    expect(track.duration).toBe(buffer.duration);
-    track.duration = 0.05;
-    expect(track.duration).toBe(0.05);
+    expect(track.duration).toBe(buffer.duration * 1000);
+    track.duration = 50;
+    expect(track.duration).toBe(50);
     track.duration = undefined;
-    expect(track.duration).toBe(buffer.duration);
+    expect(track.duration).toBe(buffer.duration * 1000);
   });
 
   it('logs and falls back to the default graph when the hook throws', () => {

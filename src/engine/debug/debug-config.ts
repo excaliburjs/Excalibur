@@ -27,7 +27,7 @@ export interface FrameStatistics {
    *
    * Excalibur extension depends on this
    */
-  elapsedMs: number;
+  elapsed: number;
 
   /**
    * Gets the frame's frames-per-second (FPS)
@@ -454,6 +454,9 @@ export class FrameStats implements FrameStatistics {
     rendererSwaps: 0
   };
 
+  /**
+   * Duration in milliseconds each system took this frame, keyed by system name
+   */
   systemDuration: Record<string, number> = {};
 
   /**
@@ -463,7 +466,7 @@ export class FrameStats implements FrameStatistics {
   public reset(otherStats?: FrameStatistics) {
     if (otherStats) {
       this.id = otherStats.id;
-      this.elapsedMs = otherStats.elapsedMs;
+      this.elapsed = otherStats.elapsed;
       this.fps = otherStats.fps;
       this.actors.alive = otherStats.actors.alive;
       this.actors.killed = otherStats.actors.killed;
@@ -478,7 +481,7 @@ export class FrameStats implements FrameStatistics {
       this.graphics.drawnImages = otherStats.graphics.drawnImages;
       this.graphics.rendererSwaps = otherStats.graphics.rendererSwaps;
     } else {
-      this.id = this.elapsedMs = this.fps = 0;
+      this.id = this.elapsed = this.fps = 0;
       this.actors.alive = this.actors.killed = this.actors.ui = 0;
       this.duration.update = this.duration.draw = 0;
       this._physicsStats.reset();
@@ -515,9 +518,9 @@ export class FrameStats implements FrameStatistics {
   }
 
   /**
-   * Gets the frame's delta (time since last frame)
+   * Gets the frame's delta (time since last frame) in milliseconds
    */
-  public get elapsedMs() {
+  public get elapsed() {
     return this._elapsedMs;
   }
 
@@ -525,7 +528,7 @@ export class FrameStats implements FrameStatistics {
    * Sets the frame's delta (time since last frame). Internal use only.
    * @internal
    */
-  public set elapsedMs(value: number) {
+  public set elapsed(value: number) {
     this._elapsedMs = value;
   }
 
@@ -552,7 +555,7 @@ export class FrameStats implements FrameStatistics {
   }
 
   /**
-   * Gets the frame's duration statistics
+   * Gets the frame's duration statistics, all durations are in milliseconds
    */
   public get duration() {
     return this._durationStats;
