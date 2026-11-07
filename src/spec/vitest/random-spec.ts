@@ -213,6 +213,31 @@ describe('A random number', () => {
     expect(array[0]).not.toBe(shuffled[0]);
   });
 
+  it('shuffle is unbiased across all permutations (Fisher-Yates)', () => {
+    const random = new ex.Random(42);
+    const trials = 6000;
+    const counts = new Map<string, number>();
+    for (let i = 0; i < trials; i++) {
+      const key = random.shuffle([1, 2, 3]).join('');
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    // all 3! = 6 permutations occur, each ~1000 times
+    expect(counts.size).toBe(6);
+    for (const count of counts.values()) {
+      expect(count).toBeGreaterThan(850);
+      expect(count).toBeLessThan(1150);
+    }
+  });
+
+  it('shuffle can swap a two element array', () => {
+    const random = new ex.Random(1);
+    const results = new Set<string>();
+    for (let i = 0; i < 50; i++) {
+      results.add(random.shuffle([1, 2]).join(''));
+    }
+    expect(results.size).toBe(2);
+  });
+
   it('can generate a random range', () => {
     const random1 = new ex.Random(10);
 

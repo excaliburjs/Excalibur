@@ -211,7 +211,7 @@ export class Random {
   public shuffle<T>(array: Array<T>): Array<T> {
     const tempArray = array.slice(0);
     let swap: T;
-    for (let i = 0; i < tempArray.length - 2; i++) {
+    for (let i = 0; i < tempArray.length - 1; i++) {
       const randomIndex = this.integer(i, tempArray.length - 1);
       swap = tempArray[i];
       tempArray[i] = tempArray[randomIndex];
