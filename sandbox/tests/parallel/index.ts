@@ -46,13 +46,13 @@ game.add(myActor);
 myActor.takeDamage();
 
 var sequence1 = new ex.ActionSequence(actor, (ctx) => {
-  ctx.easeBy(ex.vec(200, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.moveBy({ offset: ex.vec(200, 0), duration: 1000, easing: ex.easeInOutCubic });
   ctx.delay(500);
-  ctx.easeBy(ex.vec(0, 200), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.moveBy({ offset: ex.vec(0, 200), duration: 1000, easing: ex.easeInOutCubic });
   ctx.delay(500);
-  ctx.easeBy(ex.vec(-200, 0), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.moveBy({ offset: ex.vec(-200, 0), duration: 1000, easing: ex.easeInOutCubic });
   ctx.delay(500);
-  ctx.easeBy(ex.vec(0, -200), 1000, ex.EasingFunctions.EaseInOutCubic);
+  ctx.moveBy({ offset: ex.vec(0, -200), duration: 1000, easing: ex.easeInOutCubic });
   ctx.delay(500);
 });
 

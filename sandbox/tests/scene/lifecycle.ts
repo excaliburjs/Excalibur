@@ -1,5 +1,3 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 
 class MyGame2 extends ex.Engine {

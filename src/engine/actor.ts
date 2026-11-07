@@ -7,12 +7,12 @@ import type {
   ExitViewportEvent,
   PreDrawEvent,
   PostDrawEvent,
+  PostTransformDrawEvent,
+  PreTransformDrawEvent,
   PreDebugDrawEvent,
   PostDebugDrawEvent,
   ActionStartEvent,
-  ActionCompleteEvent,
-  PostTransformDrawEvent,
-  PreTransformDrawEvent
+  ActionCompleteEvent
 } from './events';
 import { type KillEvent, PreUpdateEvent, PostUpdateEvent, PostKillEvent, PreKillEvent } from './events';
 import type { Engine } from './engine';
@@ -219,6 +219,8 @@ export interface ActorEvents extends EntityEvents {
   postdraw: PostDrawEvent;
   pretransformdraw: PreTransformDrawEvent;
   posttransformdraw: PostTransformDrawEvent;
+  enterviewport: EnterViewportEvent;
+  exitviewport: ExitViewportEvent;
   predebugdraw: PreDebugDrawEvent;
   postdebugdraw: PostDebugDrawEvent;
   pointerup: PointerEvent;
@@ -233,8 +235,6 @@ export interface ActorEvents extends EntityEvents {
   pointerdragenter: PointerEvent;
   pointerdragleave: PointerEvent;
   pointerdragmove: PointerEvent;
-  enterviewport: EnterViewportEvent;
-  exitviewport: ExitViewportEvent;
   actionstart: ActionStartEvent;
   actioncomplete: ActionCompleteEvent;
 }

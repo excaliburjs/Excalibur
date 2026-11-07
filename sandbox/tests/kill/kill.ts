@@ -1,5 +1,3 @@
-/// <reference path='../../lib/excalibur.d.ts' />
-
 var game = new ex.Engine({ width: 800, height: 300, canvasElementId: 'game' });
 
 var topActor = new ex.Actor({
@@ -15,7 +13,7 @@ game.add(topActor);
 
 var spawnTimer = new ex.Timer({
   interval: 200,
-  fcn: () => {
+  action: () => {
     let a = new ex.Actor({
       x: game.halfDrawWidth,
       y: game.halfDrawHeight,

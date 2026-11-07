@@ -1,5 +1,3 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
 var game = new ex.Engine({ width: 800, height: 503, canvasElementId: 'game' });
 var padTexture = new ex.ImageSource('gamepad.png');
 

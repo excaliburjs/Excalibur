@@ -26,15 +26,27 @@ export interface PointerEvents {
   move: PointerEvent;
   down: PointerEvent;
   up: PointerEvent;
+  cancel: PointerEvent;
   wheel: WheelEvent;
+  /**
+   * Alias of `down`, only emitted on the primary pointer
+   */
+  pointerdown: PointerEvent;
+  /**
+   * Alias of `wheel`
+   */
+  pointerwheel: WheelEvent;
 }
 
 export const PointerEvents = {
   Move: 'move',
   Down: 'down',
   Up: 'up',
-  Wheel: 'wheel'
-};
+  Cancel: 'cancel',
+  Wheel: 'wheel',
+  PointerDown: 'pointerdown',
+  PointerWheel: 'pointerwheel'
+} as const;
 
 /**
  * Is this event a native touch event?

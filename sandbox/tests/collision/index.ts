@@ -1,5 +1,3 @@
-﻿/// <reference path='../../lib/excalibur.d.ts' />
-
 var engine = new ex.Engine({ width: 600, height: 400 });
 
 var active = new ex.Actor({ x: 0, y: -50, width: 100, height: 100, color: ex.Color.Cyan });

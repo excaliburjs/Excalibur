@@ -120,7 +120,7 @@ export const AnimationEvents = {
   Frame: 'frame',
   Loop: 'loop',
   End: 'end'
-};
+} as const;
 
 export interface FromSpriteSheetOptions {
   /**

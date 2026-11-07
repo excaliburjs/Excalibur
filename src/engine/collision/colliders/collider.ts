@@ -14,6 +14,38 @@ import type { Transform } from '../../math/transform';
 import { EventEmitter } from '../../event-emitter';
 import type { RayCastHit } from '../detection/ray-cast-hit';
 import type { CompositeCollider } from './composite-collider';
+import type {
+  PreCollisionEvent,
+  PostCollisionEvent,
+  CollisionStartEvent,
+  CollisionEndEvent,
+  ContactStartEvent,
+  ContactEndEvent,
+  CollisionPreSolveEvent,
+  CollisionPostSolveEvent
+} from '../../events';
+
+export interface ColliderEvents {
+  precollision: PreCollisionEvent;
+  postcollision: PostCollisionEvent;
+  collisionstart: CollisionStartEvent;
+  collisionend: CollisionEndEvent;
+  contactstart: ContactStartEvent;
+  contactend: ContactEndEvent;
+  beforecollisionresolve: CollisionPreSolveEvent;
+  aftercollisionresolve: CollisionPostSolveEvent;
+}
+
+export const ColliderEvents = {
+  PreCollision: 'precollision',
+  PostCollision: 'postcollision',
+  CollisionStart: 'collisionstart',
+  CollisionEnd: 'collisionend',
+  ContactStart: 'contactstart',
+  ContactEnd: 'contactend',
+  BeforeCollisionResolve: 'beforecollisionresolve',
+  AfterCollisionResolve: 'aftercollisionresolve'
+} as const;
 
 /**
  * A collision collider specifies the geometry that can detect when other collision colliders intersect
@@ -28,7 +60,7 @@ export abstract class Collider implements Clonable<Collider> {
    * **WARNING** do not tamper with this property
    */
   public composite: CompositeCollider | null = null;
-  public events = new EventEmitter();
+  public events = new EventEmitter<ColliderEvents>();
 
   protected _worldVersion = 0;
   /**

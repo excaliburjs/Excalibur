@@ -281,7 +281,7 @@ export const KeyEvents = {
    * Synonymouse with press
    */
   Down: 'down'
-};
+} as const;
 
 /**
  * Provides keyboard support for Excalibur.

@@ -1,5 +1,5 @@
 import { isScreenElement, ScreenElement } from './screen-element';
-import type { ActivateEvent, DeactivateEvent, PauseEvent, ResumeEvent } from './events';
+import type { ActivateEvent, DeactivateEvent } from './events';
 import {
   InitializeEvent,
   PreUpdateEvent,
@@ -7,7 +7,9 @@ import {
   PreDrawEvent,
   PostDrawEvent,
   PreDebugDrawEvent,
-  PostDebugDrawEvent
+  PostDebugDrawEvent,
+  PauseEvent,
+  ResumeEvent
 } from './events';
 import { Logger } from './util/log';
 import { Timer } from './timer';
@@ -47,12 +49,19 @@ export class PreLoadEvent {
   loader!: DefaultLoader;
 }
 
+/**
+ * Payload for the scene `entityadded` and `entityremoved` events
+ */
+export interface SceneEntityEvent {
+  target: Entity;
+}
+
 export interface SceneEvents {
   initialize: InitializeEvent<Scene>;
-  activate: ActivateEvent;
+  activate: ActivateEvent<any>;
   deactivate: DeactivateEvent;
-  preupdate: PreUpdateEvent;
-  postupdate: PostUpdateEvent;
+  preupdate: PreUpdateEvent<Scene>;
+  postupdate: PostUpdateEvent<Scene>;
   predraw: PreDrawEvent;
   postdraw: PostDrawEvent;
   predebugdraw: PreDebugDrawEvent;
@@ -62,6 +71,8 @@ export interface SceneEvents {
   transitionend: Transition;
   pause: PauseEvent;
   resume: ResumeEvent;
+  entityadded: SceneEntityEvent;
+  entityremoved: SceneEntityEvent;
 }
 
 export const SceneEvents = {
@@ -78,7 +89,9 @@ export const SceneEvents = {
   TransitionStart: 'transitionstart',
   TransitionEnd: 'transitionend',
   Pause: 'pause',
-  Resume: 'resume'
+  Resume: 'resume',
+  EntityAdded: 'entityadded',
+  EntityRemoved: 'entityremoved'
 } as const;
 
 export type SceneConstructor = new (...args: any[]) => Scene;
@@ -633,7 +646,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    */
   public add(screenElement: ScreenElement): void;
   public add(entity: any): void {
-    this.emit('entityadded', { target: entity } as any);
+    this.emit('entityadded', { target: entity });
     if (entity instanceof Timer) {
       if (!Util.contains(this._timers, entity)) {
         this.addTimer(entity);
@@ -717,7 +730,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     }
 
     if (scene) {
-      scene.emit('entityremoved', { target: entity } as any);
+      scene.emit('entityremoved', { target: entity });
     }
     this.add(entity);
   }
@@ -748,7 +761,7 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
    */
   public remove(screenElement: ScreenElement): void;
   public remove(entity: any): void {
-    this.emit('entityremoved', { target: entity } as any);
+    this.emit('entityremoved', { target: entity });
     if (entity instanceof Entity) {
       if (entity.isActive) {
         entity.kill();
@@ -842,10 +855,10 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   public pause() {
-    this.events.emit('pause');
+    this.events.emit('pause', new PauseEvent(this));
   }
 
   public resume() {
-    this.events.emit('resume');
+    this.events.emit('resume', new ResumeEvent(this));
   }
 }
