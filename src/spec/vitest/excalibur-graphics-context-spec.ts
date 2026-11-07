@@ -3,6 +3,25 @@ import { TextureLoader } from '@excalibur';
 
 describe('The ExcaliburGraphicsContext', () => {
   describe('2D', () => {
+    it('asWebGL() returns null and warns once for WebGL only features', () => {
+      const logger = ex.Logger.getInstance();
+      const warnSpy = vi.spyOn(logger, 'warnOnce');
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement: document.createElement('canvas') });
+
+      expect(ctx.asWebGL('MyFeature')).toBeNull();
+      expect(ctx.asWebGL('MyFeature')).toBeNull();
+      expect(warnSpy).toHaveBeenCalledTimes(2); // dedupes inside the logger
+      expect(warnSpy.mock.calls[0]).toEqual(warnSpy.mock.calls[1]);
+      expect(String(warnSpy.mock.calls[0][0])).toContain('MyFeature');
+      warnSpy.mockRestore();
+    });
+
+    it('does not throw when WebGL only effects are created against it', () => {
+      const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement: document.createElement('canvas') });
+      expect(() => new ex.BlurEffect({ graphicsContext: ctx })).not.toThrow();
+      expect(() => new ex.BloomEffect({ graphicsContext: ctx })).not.toThrow();
+    });
+
     let testCanvasElement: HTMLCanvasElement;
     let testContext: CanvasRenderingContext2D;
     beforeAll(() => {
@@ -603,14 +622,13 @@ describe('The ExcaliburGraphicsContext', () => {
           backgroundColor: ex.Color.White,
           snapToPixel: false
         });
-        sut.imageRenderer = 'ex.image';
 
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
         const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
-        const imageRenderer = sut.get('ex.image')!;
+        const imageRenderer = sut.get('ex.image-v2')!;
         vi.spyOn(imageRenderer, 'flush');
         const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
@@ -712,14 +730,13 @@ describe('The ExcaliburGraphicsContext', () => {
           backgroundColor: ex.Color.White,
           snapToPixel: false
         });
-        sut.imageRenderer = 'ex.image';
 
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
         const circleRenderer = sut.get('ex.circle')!;
         vi.spyOn(circleRenderer, 'flush');
-        const imageRenderer = sut.get('ex.image')!;
+        const imageRenderer = sut.get('ex.image-v2')!;
         vi.spyOn(imageRenderer, 'flush');
         const rectangleRenderer = sut.get('ex.rectangle')!;
         vi.spyOn(rectangleRenderer, 'flush');
@@ -999,7 +1016,7 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const imageRenderer = sut.get('ex.image')!;
+        const imageRenderer = sut.get('ex.image-v2')!;
         vi.spyOn(imageRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawImage(tex.image, 0, 0);
@@ -1033,7 +1050,7 @@ describe('The ExcaliburGraphicsContext', () => {
         const tex = new ex.ImageSource('/src/spec/assets/images/excalibur-graphics-context-spec/sword.png');
         await tex.load();
 
-        const imageRenderer = sut.get('ex.image')!;
+        const imageRenderer = sut.get('ex.image-v2')!;
         vi.spyOn(imageRenderer, 'flush');
         for (let i = 0; i < 10922; i++) {
           sut.drawImage(tex.image, 0, 0);

@@ -292,6 +292,7 @@ export class CompositeCollider extends Collider {
   clone(): Collider {
     const result = new CompositeCollider(this._colliders.map((c) => c.clone()));
     result.offset = this.offset.clone();
+    result._compositeStrategy = this._compositeStrategy;
     return result;
   }
 }

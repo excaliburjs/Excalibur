@@ -166,7 +166,7 @@ class CustomRenderer implements ex.RendererPlugin {
 }
 const customRenderer = new CustomRenderer();
 
-(game.graphicsContext as ex.ExcaliburGraphicsContextWebGL).register(customRenderer);
+game.graphicsContext.register(customRenderer);
 
 game.on('fallbackgraphicscontext', (ctx) => {
   console.log('fallback triggered', ctx);
@@ -685,7 +685,7 @@ game.add(
 var player = new ex.Actor({
   name: 'player',
   pos: new ex.Vector(100, -200),
-  collider: ex.Shape.Capsule(32, 96),
+  collider: ex.Colliders.Capsule(32, 96),
   collisionType: ex.CollisionType.Active
 });
 player.onPostUpdate = (engine) => {
@@ -761,7 +761,7 @@ player.onPostUpdate = () => {
 // };
 
 class OtherActor extends ex.Actor {
-  constructor(args: ex.ActorArgs) {
+  constructor(args: ex.ActorOptions) {
     super(args);
   }
   onCollisionStart(self: ex.Collider, other: ex.Collider, side: ex.Side, contact: ex.CollisionContact): void {
@@ -955,7 +955,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'up'
       })
     });
@@ -963,7 +963,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'down'
       })
     });
@@ -971,7 +971,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'left'
       })
     });
@@ -979,7 +979,7 @@ game.input.keyboard.on('down', (keyDown?: ex.KeyEvent) => {
     game.goToScene('label', {
       destinationIn: new ex.Slide({
         duration: 1000,
-        easingFunction: ex.easeInOutCubic,
+        easing: ex.easeInOutCubic,
         slideDirection: 'right'
       })
     });

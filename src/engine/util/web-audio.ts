@@ -1,7 +1,7 @@
 import { AudioContextFactory } from '../resources/sound/audio-context';
 import { Logger } from './log';
 
-export interface LegacyWebAudioSource {
+interface LegacyWebAudioSource {
   playbackState: string;
   PLAYING_STATE: 'playing';
   FINISHED_STATE: 'finished';

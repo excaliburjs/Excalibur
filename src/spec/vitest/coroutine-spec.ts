@@ -14,6 +14,35 @@ describe('A Coroutine', () => {
     expect(ex.coroutine).toBeDefined();
   });
 
+  it('can use useEngine() and engine-less coroutine() after an await in an async scope', async () => {
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    await engine.scope(async () => {
+      await Promise.resolve();
+      expect(ex.Engine.useEngine()).toBe(engine);
+      const co = ex.coroutine(function* () {
+        yield;
+      });
+      expect(co).toBeDefined();
+      co.cancel();
+    });
+    expect(() => ex.Engine.useEngine()).toThrow();
+  });
+
+  it('can use useEngine() after an await in Scene.onInitialize reached through goToScene', async () => {
+    engine = TestUtils.engine({ width: 100, height: 100 });
+    let injected: ex.Engine | undefined;
+    class MyScene extends ex.Scene {
+      override async onInitialize() {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        injected = ex.Engine.useEngine();
+      }
+    }
+    engine.addScene('my', new MyScene());
+    await engine.start();
+    await engine.goToScene('my');
+    expect(injected).toBe(engine);
+  });
+
   it('can be run', async () => {
     engine = TestUtils.engine({ width: 100, height: 100 });
     await engine.scope(async () => {

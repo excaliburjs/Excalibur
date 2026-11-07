@@ -138,6 +138,28 @@ describe('A game actor', () => {
     expect(sut.color).toEqual(original.color);
   });
 
+  it('can be cloned without a color and keeps canPause, flips, coordPlane, and leaves the source untouched', () => {
+    const original = new ex.Actor({ canPause: false });
+    const sprite = new ex.Rectangle({ width: 5, height: 5, color: ex.Color.Red });
+    original.graphics.add('other', sprite);
+    original.graphics.use('other');
+    original.graphics.flipHorizontal = true;
+    original.graphics.flipVertical = true;
+    original.transform.coordPlane = ex.CoordPlane.Screen;
+
+    const sut = original.clone();
+
+    expect(sut.color).toBeUndefined();
+    expect(sut.canPause).toBe(false);
+    expect(sut.pauseComponent).toBe(sut.get(ex.PauseComponent));
+    expect(sut.graphics.flipHorizontal).toBe(true);
+    expect(sut.graphics.flipVertical).toBe(true);
+    expect(sut.transform.coordPlane).toBe(ex.CoordPlane.Screen);
+    expect(sut.graphics.current).toBe(sprite);
+    expect(original.graphics.current).toBe(sprite);
+    expect(original.graphics.getNames()).toContain('other');
+  });
+
   it('can be cloned with null collider', () => {
     const original = new ex.Actor({
       width: 10,

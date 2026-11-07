@@ -212,7 +212,7 @@ const isoMap = new ex.IsometricMap({
 
 for (let tile of isoMap.tiles) {
   tile.isSolid = true;
-  tile.addCollider(ex.Shape.Polygon([ex.vec(0, 95), ex.vec(55, -32 + 95), ex.vec(111, 95), ex.vec(55, 32 + 95)]));
+  tile.addCollider(ex.Colliders.Polygon([ex.vec(0, 95), ex.vec(55, -32 + 95), ex.vec(111, 95), ex.vec(55, 32 + 95)]));
 }
 ```
 

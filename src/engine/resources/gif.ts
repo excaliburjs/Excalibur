@@ -157,7 +157,7 @@ const byteToBitArr = (bite: number) => {
   return a as [boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean];
 };
 
-export class Stream {
+class Stream {
   data: Uint8Array;
   len: number = 0;
   position: number = 0;
@@ -308,7 +308,7 @@ interface GCExtBlock extends GifBlock {
  *
  * Roughly based on the documentation https://giflib.sourceforge.net/whatsinagif/index.html
  */
-export class GifParser {
+class GifParser {
   private _st: Stream;
   private _handler: any = {};
   public frames: GifFrame[] = [];

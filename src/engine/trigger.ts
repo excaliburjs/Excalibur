@@ -3,7 +3,7 @@ import type { CollisionEndEvent, CollisionStartEvent } from './events';
 import { ExitTriggerEvent, EnterTriggerEvent } from './events';
 import { CollisionType } from './collision/collision-type';
 import type { Entity } from './entity-component-system';
-import type { ActorArgs, ActorEvents } from './actor';
+import type { ActorOptions, ActorEvents } from './actor';
 import { Actor } from './actor';
 import { EventEmitter } from './event-emitter';
 
@@ -64,7 +64,7 @@ export class Trigger extends Actor {
   /**
    * @param options Trigger options
    */
-  constructor(options: TriggerOptions & ActorArgs) {
+  constructor(options: TriggerOptions & ActorOptions) {
     super({ ...options });
 
     this.filter = options.filter ?? (() => true);

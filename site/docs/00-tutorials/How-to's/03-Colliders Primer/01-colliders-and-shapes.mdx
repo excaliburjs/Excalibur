@@ -130,11 +130,11 @@ When you define an Actor, if you provide dimension data, either width/height, or
 
   - Width/Height
 
-    If you provide these dimensions, a [Box](/api/class/Shape#Box) shape collider is automatically attached
+    If you provide these dimensions, a [Box](/api/class/Colliders#Box) shape collider is automatically attached
 
   - Radius
 
-    If you provide a radius, a [Circle](/api/class/Shape#Circle) collider is automatically attached
+    If you provide a radius, a [Circle](/api/class/Colliders#Circle) collider is automatically attached
 
 #### Manually
 
@@ -145,7 +145,7 @@ let player = new Actor();
 let myColliderShape = new PolygonCollider({
   points: [vec(0, 0), vec(0, 20), vec(20, 20), vec(20, 0)],
 });
-player.collider.set(myColliderShape);
+player.collider.use(myColliderShape);
 ```
 
 ## Debug Mode and Developer Tools

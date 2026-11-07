@@ -1,4 +1,5 @@
 import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
+import type { ExcaliburGraphicsContext } from '../excalibur-graphics-context';
 import { Framebuffer } from '../framebuffer';
 import type { Shader, UniformDictionary } from '../shader';
 import type { ShaderPassDestination, ShaderPassSource } from './shader-pass';
@@ -67,7 +68,7 @@ export interface ShaderPipelineLike {
 export type ShaderPassLike = string | ShaderPass;
 
 export interface ShaderPipelineOptions {
-  graphicsContext: ExcaliburGraphicsContextWebGL;
+  graphicsContext: ExcaliburGraphicsContext;
   /**
    * Name the pipeline for debugging
    */
@@ -91,7 +92,7 @@ export interface ShaderPipelineOptions {
 export class ShaderPipeline implements ShaderPipelineLike {
   public readonly name: string;
   public readonly passes: ShaderPass[];
-  private _graphicsContext: ExcaliburGraphicsContextWebGL;
+  private _graphicsContext: ExcaliburGraphicsContextWebGL | null;
   private _intermediates: (Framebuffer | undefined)[];
   private _disposed = false;
 
@@ -100,7 +101,7 @@ export class ShaderPipeline implements ShaderPipelineLike {
     if (!passes || passes.length < 1) {
       throw new Error(`ShaderPipeline "${name ?? 'anonymous'}" must be provided at least 1 pass`);
     }
-    this._graphicsContext = graphicsContext;
+    this._graphicsContext = graphicsContext.asWebGL('ShaderPipeline');
     this.name = name ?? 'anonymous pipeline';
     this.passes = passes.map((pass, index) =>
       typeof pass === 'string' ? new ShaderPass({ graphicsContext, name: `${this.name} pass ${index}`, fragmentSource: pass }) : pass
@@ -114,6 +115,9 @@ export class ShaderPipeline implements ShaderPipelineLike {
   public process(source: ShaderPassSource, destination: ShaderPassDestination, options?: ShaderPipelineProcessOptions): void {
     if (this._disposed) {
       throw new Error(`ShaderPipeline "${this.name}" has been disposed and cannot be used. Create a new pipeline instance.`);
+    }
+    if (!this._graphicsContext) {
+      return; // Canvas 2D fallback, already warned
     }
     const [sourceWidth, sourceHeight] = getSourceDimensions(this._graphicsContext, source);
     const elapsed = options?.elapsed;

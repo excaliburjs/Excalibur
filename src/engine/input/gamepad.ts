@@ -1,6 +1,7 @@
 import { GamepadConnectEvent, GamepadDisconnectEvent, GamepadButtonEvent, GamepadAxisEvent } from '../events';
 import type { EventKey, Handler, Subscription } from '../event-emitter';
 import { EventEmitter } from '../event-emitter';
+import { Logger } from '../util/log';
 
 export interface GamepadEvents {
   connect: GamepadConnectEvent;
@@ -50,6 +51,20 @@ export class Gamepads {
   private _minimumConfiguration!: GamepadConfiguration;
   private _enabled = true;
 
+  /**
+   * `navigator.getGamepads()` can throw (for example a `SecurityError` in a cross-origin iframe without
+   * `allow="gamepad"`), treat that as "gamepads are not supported" instead of crashing the engine.
+   */
+  private _readPads(): (NavigatorGamepad | undefined)[] | null {
+    try {
+      return this._navigator.getGamepads();
+    } catch (e) {
+      this.supported = false;
+      Logger.getInstance().warn('Gamepad API is unavailable, gamepad input is disabled:', e);
+      return null;
+    }
+  }
+
   public init() {
     if (!this.supported) {
       return;
@@ -60,7 +75,11 @@ export class Gamepads {
 
     // In Chrome, this will return 4 undefined items until a button is pressed
     // In FF, this will not return any items until a button is pressed
-    this._oldPads = this._clonePads(this._navigator.getGamepads() as NavigatorGamepad[]);
+    const pads = this._readPads();
+    if (!pads) {
+      return;
+    }
+    this._oldPads = this._clonePads(pads as NavigatorGamepad[]);
     if (this._oldPads.length && this._oldPads[0]) {
       this._initSuccess = true;
     }
@@ -147,7 +166,10 @@ export class Gamepads {
     }
     this.init();
 
-    const gamepads = this._navigator.getGamepads();
+    const gamepads = this._readPads();
+    if (!gamepads) {
+      return;
+    }
     for (let i = 0; i < gamepads.length; i++) {
       if (!gamepads[i]) {
         const gamepad = this.at(i);

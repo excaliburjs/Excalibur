@@ -198,16 +198,20 @@ export class Color {
    * @param color  The other color
    */
   public screen(color: Color): Color {
-    const color1 = this.invert();
-    const color2 = color.invert();
-    return color1.multiply(color2).invert();
+    // Screen is computed per RGB channel as 1 - (1 - a)(1 - b), alpha is combined the same way (union of coverage)
+    const r = 255 - ((255 - this.r) * (255 - color.r)) / 255;
+    const g = 255 - ((255 - this.g) * (255 - color.g)) / 255;
+    const b = 255 - ((255 - this.b) * (255 - color.b)) / 255;
+    const a = 1 - (1 - this.a) * (1 - color.a);
+    return new Color(r, g, b, a);
   }
 
   /**
-   * Inverts the current color
+   * Inverts the red, green, and blue channels of the current color, alpha is preserved
+   * (consistent with CSS `invert()`, Unity, and other engines, an opaque color stays opaque)
    */
   public invert(): Color {
-    return new Color(255 - this.r, 255 - this.g, 255 - this.b, 1.0 - this.a);
+    return new Color(255 - this.r, 255 - this.g, 255 - this.b, this.a);
   }
 
   /**

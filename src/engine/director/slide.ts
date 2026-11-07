@@ -9,8 +9,6 @@ import { vec } from '../math/vector';
 import { CoordPlane } from '../math/coord-plane';
 import { lerp } from '../math/lerp';
 import type { Camera } from '../camera';
-import type { Easing } from '../math/easings';
-import { linear } from '../math/easings';
 
 export interface SlideOptions {
   /**
@@ -21,10 +19,6 @@ export interface SlideOptions {
    * Slide direction for the previous scene to move: up, down, left, right
    */
   slideDirection: 'up' | 'down' | 'left' | 'right';
-  /**
-   * Optionally select an easing function, by default linear (aka lerp)
-   */
-  easingFunction?: Easing;
 }
 
 /**
@@ -35,7 +29,6 @@ export interface SlideOptions {
 export class Slide extends Transition {
   private _image!: HTMLImageElement;
   private _screenCover!: Sprite;
-  private _easing = linear;
   readonly slideDirection: 'up' | 'down' | 'left' | 'right';
   private _start: Vector = Vector.Zero;
   private _end: Vector = Vector.Zero;
@@ -48,7 +41,6 @@ export class Slide extends Transition {
     this.slideDirection = options.slideDirection;
     this.transform.coordPlane = CoordPlane.Screen;
     this.graphics.forceOnScreen = true;
-    this._easing = options.easingFunction ?? this._easing;
   }
 
   override async onPreviousSceneDeactivate(scene: Scene<unknown>) {
@@ -104,7 +96,7 @@ export class Slide extends Transition {
   }
 
   override onStart(progress: number): void {
-    const time = this._easing(this.distance);
+    const time = this.easing(this.distance);
     this.transform.pos.x = lerp(this._start.x, this._end.x, time);
     this.transform.pos.y = lerp(this._start.y, this._end.y, time);
     this._camera.pos.x = lerp(this._startCameraPosition.x, this._destinationCameraPosition.x, time);
@@ -112,7 +104,7 @@ export class Slide extends Transition {
   }
 
   override onUpdate(progress: number): void {
-    const time = this._easing(this.distance);
+    const time = this.easing(this.distance);
     this.transform.pos.x = lerp(this._start.x, this._end.x, time);
     this.transform.pos.y = lerp(this._start.y, this._end.y, time);
     this._camera.pos.x = lerp(this._startCameraPosition.x, this._destinationCameraPosition.x, time);

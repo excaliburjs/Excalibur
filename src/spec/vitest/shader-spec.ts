@@ -363,6 +363,51 @@ describe('A Shader', () => {
     expect(warnSpy).toHaveBeenCalledWith('Invalid block name NonExistentBlock');
   });
 
+  it('re-binds its uniform buffers on use() when another shader took the same binding point', () => {
+    const makeShader = (blockName: string) =>
+      new ex.Shader({
+        graphicsContext,
+        vertexSource: `#version 300 es
+      in vec4 a_position;
+      layout(std140) uniform ${blockName} {
+        vec4 data;
+      };
+      void main() {
+        gl_Position = a_position + data;
+      }`,
+        fragmentSource: `#version 300 es
+      precision mediump float;
+      out vec4 color;
+      void main() {
+        color = vec4(1.0);
+      }`
+      });
+    const boundAt0 = () => gl.getIndexedParameter(gl.UNIFORM_BUFFER_BINDING, 0);
+
+    // both shaders allocate binding point 0 for their (differently named) blocks
+    const shaderA = makeShader('BlockA');
+    shaderA.compile();
+    shaderA.use();
+    shaderA.setUniformBuffer('BlockA', new Float32Array([1, 0, 0, 0]));
+    const bufferA = (shaderA as any)._uniformBuffers.BlockA.buffer;
+    expect(boundAt0()).toBe(bufferA);
+
+    const shaderB = makeShader('BlockB');
+    shaderB.compile();
+    shaderB.use();
+    shaderB.setUniformBuffer('BlockB', new Float32Array([0, 1, 0, 0]));
+    const bufferB = (shaderB as any)._uniformBuffers.BlockB.buffer;
+    expect(bufferB).not.toBe(bufferA);
+    expect(boundAt0()).toBe(bufferB);
+
+    // A's uniforms are clean so nothing re-uploads them, but its own buffer must be bound again
+    shaderA.use();
+    expect(boundAt0()).toBe(bufferA);
+
+    shaderB.use();
+    expect(boundAt0()).toBe(bufferB);
+  });
+
   it('setUniformBuffer recreates buffer if new data is larger', () => {
     const sut = new ex.Shader({
       graphicsContext,

@@ -10,7 +10,7 @@ import { Random } from '../math/random';
 import type { Vector } from '../math/vector';
 import { vec } from '../math/vector';
 import { clamp } from '../math';
-import type { ExcaliburGraphicsContextWebGL } from '../graphics/context/excalibur-graphics-context-webgl';
+import type { ExcaliburGraphicsContext } from '../graphics/context/excalibur-graphics-context';
 import type { ParticleRenderer } from '../graphics/context/particle-renderer/particle-renderer';
 
 export class GpuParticleEmitter extends Actor {
@@ -83,13 +83,21 @@ export class GpuParticleEmitter extends Actor {
 
   public override _initialize(engine: Engine): void {
     super._initialize(engine);
-    const context = engine.graphicsContext as ExcaliburGraphicsContextWebGL;
-    this.renderer.initialize(context.__gl, context);
+    const context = engine.graphicsContext.asWebGL('GpuParticleEmitter');
+    if (context) {
+      this.renderer.initialize(context.__gl, context);
+    } else {
+      this._isCanvasFallback = true;
+    }
   }
 
+  private _isCanvasFallback = false;
   private _particlesToEmit = 0;
   public override update(engine: Engine, elapsed: number): void {
     super.update(engine, elapsed);
+    if (this._isCanvasFallback) {
+      return; // Canvas 2D fallback, already warned
+    }
 
     if (this.isEmitting) {
       this._particlesToEmit += this.emitRate * (elapsed / 1000);
@@ -102,17 +110,23 @@ export class GpuParticleEmitter extends Actor {
   }
 
   public emitParticles(particleCount: number) {
-    if (particleCount <= 0) {
+    if (particleCount <= 0 || this._isCanvasFallback) {
       return;
     }
     this.renderer.emitParticles(particleCount | 0); // coerce to integer
   }
 
   public clearParticles() {
+    if (this._isCanvasFallback) {
+      return;
+    }
     this.renderer.clearParticles();
   }
 
-  draw(ctx: ExcaliburGraphicsContextWebGL, elapsed: number) {
+  draw(ctx: ExcaliburGraphicsContext, elapsed: number) {
+    if (this._isCanvasFallback) {
+      return;
+    }
     ctx.draw<ParticleRenderer>('ex.particle', this.renderer, elapsed);
   }
 }

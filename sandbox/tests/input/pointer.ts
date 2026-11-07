@@ -19,7 +19,7 @@
     this.transform.pos.setTo(options.x, options.y);
     this.addComponent(this.transform);
 
-    this.collider = new ex.ColliderComponent(ex.Shape.Box(options.width, options.height));
+    this.collider = new ex.ColliderComponent(ex.Colliders.Box(options.width, options.height));
     this.addComponent(this.collider);
 
     this.pointer = new ex.PointerComponent({ useColliderShape: true });

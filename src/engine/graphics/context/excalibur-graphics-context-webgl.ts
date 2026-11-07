@@ -28,8 +28,6 @@ import type { RendererPlugin } from './renderer';
 import { DebugLineRenderer } from './debug-line-renderer/debug-line-renderer';
 import { DebugPointRenderer } from './debug-point-renderer/debug-point-renderer';
 import { DebugCircleRenderer } from './debug-circle-renderer/debug-circle-renderer';
-import { ScreenPassPainter } from './screen-pass-painter/screen-pass-painter';
-import { ImageRenderer } from './image-renderer/image-renderer';
 import { RectangleRenderer } from './rectangle-renderer/rectangle-renderer';
 import { CircleRenderer } from './circle-renderer/circle-renderer';
 import { ArenaPool } from '../../util/arena-pool';
@@ -43,7 +41,6 @@ import { Shader } from './shader';
 import type { GarbageCollector } from '../../garbage-collector';
 import { ParticleRenderer } from './particle-renderer/particle-renderer';
 import { ImageRendererV2 } from './image-renderer-v2/image-renderer-v2';
-import { Flags } from '../../flags';
 import { Debug } from '../debug';
 import { GraphicsDiagnostics } from '../graphics-diagnostics';
 
@@ -153,7 +150,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   private _logger = Logger.getInstance();
   private _renderers: Map<string, RendererPlugin> = new Map<string, RendererPlugin>();
   private _lazyRenderersFactory: Map<string, () => RendererPlugin> = new Map<string, () => RendererPlugin>();
-  public imageRenderer: 'ex.image' | 'ex.image-v2' = Flags.isEnabled('use-legacy-image-renderer') ? 'ex.image' : 'ex.image-v2';
   private _isDrawLifecycle = false;
   public useDrawSorting = true;
 
@@ -173,8 +169,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   // The framebuffer the frame is currently being drawn into, tracked so pipeline code can restore it
   private _drawTarget!: Framebuffer;
-
-  private _screenRenderer!: ScreenPassPainter;
 
   private _postprocessors: PostProcessor[] = [];
 
@@ -255,6 +249,25 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public get ortho(): Matrix {
     return this._ortho;
+  }
+
+  private _resolutionWidth = 0;
+  private _resolutionHeight = 0;
+  /**
+   * Width of the drawing coordinate space the {@apilink ortho} projection maps onto the screen (the screen resolution),
+   * differs from {@apilink width} (physical canvas pixels) whenever the device pixel ratio is not 1
+   * @internal
+   */
+  public get resolutionWidth(): number {
+    return this._resolutionWidth || this.width;
+  }
+
+  /**
+   * Height of the drawing coordinate space the {@apilink ortho} projection maps onto the screen (the screen resolution)
+   * @internal
+   */
+  public get resolutionHeight(): number {
+    return this._resolutionHeight || this.height;
   }
 
   /**
@@ -434,12 +447,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.blendFuncSeparate(gl.ONE, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.depthMask(false);
     // Setup builtin renderers
-    this.register(
-      new ImageRenderer({
-        uvPadding: this.uvPadding,
-        pixelArtSampler: this.pixelArtSampler
-      })
-    );
     this.register(new MaterialRenderer());
     this.register(new RectangleRenderer());
     this.register(new CircleRenderer());
@@ -465,8 +472,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     gl.bindTexture(gl.TEXTURE_2D, null);
-
-    this._screenRenderer = new ScreenPassPainter(this);
 
     // the frame targets keep the default ImageFiltering.Pixel, they are only ever sampled 1:1
     this._renderTarget = new Framebuffer({
@@ -511,6 +516,10 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (this._onGraphicsPostInitialize) {
       this._onGraphicsPostInitialize(this);
     }
+  }
+
+  public asWebGL(_feature: string): ExcaliburGraphicsContextWebGL {
+    return this;
   }
 
   public register<T extends RendererPlugin>(renderer: T) {
@@ -620,6 +629,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   public updateViewport(resolution: Resolution): void {
     const gl = this.__gl;
     this._ortho = this._ortho = Matrix.ortho(0, resolution.width, resolution.height, 0, 400, -400);
+    this._resolutionWidth = resolution.width;
+    this._resolutionHeight = resolution.height;
 
     this._renderTarget.resize(gl.canvas.width, gl.canvas.height);
     this._msaaTarget?.resize(gl.canvas.width, gl.canvas.height);
@@ -692,11 +703,7 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     if (this._state.current.material) {
       this.draw<MaterialRenderer>('ex.material', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     } else {
-      if (this.imageRenderer === 'ex.image') {
-        this.draw<ImageRenderer>(this.imageRenderer, image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-      } else {
-        this.draw<ImageRendererV2>(this.imageRenderer, image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
-      }
+      this.draw<ImageRendererV2>('ex.image-v2', image, sx, sy, swidth, sheight, dx, dy, dwidth, dheight);
     }
   }
 
@@ -750,10 +757,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
 
   public addPostProcessor(postprocessor: PostProcessor) {
     if (process.env.NODE_ENV === 'development') {
-      if (!postprocessor.process && !(postprocessor.getShader && postprocessor.getLayout)) {
-        throw new Error(
-          'PostProcessor must implement either process() for multipass rendering, or both getShader() and getLayout() for single-pass'
-        );
+      if (!postprocessor.process) {
+        throw new Error('PostProcessor must implement process()');
       }
     }
     this._postprocessors.push(postprocessor);
@@ -771,26 +776,8 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     this._postprocessors.length = 0;
   }
 
-  private _totalPostProcessorTime = 0;
   public updatePostProcessors(elapsed: number) {
-    this._totalPostProcessorTime += elapsed;
     for (const postprocessor of this._postprocessors) {
-      const shader = postprocessor.getShader?.();
-      if (shader) {
-        shader.use();
-        const uniforms = shader.getUniformDefinitions();
-
-        if (uniforms.find((u) => u.name === 'u_time_ms')) {
-          shader.setUniformFloat('u_time_ms', this._totalPostProcessorTime);
-        }
-        if (uniforms.find((u) => u.name === 'u_elapsed_ms')) {
-          shader.setUniformFloat('u_elapsed_ms', elapsed);
-        }
-        if (uniforms.find((u) => u.name === 'u_resolution')) {
-          shader.setUniformFloatVector('u_resolution', vec(this.width, this.height));
-        }
-      }
-
       if (postprocessor.onUpdate) {
         postprocessor.onUpdate(elapsed);
       }
@@ -878,8 +865,6 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
       this._logger.errorOnce(`Unable to flush the webgl context is lost`);
       return;
     }
-
-    const gl = this.__gl;
 
     // render target captures all draws and redirects to the render target
     let currentTarget = this._msaaTarget ?? this._renderTarget;
@@ -978,17 +963,9 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     for (let i = 0; i < this._postprocessors.length; i++) {
       const postprocessor = this._postprocessors[i];
       const output = this._postProcessTargets[i % 2];
-      if (postprocessor.process) {
-        // multipass post processors take explicit source/destination framebuffers,
-        // reading source.texture resolves MSAA when needed
-        postprocessor.process(currentTarget, output);
-      } else {
-        // single-pass path, the source texture getter resolves MSAA when needed
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, currentTarget.texture);
-        output.bind();
-        this._screenRenderer.renderWithPostProcessor(postprocessor);
-      }
+      // post processors take explicit source/destination framebuffers,
+      // reading source.texture resolves MSAA when needed
+      postprocessor.process(currentTarget, output);
       currentTarget = output;
     }
 

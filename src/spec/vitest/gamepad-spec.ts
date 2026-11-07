@@ -261,4 +261,29 @@ describe('A gamepad', () => {
     expect(currentAxis).toBe(3);
     expect(currentValue).toBe(-0.5);
   });
+
+  it('does not throw and disables itself when navigator.getGamepads() throws (SecurityError)', () => {
+    vi.spyOn(navigator, 'getGamepads').mockImplementation(() => {
+      throw new DOMException('Gamepad access blocked by permissions policy', 'SecurityError');
+    });
+
+    const pads = new ex.Gamepads();
+    pads.pollingEnabled = true;
+    expect(() => pads.init()).not.toThrow();
+    expect(pads.supported).toBe(false);
+    expect(() => pads.update()).not.toThrow();
+  });
+
+  it('does not throw from the per-frame poll when navigator.getGamepads() starts throwing', () => {
+    const pads = new ex.Gamepads();
+    pads.pollingEnabled = true;
+    expect(pads.supported).toBe(true);
+    pads.update();
+
+    vi.spyOn(navigator, 'getGamepads').mockImplementation(() => {
+      throw new DOMException('blocked', 'SecurityError');
+    });
+    expect(() => pads.update()).not.toThrow();
+    expect(pads.supported).toBe(false);
+  });
 });

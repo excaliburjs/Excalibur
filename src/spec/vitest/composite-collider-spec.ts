@@ -9,7 +9,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('can be created from multiple colliders', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10)]);
     const xf = new ex.Transform();
     xf.pos = vec(100, 100);
     compCollider.update(xf);
@@ -20,8 +20,8 @@ describe('A CompositeCollider', () => {
   });
 
   it('can forward events from the individual colliders', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
     const precollision = vi.fn();
     const postcollision = vi.fn();
     const collisionstart = vi.fn();
@@ -46,7 +46,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('can find the furthest point', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
     const up = compCollider.getFurthestPoint(Vector.Up);
     const down = compCollider.getFurthestPoint(Vector.Down);
     const left = compCollider.getFurthestPoint(Vector.Left);
@@ -58,17 +58,17 @@ describe('A CompositeCollider', () => {
   });
 
   it('sums the inertia of the shapes', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     expect(compCollider.getInertia(100)).toBe(circle.getInertia(100) + box.getInertia(100));
   });
 
   it('can locate the closest line between colliders', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
-    const circle = ex.Shape.Circle(50);
+    const circle = ex.Colliders.Circle(50);
     const xf = new ex.Transform();
 
     xf.pos = vec(300, 0);
@@ -97,9 +97,9 @@ describe('A CompositeCollider', () => {
   });
 
   it('can get the closest line between other composite colliders', () => {
-    const compCollider1 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider1 = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
-    const compCollider2 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider2 = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     const xf = new ex.Transform();
     xf.pos = vec(500, 0);
@@ -118,9 +118,9 @@ describe('A CompositeCollider', () => {
   });
 
   it('can collide with normal colliders', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
-    const circle = ex.Shape.Circle(50);
+    const circle = ex.Colliders.Circle(50);
     const xf = new ex.Transform();
     xf.pos = vec(149, 0);
     circle.update(xf);
@@ -137,9 +137,9 @@ describe('A CompositeCollider', () => {
   });
 
   it('creates contacts that have the composite collider id', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
-    const circle = ex.Shape.Circle(50);
+    const circle = ex.Colliders.Circle(50);
     const xf = new ex.Transform();
     xf.pos = vec(149, 0);
     circle.update(xf);
@@ -152,10 +152,10 @@ describe('A CompositeCollider', () => {
   });
 
   it("creates contacts that have the don't have composite collider id when in separate mode", () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
     compCollider.compositeStrategy = 'separate';
 
-    const circle = ex.Shape.Circle(50);
+    const circle = ex.Colliders.Circle(50);
     const xf = new ex.Transform();
     xf.pos = vec(149, 0);
     circle.update(xf);
@@ -170,9 +170,9 @@ describe('A CompositeCollider', () => {
   });
 
   it('can collide with other composite colliders', () => {
-    const compCollider1 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider1 = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
-    const compCollider2 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider2 = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     const xf = new ex.Transform();
     xf.pos = vec(200, 0);
@@ -184,9 +184,9 @@ describe('A CompositeCollider', () => {
   });
 
   it('returns empty on no contacts', () => {
-    const compCollider1 = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider1 = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
-    const circle = ex.Shape.Circle(50);
+    const circle = ex.Colliders.Circle(50);
     const xf = new ex.Transform();
     xf.pos = vec(300, 0);
     circle.update(xf);
@@ -195,15 +195,15 @@ describe('A CompositeCollider', () => {
   });
 
   it('can return all the axes', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     expect(compCollider.axes).toEqual(circle.axes.concat(box.axes));
   });
 
   it('can be tested with a raycast', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     const rayRight = new Ray(vec(-200, 0), Vector.Right);
 
@@ -230,7 +230,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('can project onto an axis', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     const widthProj = compCollider.project(Vector.Right);
     expect(widthProj).toEqual(new Projection(-100, 100));
@@ -240,7 +240,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('can test point containment', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     expect(compCollider.contains(vec(0, -50))).toBe(true);
     expect(compCollider.contains(vec(0, -51))).toBe(false);
@@ -258,7 +258,7 @@ describe('A CompositeCollider', () => {
     canvasElement.height = 300;
     const ctx = new ex.ExcaliburGraphicsContext2DCanvas({ canvasElement });
 
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
     const tx = new ex.Transform();
     tx.pos = ex.vec(150, 150);
     compCollider.update(tx);
@@ -273,7 +273,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('is separated into a series of colliders in the dynamic tree', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor({
       ...getDefaultPhysicsConfig()
@@ -286,7 +286,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('removes all colliders in the dynamic tree', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
 
     const dynamicTreeProcessor = new ex.DynamicTreeCollisionProcessor({
       ...getDefaultPhysicsConfig()
@@ -300,7 +300,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('flattens composite colliders inside composite colliders with adjusted offset', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
     compCollider.offset = ex.vec(50, 100);
     expect(compCollider.getColliders()[0].offset).toBeVector(Vector.Zero);
     expect(compCollider.getColliders()[1].offset).toBeVector(Vector.Zero);
@@ -315,7 +315,7 @@ describe('A CompositeCollider', () => {
   });
 
   it('has the correct bounds when offset', () => {
-    const compCollider = new ex.CompositeCollider([ex.Shape.Circle(50), ex.Shape.Box(200, 10, Vector.Half)]);
+    const compCollider = new ex.CompositeCollider([ex.Colliders.Circle(50), ex.Colliders.Box(200, 10, Vector.Half)]);
     expect(compCollider.bounds).toEqual(new ex.BoundingBox({ left: -100, right: 100, top: -50, bottom: 50 }));
     compCollider.offset = ex.vec(50, 100);
     expect(compCollider.bounds).toEqual(new ex.BoundingBox({ left: -50, right: 150, top: 50, bottom: 150 }));

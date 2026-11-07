@@ -77,7 +77,7 @@ type MaterialShaderOptions =
        * Pre-built varyings:
        *
        * * `in vec2 v_uv` - UV coordinate
-       * * `in vec2 v_screenuv` - UV coordinate
+       * * `in vec2 v_screenuv` - UV coordinate of this pixel in `u_screen_texture`, `texture(u_screen_texture, v_screenuv)` is the screen behind the pixel (origin bottom-left, like all GL textures)
        *
        * Pre-built uniforms:
        *

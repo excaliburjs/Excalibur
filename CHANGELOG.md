@@ -19,6 +19,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   - Settable booleans follow the same `isX` naming as the already-shipped `isVisible`: the `visible` option on `ActorOptions`, `TriggerOptions` and `GraphicsComponentOptions` is now `isVisible`, and `Particle.visible` is now `Particle.isVisible`
   - `Tile.solid` (`TileMap` and `IsometricMap` tiles) and the `solid` tile option are now `isSolid`
   - `GarbageCollector.running()` is now the getter `isRunning`; `FontTextInstance.disposed` is now `isDisposed`
+  - `Slide({ easingFunction })` is now `Slide({ easing })`, matching every other transition; previously `easing` was silently ignored by `Slide`
   - Pausing: `Actor.paused` (a `PauseComponent`, not a boolean) and `Particle.paused` are now the read-only `pauseComponent`, `PauseComponent.paused` is now the read-only `isPaused`, and `PauseComponentInterface` is now `PauseComponentOptions`. Use `Actor.canPause` and `Actor.isPaused` for everyday code
   - Spelling: `isOffScreen` -> `isOffscreen` (one word, like the web platform's `OffscreenCanvas`; "on screen" stays split: `forceOnScreen`, `onScreenOnly`, `getOnScreenTiles()`), `isHiDpi` -> `isHiDPI` on `Engine` and `Screen`, and `Future.isCompleted` -> `isComplete`
   - Renamed: `Color.equal` -> `Color.equals`
@@ -66,6 +67,17 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Build: Docusaurus now throws the build on broken markdown links, broken anchors, and broken markdown images instead of warning. Any custom docs/blog content must have valid internal links, anchors, and images.
 - Build: The engine `tsconfig.json` now uses `module: "esnext"` with `moduleResolution: "bundler"` (previously `module: "es2015"` / `moduleResolution: "node"`), and `downlevelIteration` has been removed. The per-package `tsconfig.json` overrides in `director`, `entity-component-system`, `graphics`, and `resources` have been removed in favor of the single engine `tsconfig.json`. Consumers importing source directly may need bundler-compatible tooling.
 - Build: TypeDoc runner has been replaced by `site/scripts/gen-typedoc-api.mjs`.
+- Removed all remaining deprecated/legacy API ahead of v1:
+  - `ex.Shape` in favor of `ex.Colliders` (`Colliders.Box/Polygon/Circle/Edge/Capsule`)
+  - `ColliderComponent.set()` in favor of `use()`
+  - `ActorArgs` in favor of `ActorOptions`, `ParticleEmitterArgs` in favor of `ParticleEmitterOptions`, `ex.Pool` in favor of `ex.ArenaPool`
+  - `PostProcessor.getShader()/getLayout()` single-pass path, `PostProcessor.process(source, destination)` is now required (use `ShaderPipelinePostProcessor` or `ShaderPass`); `ex.ScreenShader` removed along with the `v_texcoord` varying (use `v_uv`)
+  - `Sound.play(volume: number)` in favor of `Sound.play({ volume })`
+  - `Flags.useLegacyImageRenderer()`, `ExcaliburGraphicsContextWebGL.imageRenderer` and the legacy `ex.image` renderer, `ex.image-v2` is the only image renderer
+  - `ex.EventTypes`, the lowercase event-name type aliases of `ex.Events` (`ex.Events.kill`, `ex.Events.pointerup`, ...), `AddedComponent`/`RemovedComponent` messages and type guards, `TagsComponent`
+  - `Util.addItemToArray` (`Util.removeItemFromArray` stays, no longer deprecated)
+  - `CapturePointerConfig`, `Particle.DefaultConfig`, and the exports of `GifParser`, `Stream` and `LegacyWebAudioSource` (internal only now)
+  - rAF/cAF/AudioContext-prefix polyfills, only the `requestIdleCallback` shim remains
 
 ### Deprecated
 

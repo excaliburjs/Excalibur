@@ -1,6 +1,6 @@
 import { Color } from '../../../../color';
 import { vec } from '../../../../math/vector';
-import type { ExcaliburGraphicsContextWebGL } from '../../excalibur-graphics-context-webgl';
+import type { ExcaliburGraphicsContext } from '../../excalibur-graphics-context';
 import { glsl } from '../../glsl';
 import type { Shader } from '../../shader';
 import type { ShaderPassDestination, ShaderPassSource } from '../shader-pass';
@@ -10,7 +10,7 @@ import { ShaderPipeline } from '../shader-pipeline';
 import { gaussianBlurFragmentSource } from './blur-passes';
 
 export interface GlowPassesOptions {
-  graphicsContext: ExcaliburGraphicsContextWebGL;
+  graphicsContext: ExcaliburGraphicsContext;
   /**
    * Glow color, default white
    */

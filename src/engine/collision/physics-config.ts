@@ -164,9 +164,12 @@ export interface PhysicsConfig {
     sleepTimeThreshold?: number;
 
     /**
-     * By default bodies do not sleep, this can be turned on to improve perf if you have a lot of bodies.
+     * By default bodies are allowed to sleep, which improves perf when you have a lot of bodies. Set this to false to
+     * opt out; individual bodies can also override this with {@apilink BodyComponent.canSleep}.
      *
-     * Default false
+     * Only {@apilink CollisionType.Active} bodies will ever fall asleep.
+     *
+     * Default true
      */
     canSleepByDefault?: boolean;
   };

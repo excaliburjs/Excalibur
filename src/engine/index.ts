@@ -62,8 +62,6 @@ export { PointerButton } from './input/pointer-button';
 
 export { NativePointerButton } from './input/native-pointer-button';
 
-export type { CapturePointerConfig } from './input/capture-pointer-config';
-
 export type {
   NativePointerEvent,
   NativeMouseEvent,

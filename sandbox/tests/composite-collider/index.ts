@@ -10,10 +10,10 @@ game.toggleDebug();
 
 let roomShape = new ex.Rectangle({ width: 700, height: 500, color: ex.Color.DarkGray, strokeColor: ex.Color.White });
 
-var topEdgeCollider = ex.Shape.Box(700, 10, ex.Vector.Zero, ex.vec(0, 0));
-var leftEdgeCollider = ex.Shape.Box(10, 500, ex.Vector.Zero, ex.vec(0, 0));
-var rightEdgeCollider = ex.Shape.Box(10, 500, ex.Vector.One, ex.vec(700, 500));
-var bottomEdgeCollider = ex.Shape.Box(700, 10, ex.Vector.One, ex.vec(700, 500));
+var topEdgeCollider = ex.Colliders.Box(700, 10, ex.Vector.Zero, ex.vec(0, 0));
+var leftEdgeCollider = ex.Colliders.Box(10, 500, ex.Vector.Zero, ex.vec(0, 0));
+var rightEdgeCollider = ex.Colliders.Box(10, 500, ex.Vector.One, ex.vec(700, 500));
+var bottomEdgeCollider = ex.Colliders.Box(700, 10, ex.Vector.One, ex.vec(700, 500));
 var compositeCollider = new ex.CompositeCollider([topEdgeCollider, leftEdgeCollider, rightEdgeCollider, bottomEdgeCollider]);
 
 class RoomActor extends ex.Actor {

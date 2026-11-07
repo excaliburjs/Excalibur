@@ -24,7 +24,7 @@ const sound = new Sound('./path/to/my.mp3', './path/to/fallback.wav');
 const loader = new Loader([sound]);
 await game.start(loader);
 
-sound.play(0.5);
+sound.play({ volume: 0.5 });
 ```
 
 All times in the [[Sound]] API are in **milliseconds**, including `position`, `duration`, [[Sound.seek|seek]], [[Sound.getPlaybackPosition|getPlaybackPosition]] and `scheduledStartTime`.

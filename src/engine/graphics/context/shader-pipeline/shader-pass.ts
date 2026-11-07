@@ -5,6 +5,7 @@ import { GraphicsDiagnostics } from '../../graphics-diagnostics';
 import { ImageSource, ImageSourceAttributeConstants } from '../../image-source';
 import { parseImageWrapping } from '../../wrapping';
 import type { ExcaliburGraphicsContextWebGL } from '../excalibur-graphics-context-webgl';
+import type { ExcaliburGraphicsContext } from '../excalibur-graphics-context';
 import { Framebuffer } from '../framebuffer';
 import { glsl } from '../glsl';
 import type { Shader, UniformDictionary } from '../shader';
@@ -24,7 +25,7 @@ export type ShaderPassSource = Framebuffer | ImageSource | WebGLTexture;
 export type ShaderPassDestination = Framebuffer | null;
 
 export interface ShaderPassOptions {
-  graphicsContext: ExcaliburGraphicsContextWebGL;
+  graphicsContext: ExcaliburGraphicsContext;
   /**
    * Name the pass for debugging
    */
@@ -158,7 +159,7 @@ export class ShaderPass {
    */
   public readonly filtering: ImageFiltering;
 
-  private _graphicsContext: ExcaliburGraphicsContextWebGL;
+  private _graphicsContext: ExcaliburGraphicsContextWebGL | null;
   private _fragmentSource: string;
   private _initialUniforms: UniformDictionary | null = null;
   private _shader: Shader | null = null;
@@ -167,7 +168,7 @@ export class ShaderPass {
 
   constructor(options: ShaderPassOptions) {
     const { graphicsContext, name, fragmentSource, uniforms, scale, filtering } = options;
-    this._graphicsContext = graphicsContext;
+    this._graphicsContext = graphicsContext.asWebGL('ShaderPass');
     this.name = name ?? 'anonymous shader pass';
     this._fragmentSource = fragmentSource ? fragmentSource : defaultPassthroughFragment;
     this._initialUniforms = uniforms ?? null;
@@ -190,6 +191,9 @@ export class ShaderPass {
     }
     if (this._disposed) {
       throw new Error(`ShaderPass "${this.name}" has been disposed and cannot be used. Create a new pass instance.`);
+    }
+    if (!this._graphicsContext) {
+      throw new Error(`ShaderPass "${this.name}" requires the WebGL graphics context`);
     }
     this._shader = this._graphicsContext.createShader({
       name: `pass ${this.name}`,
@@ -246,7 +250,7 @@ export class ShaderPass {
       const filtering = maybeFiltering ? parseImageFiltering(maybeFiltering) : null;
       const wrapX = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingX) as any);
       const wrapY = parseImageWrapping(image.getAttribute(ImageSourceAttributeConstants.WrappingY) as any);
-      const texture = this._graphicsContext.textureLoader.load(image, { filtering, wrapping: { x: wrapX, y: wrapY } });
+      const texture = this._graphicsContext!.textureLoader.load(image, { filtering, wrapping: { x: wrapX, y: wrapY } });
       return { name, texture, width: image.width, height: image.height };
     }
     return { name, texture: source };
@@ -270,6 +274,9 @@ export class ShaderPass {
       options = sourceOrOptions as ShaderPassDrawOptions;
     }
 
+    if (!this._graphicsContext) {
+      return; // Canvas 2D fallback, already warned
+    }
     this._initialize();
     const gl = this._graphicsContext.__gl;
     const shader = this._shader!;

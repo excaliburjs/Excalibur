@@ -31,9 +31,9 @@ export interface LightOccluderComponentOptions {
 /**
  * Marks an entity as a light-blocking obstacle that projects dynamic shadows in the {@apilink LightingSystem}.
  *
- * Box shapes are centered on the transform origin by default (`anchor: Vector.Half`, matching {@apilink Shape.Box}).
- * Polygon and circle shapes are positioned by their own vertex/center coordinates, same as {@apilink Shape.Polygon}
- * and {@apilink Shape.Circle} — `offset` shifts any shape further from the transform origin in local space.
+ * Box shapes are centered on the transform origin by default (`anchor: Vector.Half`, matching {@apilink Colliders.Box}).
+ * Polygon and circle shapes are positioned by their own vertex/center coordinates, same as {@apilink Colliders.Polygon}
+ * and {@apilink Colliders.Circle} — `offset` shifts any shape further from the transform origin in local space.
  */
 export class LightOccluderComponent extends Component {
   // @ts-ignore

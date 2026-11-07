@@ -35,20 +35,7 @@ export function getPosition(el: HTMLElement): Vector {
 }
 
 /**
- * Add an item to an array list if it doesn't already exist. Returns true if added, false if not and already exists in the array.
- * @deprecated Will be removed in v0.26.0
- */
-export function addItemToArray<T>(item: T, array: T[]): boolean {
-  if (array.indexOf(item) === -1) {
-    array.push(item);
-    return true;
-  }
-  return false;
-}
-
-/**
- * Remove an item from an list
- * @deprecated Will be removed in v0.26.0
+ * Remove an item from a list, returns true if the item was found and removed
  */
 export function removeItemFromArray<T>(item: T, array: T[]): boolean {
   let index = -1;

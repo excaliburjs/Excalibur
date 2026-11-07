@@ -6,6 +6,7 @@ import type { AffineMatrix } from '../../math/affine-matrix';
 import type { Material, MaterialOptions } from './material';
 import type { RendererPlugin } from './renderer';
 import { ImageFiltering } from '../filtering';
+import type { ExcaliburGraphicsContextWebGL } from './excalibur-graphics-context-webgl';
 
 export type HTMLImageSource = HTMLImageElement | HTMLCanvasElement;
 
@@ -123,7 +124,7 @@ export interface ExcaliburGraphicsContextOptions {
    */
   backgroundColor?: Color;
   /**
-   * Feature flag that enables draw sorting will removed in v0.29
+   * Enables draw call sorting (by z, material, and texture) to reduce state changes, defaults to `true`
    */
   useDrawSorting?: boolean;
 
@@ -438,6 +439,16 @@ export interface ExcaliburGraphicsContext {
    * @internal
    */
   updatePostProcessors(elapsed: number): void;
+
+  /**
+   * Gets this context as the WebGL context for WebGL only features, so that `engine.graphicsContext` can be used as is
+   * without casting.
+   *
+   * In the Canvas 2D fallback context this logs a warning once (per feature) and returns `null`, so the feature can
+   * turn itself into a no-op.
+   * @param feature Name of the WebGL only feature, used in the one time warning
+   */
+  asWebGL(feature: string): ExcaliburGraphicsContextWebGL | null;
 
   /**
    * Register a custom renderer plugin with the graphics context.

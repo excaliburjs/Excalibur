@@ -525,7 +525,11 @@ export class NineSlice extends Graphic {
    */
 
   clone(): NineSlice {
-    return new NineSlice(this._config);
+    return new NineSlice({
+      ...this._config,
+      sourceConfig: { ...this._config.sourceConfig },
+      destinationConfig: { ...this._config.destinationConfig }
+    });
   }
 
   /**

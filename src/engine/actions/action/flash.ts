@@ -2,7 +2,6 @@ import { GraphicsComponent } from '../../graphics/graphics-component';
 import type { Entity } from '../../entity-component-system/entity';
 import type { Action } from '../action';
 import { nextActionId } from '../action';
-import type { Actor } from '../../actor';
 import type { Material } from '../../graphics/context/material';
 import type { Color } from '../../color';
 
@@ -12,15 +11,15 @@ export class Flash implements Action {
   private _duration: number;
   private _stopped: boolean = false;
   private _started: boolean = false;
-  private _entity: Entity;
   private _material: Material | undefined;
+  private _previousMaterial: Material | null = null;
+  private _isApplied: boolean = false;
   private _total: number = 0;
   private _currentDuration: number = 0;
 
   constructor(entity: Entity, color: Color, duration: number = 1000) {
     this._graphics = entity.get(GraphicsComponent);
     this._duration = duration;
-    this._entity = entity;
     this._material = entity.scene?.engine.graphicsContext.createMaterial({
       name: 'flash-material',
       color,
@@ -48,7 +47,12 @@ export class Flash implements Action {
       this._started = true;
       this._total = this._duration;
       this._currentDuration = this._duration;
-      (this._entity as Actor).graphics.material = this._material as Material;
+      if (this._graphics) {
+        // Remember the user's material so it can be restored when the flash is done
+        this._previousMaterial = this._graphics.material;
+        this._graphics.material = this._material ?? null;
+        this._isApplied = true;
+      }
     }
     if (!this._graphics) {
       return;
@@ -63,8 +67,19 @@ export class Flash implements Action {
     }
 
     if (this.isComplete()) {
-      (this._entity as Actor).graphics.material = null;
+      this._restoreMaterial();
     }
+  }
+
+  private _restoreMaterial() {
+    if (this._isApplied && this._graphics) {
+      // Only restore if the flash material is still the active one, don't clobber a material set by the user mid-flash
+      if (this._graphics.material === this._material) {
+        this._graphics.material = this._previousMaterial;
+      }
+    }
+    this._isApplied = false;
+    this._previousMaterial = null;
   }
 
   public isComplete(): boolean {
@@ -75,6 +90,7 @@ export class Flash implements Action {
     if (this._graphics) {
       this._graphics.isVisible = true;
     }
+    this._restoreMaterial();
     this._stopped = true;
     this._started = false;
   }

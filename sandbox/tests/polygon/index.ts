@@ -7,7 +7,7 @@ game.toggleDebug();
 game.debug.collider.showBounds = false;
 
 var actor = new ex.Actor({ pos: ex.vec(200, 100) });
-// var shape = ex.Shape.Polygon([
+// var shape = ex.Colliders.Polygon([
 //   ex.vec(0,0),
 //   ex.vec(-1.6875,-25.0625),
 //   ex.vec(6.3125,-25.0625),
@@ -76,10 +76,10 @@ function triangleArea(a: ex.Vector, b: ex.Vector, c: ex.Vector) {
 
 console.log('triangle area', triangleArea(ex.vec(160, 80), ex.vec(80, 40), ex.vec(0, 0)));
 
-var shape = ex.Shape.Polygon(points, ex.Vector.Zero, true);
+var shape = ex.Colliders.Polygon(points, ex.Vector.Zero, true);
 
 var triangulated = shape.triangulate();
-actor.collider.set(triangulated);
+actor.collider.use(triangulated);
 game.add(actor);
 
 game.currentScene.camera.zoom = 0.75;

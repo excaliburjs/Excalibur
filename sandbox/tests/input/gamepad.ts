@@ -124,7 +124,7 @@ class CircleActor extends ex.Actor {
   private _text = new ex.Text({
     text: this.value.toString()
   });
-  constructor(args: ex.ActorArgs) {
+  constructor(args: ex.ActorOptions) {
     super(args);
     this._circle = new ex.Circle({
       radius: this.width,

@@ -12,7 +12,7 @@ var game = new ex.Engine({
 var swordImage = new ex.ImageSource('./sword.png');
 var loader = new ex.Loader([swordImage]);
 
-var graphicsContext = game.graphicsContext as ex.ExcaliburGraphicsContextWebGL;
+var graphicsContext = game.graphicsContext;
 
 // 1. Blur material: multipass gaussian blur with padding so the blur is not clipped to the sprite
 var blurred = new ex.Actor({ pos: ex.vec(120, 150) });

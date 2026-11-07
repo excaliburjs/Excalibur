@@ -36,20 +36,23 @@ export class TransformComponent extends Component {
       childTxComponent._parentComponent = this;
     }
   };
+  private _removeChildTransform = (child: Entity) => {
+    const childTxComponent = child.get(TransformComponent);
+    if (childTxComponent) {
+      childTxComponent._transform.parent = null;
+      childTxComponent._parentComponent = null;
+    }
+  };
   override onAdd(owner: Entity): void {
     for (const child of owner.children) {
       this._addChildTransform(child);
     }
-    owner.childrenAdded$.subscribe((child) => this._addChildTransform(child));
-    owner.childrenRemoved$.subscribe((child) => {
-      const childTxComponent = child.get(TransformComponent);
-      if (childTxComponent) {
-        childTxComponent._transform.parent = null;
-        childTxComponent._parentComponent = null;
-      }
-    });
+    owner.childrenAdded$.subscribe(this._addChildTransform);
+    owner.childrenRemoved$.subscribe(this._removeChildTransform);
   }
-  override onRemove(_previousOwner: Entity): void {
+  override onRemove(previousOwner: Entity): void {
+    previousOwner.childrenAdded$.unsubscribe(this._addChildTransform);
+    previousOwner.childrenRemoved$.unsubscribe(this._removeChildTransform);
     this._transform.parent = null;
     this._parentComponent = null;
   }
@@ -157,6 +160,7 @@ export class TransformComponent extends Component {
   override clone(): TransformComponent {
     const component = new TransformComponent();
     component._transform = this._transform.clone();
+    component._coordPlane = this._coordPlane;
     return component;
   }
 

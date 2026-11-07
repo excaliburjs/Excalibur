@@ -28,7 +28,7 @@ expect.extend({
       };
     }
   },
-  toHaveValues: (actual: ex.Actor, expected: ex.ActorArgs) => {
+  toHaveValues: (actual: ex.Actor, expected: ex.ActorOptions) => {
     let message = 'Expected actor to have properties:\r\n\r\n';
     let passed = true;
     for (const key in expected) {
@@ -72,7 +72,7 @@ expect.extend({
 
 interface CustomMatchers<R = unknown> {
   toBeVector(expected: ex.Vector, delta?: number): R;
-  toHaveValues(expected: ex.ActorArgs): R;
+  toHaveValues(expected: ex.ActorOptions): R;
   toHaveLoadedImages(images: ExcaliburVisual[], tolerance?: number): Promise<R>;
 }
 

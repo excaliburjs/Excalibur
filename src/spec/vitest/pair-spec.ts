@@ -51,8 +51,8 @@ describe('A Collision Pair', () => {
 
   it('cannot collide with the same colliders with the same owner', () => {
     const actor1 = new ex.Actor();
-    const collider1 = ex.Shape.Circle(50);
-    const collider2 = ex.Shape.Box(100, 100);
+    const collider1 = ex.Colliders.Circle(50);
+    const collider2 = ex.Colliders.Box(100, 100);
     actor1.collider.useCompositeCollider([collider1, collider2]);
 
     const sut = ex.Pair.canCollide(collider1, collider2);

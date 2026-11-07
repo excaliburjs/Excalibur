@@ -84,6 +84,15 @@ export class Font extends Graphic implements FontRenderer {
   public clone() {
     return new Font({
       ...this.cloneGraphicOptions(),
+      color: this.color?.clone(),
+      strokeColor: this.strokeColor?.clone(),
+      lineDash: this.lineDash ? [...this.lineDash] : undefined,
+      lineWidth: this.lineWidth,
+      smoothing: this.smoothing,
+      padding: this.padding,
+      filtering: this.filtering,
+      lineHeight: this.lineHeight ?? undefined,
+      quality: this.quality,
       size: this.size,
       unit: this.unit,
       family: this.family,
@@ -95,8 +104,8 @@ export class Font extends Graphic implements FontRenderer {
       shadow: this.shadow
         ? {
             blur: this.shadow.blur,
-            offset: this.shadow.offset,
-            color: this.shadow.color
+            offset: this.shadow.offset?.clone(),
+            color: this.shadow.color?.clone()
           }
         : undefined
     });

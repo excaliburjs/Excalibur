@@ -49,8 +49,8 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('should not find pairs for a composite collider', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
     const compCollider = new ex.CompositeCollider([circle, box]);
     new ex.Actor({ collider: compCollider });
     const dt = new ex.DynamicTreeCollisionProcessor({
@@ -63,8 +63,8 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('should not find pairs for a composite collider when moving fast', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
     const compCollider = new ex.CompositeCollider([circle, box]);
     const actor = new ex.Actor({ collider: compCollider, collisionType: ex.CollisionType.Active });
     actor.body.vel = ex.vec(2000, 0); // extra fast to trigger the fast object detection
@@ -316,8 +316,8 @@ describe('A DynamicTree Broadphase', () => {
   });
 
   it('can untrack a composite collider, removing every sub-collider', () => {
-    const circle = ex.Shape.Circle(50);
-    const box = ex.Shape.Box(200, 10);
+    const circle = ex.Colliders.Circle(50);
+    const box = ex.Colliders.Box(200, 10);
     const compCollider = new ex.CompositeCollider([circle, box]);
     new ex.Actor({ collider: compCollider });
     const dt = new ex.DynamicTreeCollisionProcessor(getDefaultPhysicsConfig());
