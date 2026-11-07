@@ -222,7 +222,7 @@ export class Color {
     return new Color(newR, newG, newB, newA);
   }
 
-  public equal(color: Color): boolean {
+  public equals(color: Color): boolean {
     return this.toString() === color.toString();
   }
 

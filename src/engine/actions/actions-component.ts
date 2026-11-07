@@ -60,7 +60,7 @@ export class ActionsComponent extends Component implements ActionContextMethods 
 
   /**
    * Updates the internal action context, performing action and moving through the internal queue
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   public update(elapsed: number): void {
     return this._ctx?.update(elapsed);

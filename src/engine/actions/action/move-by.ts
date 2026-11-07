@@ -10,6 +10,9 @@ import { nextActionId } from '../action';
 
 export interface MoveByOptions {
   offset: Vector;
+  /**
+   * Duration of the action in milliseconds
+   */
   duration: number;
   easing?: Easing;
 }

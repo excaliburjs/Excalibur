@@ -646,7 +646,7 @@ export class Entity<TKnownComponents extends Component = any> implements OnIniti
    * Entity update lifecycle, called internally
    * @internal
    * @param engine
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   public update(engine: Engine, elapsed: number): void {
     this._initialize(engine);

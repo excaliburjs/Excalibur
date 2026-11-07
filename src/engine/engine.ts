@@ -1987,25 +1987,25 @@ O|===|* >________________>\n\
   /**
    * Returns the current frames elapsed milliseconds
    */
-  public currentFrameElapsedMs = 0;
+  public currentFrameElapsed = 0;
 
   /**
    * Returns the current frame lag when in fixed update mode
    */
-  public currentFrameLagMs = 0;
+  public currentFrameLag = 0;
 
   private _lagMs = 0;
   private _mainloop(elapsed: number) {
     this.scope(() => {
       this.emit('preframe', new PreFrameEvent(this, this.stats.prevFrame));
       const elapsedMs = elapsed * this.timescale;
-      this.currentFrameElapsedMs = elapsedMs;
+      this.currentFrameElapsed = elapsedMs;
 
       // reset frame stats (reuse existing instances)
       const frameId = this.stats.prevFrame.id + 1;
       this.stats.currFrame.reset();
       this.stats.currFrame.id = frameId;
-      this.stats.currFrame.elapsedMs = elapsedMs;
+      this.stats.currFrame.elapsed = elapsedMs;
       this.stats.currFrame.fps = this.clock.fpsSampler.fps;
       GraphicsDiagnostics.clear();
 
@@ -2021,7 +2021,7 @@ O|===|* >________________>\n\
         this._update(elapsedMs);
       }
       const afterUpdate = this.clock.now();
-      this.currentFrameLagMs = this._lagMs;
+      this.currentFrameLag = this._lagMs;
       this._draw(elapsedMs);
       const afterDraw = this.clock.now();
 

@@ -77,6 +77,9 @@ export class Timer {
   private _numberOfTicks: number = 0;
   private _callbacks: Array<() => void>;
 
+  /**
+   * Interval in milliseconds for the timer to fire
+   */
   public interval: number = 10;
   public repeats: boolean = false;
   public maxNumberOfRepeats: number = -1;

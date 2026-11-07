@@ -155,7 +155,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   /**
    * Optionally override the onUpdate
    * @param engine
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   onUpdate(engine: Engine, elapsed: number): void {
     this._totalTimeMs += elapsed;

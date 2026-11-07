@@ -5,6 +5,9 @@ import type { TransitionOptions } from './transition';
 import { Transition } from './transition';
 
 export interface FadeOptions {
+  /**
+   * Duration of the fade in milliseconds
+   */
   duration?: number;
   color?: Color;
 }

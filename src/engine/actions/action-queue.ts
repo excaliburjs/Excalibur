@@ -97,7 +97,7 @@ export class ActionQueue {
 
   /**
    * Update the queue which updates actions and handles completing actions
-   * @param elapsed
+   * @param elapsed The elapsed time in milliseconds since the last frame
    */
   public update(elapsed: number) {
     if (this._actions.length > 0) {

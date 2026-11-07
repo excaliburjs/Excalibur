@@ -9,6 +9,9 @@ import { nextActionId } from '../action';
 
 export interface MoveToOptions {
   pos: Vector;
+  /**
+   * Duration of the action in milliseconds
+   */
   duration: number;
   easing?: Easing;
 }

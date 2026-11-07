@@ -862,9 +862,9 @@ describe('A scene', () => {
 
     it('can have onPostUpdate overridden safely', async () => {
       await scene._initialize(engine);
-      scene.onPostUpdate = (engine, elapsedMs) => {
+      scene.onPostUpdate = (engine, elapsed) => {
         expect(engine).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
 
       vi.spyOn(scene, 'onPostUpdate');
@@ -879,9 +879,9 @@ describe('A scene', () => {
 
     it('can have onPreUpdate overridden safely', async () => {
       await scene._initialize(engine);
-      scene.onPreUpdate = (engine, elapsedMs) => {
+      scene.onPreUpdate = (engine, elapsed) => {
         expect(engine).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
 
       vi.spyOn(scene, 'onPreUpdate');
@@ -897,9 +897,9 @@ describe('A scene', () => {
     it('can have onPreDraw overridden safely', async () => {
       await scene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      scene.onPreDraw = (ctx, elapsedMs) => {
+      scene.onPreDraw = (ctx, elapsed) => {
         expect(<any>ctx).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
 
       vi.spyOn(scene, 'onPreDraw');
@@ -915,9 +915,9 @@ describe('A scene', () => {
     it('can have onPostDraw overridden safely', async () => {
       await scene._initialize(engine);
       engine.screen.setCurrentCamera(engine.currentScene.camera);
-      scene.onPostDraw = (ctx, elapsedMs) => {
+      scene.onPostDraw = (ctx, elapsed) => {
         expect(<any>ctx).not.toBe(null);
-        expect(elapsedMs).toBe(100);
+        expect(elapsed).toBe(100);
       };
 
       vi.spyOn(scene, 'onPostDraw');

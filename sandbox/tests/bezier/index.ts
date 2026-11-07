@@ -174,7 +174,7 @@ actor.actions.repeatForever((ctx) => {
 
 // var time = 0;
 
-game.onPostDraw = (ctx: ex.ExcaliburGraphicsContext, elapsedMs) => {
+game.onPostDraw = (ctx: ex.ExcaliburGraphicsContext, elapsed) => {
   // if (time < 5000) {
   //   var t = ex.clamp(ex.remap(0, 5000, 0, 1, time), 0, 1);
 
@@ -206,7 +206,7 @@ game.onPostDraw = (ctx: ex.ExcaliburGraphicsContext, elapsedMs) => {
   //     color: ex.Color.Green
   //   });
 
-  //   time += elapsedMs;
+  //   time += elapsed;
   // }
 
   for (let i = 0; i < points.length - 1; i++) {

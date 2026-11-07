@@ -34,7 +34,9 @@ export class Particle extends Entity {
   public beginColor: Color = Color.White;
   public endColor: Color = Color.White;
 
-  // Life is counted in ms
+  /**
+   * Life of the particle in milliseconds
+   */
   public life: number = 300;
   public fade: boolean = false;
 

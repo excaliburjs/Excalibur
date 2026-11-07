@@ -40,9 +40,9 @@ When the `ex.ImageWrapping.Repeat` mode is set, specifying a bigger `sourceView`
 To make the ground appear scroll to the left, we can do a nifty trick to move the `sourceView.x` by the speed of our `Pipe`
 
 ```typescript
-    onPostUpdate(_engine: ex.Engine, elapsedMs: number): void {
+    onPostUpdate(_engine: ex.Engine, elapsed: number): void {
         if (!this.moving) return;
-        this.groundSprite.sourceView.x += Config.PipeSpeed * (elapsedMs / 1000);
+        this.groundSprite.sourceView.x += Config.PipeSpeed * (elapsed / 1000);
         this.groundSprite.sourceView.x = this.groundSprite.sourceView.x % Resources.GroundImage.width;
     }
 ```
@@ -70,9 +70,9 @@ export class Ground extends ex.Actor {
         this.graphics.use(this.groundSprite);
     }
 
-    onPostUpdate(_engine: ex.Engine, elapsedMs: number): void {
+    onPostUpdate(_engine: ex.Engine, elapsed: number): void {
         if (!this.moving) return;
-        this.groundSprite.sourceView.x += Config.PipeSpeed * (elapsedMs / 1000);
+        this.groundSprite.sourceView.x += Config.PipeSpeed * (elapsed / 1000);
         this.groundSprite.sourceView.x = this.groundSprite.sourceView.x % Resources.GroundImage.width;
     }
 
