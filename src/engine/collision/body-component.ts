@@ -84,11 +84,33 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    */
   public enableFixedUpdateInterpolate = true;
 
+  /**
+   * Effective config: defaults < scene physics config < per-body overrides
+   */
   private _bodyConfig: BodyConfig;
+  /**
+   * Scene wide body config as last pushed by the physics world
+   */
+  private _sceneConfig: Partial<BodyConfig> = {};
+  /**
+   * Config values explicitly chosen for this body (constructor `config`), these survive scene config updates
+   */
+  private _configOverrides: Partial<BodyConfig> = {};
   private static _DEFAULT_CONFIG: BodyConfig = {
     ...getDefaultPhysicsConfig().bodies
   };
-  public wakeThreshold!: number;
+
+  private _wakeThresholdOverride?: number;
+  /**
+   * Amount of motion needed to wake this body. Defaults to the physics config `bodies.wakeThreshold`,
+   * assigning a value overrides it for this body only (assign `undefined` to go back to the config value).
+   */
+  public get wakeThreshold(): number {
+    return this._wakeThresholdOverride ?? this._bodyConfig!.wakeThreshold;
+  }
+  public set wakeThreshold(value: number | undefined) {
+    this._wakeThresholdOverride = value;
+  }
   public sleepTime: number = 0;
 
   constructor(options?: BodyComponentOptions) {
@@ -97,16 +119,11 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
       this.collisionType = options.type ?? this.collisionType;
       this.group = options.group ?? this.group;
       this.useGravity = options.useGravity ?? this.useGravity;
-      this._bodyConfig = {
-        ...getDefaultPhysicsConfig().bodies,
-        ...options.config
-      };
-    } else {
-      this._bodyConfig = {
-        ...getDefaultPhysicsConfig().bodies
-      };
+      this._configOverrides = { ...options.config };
     }
-    this.updatePhysicsConfig(this._bodyConfig);
+    this._rebuildConfig();
+    // Initial sleep state is runtime state, config changes later must not reset it
+    this.sleepMotion = this._bodyConfig!.sleepEpsilon * 5;
     this._mass = BodyComponent._DEFAULT_CONFIG!.defaultMass;
   }
 
@@ -114,19 +131,24 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
     return this.transform.get().matrix;
   }
 
+  private _rebuildConfig() {
+    this._bodyConfig = {
+      ...getDefaultPhysicsConfig().bodies,
+      ...this._sceneConfig,
+      ...this._configOverrides
+    } as BodyConfig;
+  }
+
   /**
-   * Called by excalibur to update physics config defaults if they change
+   * Called by excalibur to update scene wide physics config defaults if they change.
+   *
+   * Only the config is refreshed, per-body choices (constructor `config`, {@apilink BodyComponent.canSleep},
+   * {@apilink BodyComponent.wakeThreshold}) and runtime state like `sleepMotion` are left alone.
    * @param config
    */
   public updatePhysicsConfig(config: BodyConfig) {
-    this._bodyConfig = {
-      ...getDefaultPhysicsConfig().bodies,
-      ...config
-    };
-    // FIXME this doesnt' seem to work when config updated
-    this.canSleep = this._bodyConfig.canSleepByDefault;
-    this.sleepMotion = this._bodyConfig.sleepEpsilon * 5;
-    this.wakeThreshold = this._bodyConfig.wakeThreshold;
+    this._sceneConfig = config;
+    this._rebuildConfig();
   }
 
   public get canFallAsleep() {
@@ -185,7 +207,13 @@ export class BodyComponent extends Component implements Clonable<BodyComponent> 
    * Can this body sleep, by default bodies can sleep (see `canSleepByDefault` in the physics config `bodies` section).
    * Only {@apilink CollisionType.Active} bodies will actually fall asleep.
    */
-  public canSleep: boolean = this.collisionType === CollisionType.Active;
+  public get canSleep(): boolean {
+    return this._canSleepOverride ?? this._bodyConfig!.canSleepByDefault;
+  }
+  public set canSleep(value: boolean | undefined) {
+    this._canSleepOverride = value;
+  }
+  private _canSleepOverride?: boolean;
 
   private _sleeping = false;
 

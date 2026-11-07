@@ -122,4 +122,44 @@ describe('A body component', () => {
     fixed.body.applyImpulseAtOffset(20, 20, 30, -100);
     expect(fixed.vel).toBeVector(ex.vec(0, 0));
   });
+
+  describe('physics config updates', () => {
+    const sceneConfig = (overrides: any = {}) => ({ ...ex.getDefaultPhysicsConfig().bodies, ...overrides });
+
+    it('follows the scene config by default', () => {
+      const body = new ex.BodyComponent();
+      expect(body.canSleep).toBe(true);
+      body.updatePhysicsConfig(sceneConfig({ canSleepByDefault: false, wakeThreshold: 99 }));
+      expect(body.canSleep).toBe(false);
+      expect(body.wakeThreshold).toBe(99);
+    });
+
+    it('keeps a per-body canSleep / wakeThreshold across config updates', () => {
+      const body = new ex.BodyComponent();
+      body.canSleep = false;
+      body.wakeThreshold = 5;
+      body.updatePhysicsConfig(sceneConfig({ canSleepByDefault: true, wakeThreshold: 99 }));
+      expect(body.canSleep).toBe(false);
+      expect(body.wakeThreshold).toBe(5);
+
+      body.canSleep = undefined;
+      body.wakeThreshold = undefined;
+      expect(body.canSleep).toBe(true);
+      expect(body.wakeThreshold).toBe(99);
+    });
+
+    it('keeps per-body constructor config across scene config updates', () => {
+      const body = new ex.BodyComponent({ config: { canSleepByDefault: false, wakeThreshold: 7 } as any });
+      body.updatePhysicsConfig(sceneConfig({ canSleepByDefault: true, wakeThreshold: 99, sleepEpsilon: 0.5 }));
+      expect(body.canSleep).toBe(false);
+      expect(body.wakeThreshold).toBe(7);
+    });
+
+    it('does not reset sleepMotion when the config changes', () => {
+      const body = new ex.BodyComponent();
+      body.sleepMotion = 0.001;
+      body.updatePhysicsConfig(sceneConfig({ gravity: ex.vec(0, 10) }));
+      expect(body.sleepMotion).toBe(0.001);
+    });
+  });
 });
