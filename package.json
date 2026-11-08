@@ -68,6 +68,7 @@
     "visual": "storybook dev -p 6006",
     "build-storybook": "storybook build -o build-storybook",
     "sandbox": "cd sandbox && vite",
+    "samples": "vite --config site/samples-dev/vite.config.ts",
     "test": "vitest --ui",
     "test:ci": "vitest",
     "test:watch": "npm run test -- --watch",

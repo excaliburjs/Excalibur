@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Excalibur blog samples</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, sans-serif;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #111;
+        color: #eee;
+      }
+      body {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+      }
+      nav {
+        border-right: 1px solid #333;
+        padding: 12px;
+        overflow: auto;
+      }
+      nav h1 {
+        font-size: 14px;
+        margin: 0 0 8px;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      nav h2 {
+        font-size: 12px;
+        margin: 12px 0 4px;
+        color: #777;
+      }
+      nav a {
+        display: block;
+        padding: 6px 8px;
+        border-radius: 4px;
+        color: #ddd;
+        text-decoration: none;
+        font-size: 14px;
+      }
+      nav a:hover {
+        background: #222;
+      }
+      nav a.active {
+        background: #2f4a2f;
+        color: #fff;
+      }
+      main {
+        display: grid;
+        place-items: center;
+        padding: 16px;
+      }
+      /* Samples are laid out for the playground's 600x400 preview */
+      #preview {
+        width: 600px;
+        height: 400px;
+        background: #000;
+        box-shadow: 0 0 0 1px #333;
+      }
+      #preview canvas {
+        display: block;
+      }
+      #hint {
+        color: #777;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="nav"><h1>Blog samples</h1></nav>
+    <main>
+      <div id="preview"><canvas id="preview-canvas"></canvas></div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

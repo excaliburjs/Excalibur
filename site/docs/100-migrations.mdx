@@ -4,6 +4,155 @@ slug: /migration
 section: Migration Guides
 ---
 
+## Migrating from v0.32.x to v1.0.0
+
+v1.0.0 is a major version and carries every breaking change that was deferred during the v0.x line. Most of them are renames in service of a consistent API, the rest are behavior fixes. The full list is in the [CHANGELOG](https://github.com/excaliburjs/Excalibur/blob/main/CHANGELOG.md), this page summarizes them and shows the codemod that does the bulk of the work.
+
+### Run the codemod first
+
+The `ex upgrade` command in [create-excalibur](https://github.com/excaliburjs/create-excalibur) chains every migration from v0.29.3 onward and rewrites your source with formatting-preserving edits. It classifies call sites against the Excalibur types you currently have **installed**, so run it before you bump the dependency:
+
+```sh
+# preview the full plan, writes nothing
+npx create-excalibur@latest upgrade --dry-run
+
+# apply the rewrites and bump package.json
+npx create-excalibur@latest upgrade
+
+# then install the new version
+npm install
+```
+
+Options: `--to next` targets the prerelease line, `--migrate-only` rewrites code but leaves `package.json` alone, `--allow-dirty` skips the clean-git-tree requirement (a clean tree is your undo button, so prefer committing first). With the CLI installed globally the same command is `ex upgrade` (alias `ex up`).
+
+Every migration is one of three kinds:
+
+- **Automated**: rewritten for you, no review needed.
+- **Manual**: a `// ex-upgrade(<id>): …` breadcrumb comment is inserted at each site with a link and a recipe, because the right fix depends on what your code meant.
+- **Notification**: no code change, a heads up about a behavior change printed in the plan.
+
+After running it, search your project for `ex-upgrade(` and work through the breadcrumbs, then build and type-check. If a migration is missing for something in your project, [open an issue on create-excalibur](https://github.com/excaliburjs/create-excalibur/issues).
+
+### Naming (automated)
+
+Synchronous boolean state is always an `isX`/`hasX` **getter**, side-effecting calls are **verb methods**, and async state is a **promise property**.
+
+- Zero-argument `isX()`/`hasX()` methods became getters, drop the parentheses: `entity.isKilled`, `engine.isRunning`, `engine.isDisposed`, `clock.isRunning`, `scene.isCurrentScene`, `sound.isPlaying`/`isPaused`/`isStopped`, `resource.isLoaded` (every `Loadable`), `matrix.isIdentity`, `transform.isMirrored`, `boundingBox.hasZeroDimensions`, `camera.hasChanged`, `animation.isComplete`, `timer.isComplete`, `transition.isComplete`, `gamepad.isConnected`, and more.
+- Methods that do real work stay verbs: `PolygonCollider.isConvex` → `checkConvex()`, `SparseHashGrid.hasChanged` → `refreshAndCheckChanged()`, every input `toggleEnabled(enabled)` → `setEnabled(enabled)`, `Engine.toggleInputEnabled` → `setInputEnabled`.
+- Option keys: `visible` → `isVisible` on `ActorOptions`, `TriggerOptions`, `GraphicsComponentOptions`; `solid` → `isSolid` on tiles; graph edge `directed` → `isDirected`; `Slide({ easingFunction })` → `Slide({ easing })`; `Timer({ fcn })` → `Timer({ action })`.
+- Renames: `Engine.loadingComplete` → `isLoaded`, `Engine.ready` (boolean) → `isReady`, `Engine.isReady()` (promise) → `await engine.ready`, `Animation.done` → `isComplete`, `Gamepads.enabled` → `pollingEnabled`, `PointerEvent.active` → `isActive`, `Transition.started` → `hasStarted`, `isOffScreen` → `isOffscreen`, `isHiDpi` → `isHiDPI`, `Future.isCompleted` → `isComplete`, `Color.equal` → `equals`, `Screen.isFullScreen`/`goFullScreen`/`exitFullScreen` → `isFullscreen`/`enterFullscreen`/`exitFullscreen`, `Direction` (text) → `TextDirection`, `EnterViewPortEvent`/`ExitViewPortEvent` → `EnterViewportEvent`/`ExitViewportEvent`.
+- Pausing: `Actor.paused` (a `PauseComponent`) is now the read-only `pauseComponent`; use `actor.isPaused` and `actor.canPause`. `PauseComponentInterface` → `PauseComponentOptions`.
+- System lifecycle hooks match the rest of the engine: `initialize`/`update`/`preupdate`/`postupdate` → `onInitialize`/`onUpdate`/`onPreUpdate`/`onPostUpdate`.
+
+### Time units (automated, check sound code by hand)
+
+Everything is milliseconds and nothing carries an `Ms` suffix: `Engine.currentFrameElapsedMs` → `currentFrameElapsed`, `FrameStats.elapsedMs` → `elapsed`, `GifFrame.delayMs` → `delay`, `ClockOptions.defaultUpdateMs` → `defaultUpdate`, `Animation.durationPerFrameMs` → `durationPerFrame`.
+
+`Sound`, `SoundTrack`, and `PlayOptions` `position`/`duration`, `seek()`, `getPlaybackPosition()`, `getTotalPlaybackDuration()`, and `scheduledStartTime` are now **milliseconds** (previously seconds). The codemod cannot know whether a literal was seconds, so audit these:
+
+```typescript
+// Before: seconds
+sound.play({ duration: 0.5 });
+sound.seek(2);
+
+// After: milliseconds
+sound.play({ duration: 500 });
+sound.seek(2000);
+```
+
+### Sound (mostly automated, play/resume is manual)
+
+- The audio abstraction is gone, Web Audio is the only implementation. `ex.WebAudioInstance` → `ex.SoundTrack`; `ex.Audio`, `ex.AudioImplementation`, `ex.ExResponse`, `ex.ExResponseType` are removed (pass the response type string to `new ex.Resource(path, 'arraybuffer')`).
+- `Sound.play()` always starts a **new** track and never changes the sound's configuration. Previously `play()` resumed paused tracks and `play(volume)` permanently set `Sound.volume`.
+
+  ```typescript
+  // Before
+  sound.play(0.5); // set volume forever AND resumed if paused
+
+  // After
+  sound.play({ volume: 0.5 }); // one-off volume for this track, multiplies sound.volume
+  sound.resume(); // continue a paused or seeked track
+  sound.volume = 0.5; // change the configuration
+  ```
+
+- `SoundManager` is a real mixer. A sound routes through a single `channel` (`SoundConfig.channel`, not `channels`), `sounds` is an array of named configs, `addChannel`/`removeChannel`/`defaultVolume` are removed, `SoundManager.volume` is the master volume, and `play()` resolves to a `boolean` (false when dropped by a concurrency cap).
+
+  ```typescript
+  // Before
+  new ex.SoundManager({
+    channels: ['fx', 'music'],
+    sounds: { jump: { sound: jump, volume: 0.4, channels: ['fx'] } }
+  });
+
+  // After
+  new ex.SoundManager({
+    channels: ['fx', 'music'],
+    sounds: [{ name: 'jump', sound: jump, volume: 0.4, channel: 'fx' }]
+  });
+  ```
+
+- Muting is gain-based. `mute()` no longer pauses and `unmute()` no longer starts playback, a muted sound keeps advancing and is mid-clip when unmuted. `mute()`/`unmute()`/`toggle()` with no argument act on the master output.
+
+### Screen space (manual, only clipping display modes)
+
+Screen space is rooted at the top-left of the safe content area everywhere: `CoordPlane.Screen` entities, pointer events, `Screen.worldToScreenCoordinates`, and `Screen.contentArea` all agree. Previously `worldToScreenCoordinates` returned raw canvas coordinates and `contentArea.left/top` carried the canvas inset in the `FitScreenAndFill`, `FitContainerAndFill`, `FitScreenAndZoom`, and `FitContainerAndZoom` modes. `Fixed`, `FitScreen`, `FillScreen`, `FitContainer`, and `FillContainer` are unaffected.
+
+```typescript
+// Before: canvas-rooted, for example to position an HTML overlay
+const canvasPos = engine.screen.worldToScreenCoordinates(actor.pos);
+
+// After: add the inset back if you really want canvas coordinates
+const canvasPos = engine.screen.worldToScreenCoordinates(actor.pos).add(engine.screen.contentAreaOffset);
+```
+
+### Materials and post processors (manual)
+
+- `Material.update()` passes a `MaterialContext` instead of the composite shader:
+
+  ```typescript
+  // Before
+  material.update((shader) => shader.trySetUniformFloatVector('iMouse', pos));
+
+  // After
+  material.update((context) => (context.uniforms.iMouse = pos));
+  // or skip update() entirely
+  material.uniforms.iMouse = pos;
+  ```
+
+- `MaterialOptions` is a union type (`fragmentSource` only, `passes` only, or both), interfaces that `extends MaterialOptions` must become type intersections.
+- `PostProcessor.process(source, destination)` is required; the single-pass `getShader()`/`getLayout()` path, `ex.ScreenShader`, and the `v_texcoord` varying are removed. Use `ex.ShaderPipelinePostProcessor` with `passes`, or `ex.ShaderPass`, and `v_uv`.
+
+### Behavior changes
+
+- `rotateBy({ angleRadiansOffset, duration })` with no `rotationType` rotates by exactly the signed offset. Offsets larger than π go the long way, and `2 * Math.PI` is a full revolution (previously a no-op). Pass an explicit `rotationType` for the old shortest-path behavior.
+- `TileMap` defaults to `compositeStrategy: 'separate'`. The codemod writes the old `'together'` default explicitly onto existing tilemaps so nothing changes until you opt in.
+- `Scene` deactivation flushes pending entity and component removals synchronously.
+- Realistic physics bodies sleep by default (since v0.32).
+- Font and text render more accurately with smaller textures, so text looks slightly different.
+- `Engine.plugins`/`addPlugin`, `Scene.pause`/`resume`, `Actor.pauseComponent`/`isPaused`/`canPause`, and the `lighting` engine option are new engine members. Subclass fields with those names now override engine behavior.
+
+### Removed (automated where a replacement exists)
+
+- `ex.Shape` → `ex.Colliders` (`Colliders.Box/Polygon/Circle/Edge/Capsule`)
+- `ColliderComponent.set()` → `use()`
+- `ActorArgs`/`ParticleEmitterArgs` → `ActorOptions`/`ParticleEmitterOptions`, `ex.Pool` → `ex.ArenaPool`
+- `EasingFunctions.*` and the 4-argument easing form → the `(t: number) => number` easings; `EaseTo`/`EaseBy` and `actions.easeTo/easeBy` → `MoveTo`/`MoveBy` with `easing`
+- `body.sleeping` → `isSleeping`, `body.setSleeping(x)` → `body.isSleeping = x`, `body.center` → `globalPos`
+- `entity.active` → `isActive`, `graphics.visible` → `isVisible`
+- `actor.getGlobalPos()/getGlobalRotation()/getGlobalScale()` → `globalPos`/`globalRotation`/`globalScale`
+- `BoundingBox.draw` → `debug`, `Vector.size` → `magnitude`, `engine.isFullScreen` → `isFullscreen`
+- `world.queryTags(...)` → `world.query({ tags: { all: [...] } })`, `TagsComponent`
+- `Gamepad.isButtonPressed` → `isButtonHeld`
+- `Actor.draggable`: handle `pointerdragstart`/`pointerdragmove`/`pointerdragend` yourself
+- `Flags.useLegacyImageRenderer()` and the legacy image renderer
+- `ex.EventTypes`, the lowercase `ex.Events.*` aliases, `AddedComponent`/`RemovedComponent`
+- `@obsolete` decorator, `Util.addItemToArray`, `CapturePointerConfig`, `Particle.DefaultConfig`, the `GifParser`/`Stream`/`LegacyWebAudioSource` exports, rAF/cAF/AudioContext polyfills
+- The UMD bundle: Excalibur is ESM-only, `require('excalibur')` no longer works
+
+### Build
+
+- The engine `tsconfig` uses `module: "esnext"` with `moduleResolution: "bundler"`; consumers importing source directly need bundler-compatible tooling.
+
 ## Migrating from v0.28.x to v0.29.0
  - `ex.Entity.tags` is now a javascript `Set` instead of an `Array` this will affect methods that inspected tags as an array before.
  - `ex.SpriteSheet.getSprite(...)` will now throw on invalid sprite coordinates, this is likely always an error and a warning is inappropriate. This also has the side benefit that you will always get a definite type out of the method.
