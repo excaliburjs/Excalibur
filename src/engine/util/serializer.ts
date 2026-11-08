@@ -11,6 +11,7 @@ import { GraphicsComponent } from '../graphics/graphics-component';
 import { ActionsComponent } from '../actions/actions-component';
 import { BodyComponent } from '../collision/body-component';
 import { ColliderComponent } from '../collision/collider-component';
+import { PauseComponent } from '../entity-component-system/components/pause-component';
 import type { Graphic } from '../graphics';
 import { Logger } from './log';
 
@@ -119,7 +120,8 @@ export class Serializer {
       PointerComponent,
       ActionsComponent,
       BodyComponent,
-      ColliderComponent
+      ColliderComponent,
+      PauseComponent
     ];
 
     Serializer.registerComponents(commonComponents);
@@ -515,6 +517,10 @@ export class Serializer {
       }
       if (entity!.get(ColliderComponent)) {
         entity!.collider = entity!.get(ColliderComponent);
+      }
+      if (entity!.get(PauseComponent)) {
+        // readonly on Actor by design, the serializer is the one place it is legitimately rebound
+        (entity! as { pauseComponent: PauseComponent }).pauseComponent = entity!.get(PauseComponent)!;
       }
 
       // Recursively deserialize children

@@ -228,6 +228,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed `Serializer.init()` not registering the `PauseComponent` every `Actor` carries, so deserializing any actor warned "Component type PauseComponent is not registered" and dropped its pause state. `canPause` now round-trips and `Actor.pauseComponent` is rebound on deserialize like the other actor component references
+- Fixed `Sound.fromBlob()` logging spurious "This browser does not support any of the audio files specified" warnings, a `Sound` constructed without `paths` no longer warns
 - Fixed `ex.ScreenElement` ignoring an explicit `canPause` option, the constructor always forced `canPause = false`. It still defaults to `false` but now honors `canPause: true`
 - Fixed issue where moving a `TileMap` after making cells solid left the tile collision boundaries behind at the old position. `Tile.defaultGeometry` returned a cached world-space bounding box that was never invalidated when the tilemap moved, so `_updateColliders()` rebuilt colliders from stale geometry on every move; making cells solid after the move had the same effect. `defaultGeometry` now recalculates when the tile is flagged dirty, matching the existing `pos`/`center` getters, so collision boundaries track `tilemap.pos` in any order (issue #3494)
 - Fixed `RepeatForever.reset()` doing nothing. Reset now stops the active child action and rebuilds the repeat sequence from the entity's current state, allowing stopped repeats to be reused

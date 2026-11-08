@@ -350,11 +350,13 @@ export class Sound<const TName extends string = string> implements Loadable<Audi
       }
     }
 
-    if (!this.path) {
+    if (!this.path && options.paths.length > 0) {
       this.logger.warn('This browser does not support any of the audio files specified:', options.paths.join(', '));
       this.logger.warn('Attempting to use', options.paths[0]);
-      this.path = options.paths[0] ?? ''; // select the first specified
+      this.path = options.paths[0]; // select the first specified
     }
+    // No paths is valid when the data is supplied directly, for example Sound.fromBlob()
+    this.path ??= '';
 
     this.name = (name ?? basenameWithoutExt(this.path)) as TName;
   }
