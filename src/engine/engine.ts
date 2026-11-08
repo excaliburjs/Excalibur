@@ -1969,6 +1969,8 @@ O|===|* >________________>\n\
       }
 
       await this.load(loader! ?? new Loader());
+      // start() owns the loading flag it set above, clear it even if load() exited early for an already loaded loader
+      this._isLoading = false;
 
       // Run plugin onLoadComplete hooks after resources are loaded
       for (const plugin of this._plugins) {
@@ -2105,11 +2107,12 @@ O|===|* >________________>\n\
    */
   public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
     await this.scope(async () => {
+      // early exit if loaded, outside the try/finally so that an already loaded loader does not reset
+      // the loading state of a different in-progress load (for example during engine.start())
+      if (loader.isLoaded) {
+        return;
+      }
       try {
-        // early exit if loaded
-        if (loader.isLoaded) {
-          return;
-        }
         this._loader = loader;
         this._isLoading = true;
         this._hideLoader = hideLoader;
@@ -2124,9 +2127,12 @@ O|===|* >________________>\n\
         this._logger.error('Error loading resources, things may not behave properly', e);
         await Promise.resolve();
       } finally {
-        this._isLoading = false;
-        this._hideLoader = false;
-        this._loader = null as any;
+        // only reset if another load hasn't taken over in the meantime
+        if (this._loader === loader) {
+          this._isLoading = false;
+          this._hideLoader = false;
+          this._loader = null as any;
+        }
       }
     });
   }
