@@ -112,6 +112,56 @@ describe('The engine', () => {
     expect(logger.error).toHaveBeenCalledWith('Error loading resources, things may not behave properly', new Error('I failed'));
   });
 
+  it('should not update or draw an uninitialized scene while start() is loading', async () => {
+    reset();
+    let finishPluginLoad!: () => void;
+    const pluginLoad = new Promise<void>((resolve) => (finishPluginLoad = resolve));
+    class SlowLoadPlugin extends ex.Plugin {
+      override name = 'test.slow-load';
+      override onLoad = () => pluginLoad;
+    }
+    class StartScene extends ex.Scene {}
+    engine = TestUtils.engine({
+      plugins: [new SlowLoadPlugin()],
+      scenes: {
+        start: StartScene
+      }
+    });
+    const rootUpdate = vi.spyOn(engine.rootScene, 'update');
+    const rootDraw = vi.spyOn(engine.rootScene, 'draw');
+    const clock = engine.clock as ex.TestClock;
+
+    // the start scene has no scene specific loader, so the director loads an empty (already loaded) loader for it
+    const started = engine.start('start', { loader: new ex.Loader() });
+
+    // frames that run while start() is still loading must not reach the uninitialized root scene
+    clock.step(16);
+    clock.step(16);
+    expect(engine.isLoaded).toBe(false);
+    expect(rootUpdate).not.toHaveBeenCalled();
+    expect(rootDraw).not.toHaveBeenCalled();
+
+    finishPluginLoad();
+    await started;
+    clock.step(16);
+
+    expect(engine.isLoaded).toBe(true);
+    expect(engine.currentSceneName).toBe('start');
+    expect(engine.currentScene.isInitialized).toBe(true);
+    expect(rootUpdate).not.toHaveBeenCalled();
+  });
+
+  it('should leave the loading state when start() is given an already loaded loader', async () => {
+    reset();
+    engine = TestUtils.engine();
+    const loader = new ex.Loader(); // no resources, so isLoaded is already true
+    expect(loader.isLoaded).toBe(true);
+
+    await engine.start(loader);
+
+    expect(engine.isLoaded).toBe(true);
+  });
+
   it('can switch to the canvas fallback on command', () => {
     engine.dispose();
     engine = null as any;
