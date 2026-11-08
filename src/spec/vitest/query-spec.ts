@@ -14,7 +14,9 @@ describe('A query', () => {
 
   it('has an id', () => {
     const query = new ex.Query([FakeComponentA, FakeComponentB]);
-    expect(query.id).toEqual('all_c_FakeComponentA-c_FakeComponentB');
+    // ids carry the class name for readability plus a per-constructor number so same-named classes never collide
+    expect(query.id).toMatch(/^all_c_FakeComponentA#\d+-c_FakeComponentB#\d+$/);
+    expect(query.id).toEqual(new ex.Query([FakeComponentB, FakeComponentA]).id);
   });
 
   it('can match with entities', () => {

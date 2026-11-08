@@ -96,9 +96,6 @@ export class Query<
   }
 
   static createId(params: Function[] | QueryParams<any, any>) {
-    // TODO what happens if a user defines the same type name as a built in type
-    // ! TODO this could be dangerous depending on the bundler's settings for names
-    // Maybe some kind of hash function is better here?
     if (Array.isArray(params)) {
       params = { components: { all: params } } as QueryParams<any, any>;
     }
@@ -121,11 +118,25 @@ export class Query<
       .join('-');
   }
 
+  /**
+   * Identity for a component constructor, independent of `Function.name`. Minifying bundlers
+   * mangle class names (`class t extends Component`) and reuse them across scopes/chunks, and two
+   * user files can both declare a `PlayerComponent`, so a name based id would let two different
+   * component types share one query and hand systems entities missing their component.
+   */
+  static componentId(ctor: ComponentCtor<Component>): string {
+    let id = Query._COMPONENT_IDS.get(ctor);
+    if (id === undefined) {
+      id = Query._NEXT_COMPONENT_ID++;
+      Query._COMPONENT_IDS.set(ctor, id);
+    }
+    return `c_${ctor.name}#${id}`;
+  }
+  private static _COMPONENT_IDS = new WeakMap<ComponentCtor<Component>, number>();
+  private static _NEXT_COMPONENT_ID = 0;
+
   static hashComponents(set: Set<ComponentCtor<Component>>) {
-    return Array.from(set)
-      .map((c) => `c_${c.name}`)
-      .sort()
-      .join('-');
+    return Array.from(set).map(Query.componentId).sort().join('-');
   }
 
   matchesNotFilter(entity: Entity, removedComponent?: ComponentCtor<Component>): boolean {

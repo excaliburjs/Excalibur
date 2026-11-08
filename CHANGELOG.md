@@ -228,6 +228,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed `Query` ids being built from `constructor.name`, so two different component classes with the same name (minified production bundles rename classes to `t`, `e`, ... and reuse them across scopes, and two files can each declare a `PlayerComponent`) silently shared one query and systems received entities missing their component, for example `LightingSystem` occluder entries with an `undefined` component. Ids now use a per-constructor identity
 - Fixed `Serializer.init()` not registering the `PauseComponent` every `Actor` carries, so deserializing any actor warned "Component type PauseComponent is not registered" and dropped its pause state. `canPause` now round-trips and `Actor.pauseComponent` is rebound on deserialize like the other actor component references
 - Fixed `Sound.fromBlob()` logging spurious "This browser does not support any of the audio files specified" warnings, a `Sound` constructed without `paths` no longer warns
 - Fixed `ex.ScreenElement` ignoring an explicit `canPause` option, the constructor always forced `canPause = false`. It still defaults to `false` but now honors `canPause: true`
