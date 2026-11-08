@@ -5,6 +5,30 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+### Breaking Changes
+
+
+### Deprecated
+
+
+### Added
+
+
+### Fixed
+
+
+### Updates
+
+
+### Changed
+
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+<!--------------------------------- DO NOT EDIT BELOW THIS LINE --------------------------------->
+
+## [v1.0.0]
+
 ### Breaking Changes
 
 - Time units are implicitly **milliseconds** everywhere, with no `Ms` suffix on public API:
@@ -229,6 +253,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Fixed `Engine.start('scene', { loader })` logging "Scene update called before initialize for scene root!" and "Scene draw called before initialize!" on boot. When the start scene had no scene specific loader, `Engine.load()` got an empty, already loaded loader, and its early return still ran the `finally` that cleared the engine's loading flag. Frames then reached the uninitialized root scene before the real loader ran. Already loaded loaders now exit before touching the loading state, and a load only resets that state if it is still the active load
+- Fixed the NuGet package packing no files, `Excalibur.nuspec` still pointed at the removed `build/dist` UMD output. It now ships the ESM bundles and the `.d.ts` tree from `build/esm`
 - Fixed `Query` ids being built from `constructor.name`, so two different component classes with the same name (minified production bundles rename classes to `t`, `e`, ... and reuse them across scopes, and two files can each declare a `PlayerComponent`) silently shared one query and systems received entities missing their component, for example `LightingSystem` occluder entries with an `undefined` component. Ids now use a per-constructor identity
 - Fixed `Serializer.init()` not registering the `PauseComponent` every `Actor` carries, so deserializing any actor warned "Component type PauseComponent is not registered" and dropped its pause state. `canPause` now round-trips and `Actor.pauseComponent` is rebound on deserialize like the other actor component references
 - Fixed `Sound.fromBlob()` logging spurious "This browser does not support any of the audio files specified" warnings, a `Sound` constructed without `paths` no longer warns
