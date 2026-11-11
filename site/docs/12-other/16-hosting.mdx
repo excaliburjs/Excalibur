@@ -14,6 +14,18 @@ Read more https://itch.io/docs/creators/html5#common-pitfalls
 
 Example using github pages https://github.com/excaliburjs/ludum-50/blob/main/.github/workflows/main.yml
 
+## deed.page
+
+[deed.page](https://deed.page) serves a static build from its own subdomain, published with one `curl` request and no account. Build the game, pack the output folder (`dist` for the Vite template), and upload it under a slug of your choice:
+
+```sh
+npm run build
+tar -C dist -czf game.tar.gz .
+curl -sS -T game.tar.gz "https://deed.page/v1/sites?slug=my-excalibur-game"
+```
+
+The response contains the game's URL (`https://my-excalibur-game.deed.page/`) and an owner token. Keep the token, because it's needed to update or delete the site later. The game is served from the site root, so the template's default asset paths work without changing the base URL.
+
 ## Parcel
 
 Be sure to set the correct public url, if you are hosting your game in sub directory like `ludum-50` off the root.
