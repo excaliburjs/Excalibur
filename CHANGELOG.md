@@ -35,6 +35,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed explicit { autostart: true } being ignored when spawning a parallel coroutine from inside another coroutine
 - Fixed clamped negative yield delays to 0ms
 - Fixed duplicate .start() warnings logging [native code] instead of the generator function source.
+- Fixed issue where `getClosestLineBetween()` (and `Actor.within()`) on edges and polygons could return a line that was not the closest when the closest point was a segment endpoint
 
 ### Updates
 
