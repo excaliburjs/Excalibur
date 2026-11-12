@@ -334,7 +334,6 @@ export class Serializer {
         component.deserialize(data);
 
         if (attachGraphic) {
-
           const currentGfx = (data as any).current;
           const registeredGfx = Serializer.getGraphic(currentGfx);
           if (registeredGfx) {

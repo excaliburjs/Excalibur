@@ -20,7 +20,6 @@ function hasClone(x: any): x is { clone(): any } {
   return !!x?.clone;
 }
 
-
 type EncodedNumber = number | 'NaN' | 'Infinity' | '-Infinity';
 
 function serializeNumber(value: number): EncodedNumber {
@@ -35,10 +34,14 @@ function serializeNumber(value: number): EncodedNumber {
 
 function hydrateNumber(data: EncodedNumber): number {
   switch (data) {
-    case 'Infinity': return Infinity;
-    case '-Infinity': return -Infinity;
-    case 'NaN': return NaN;
-    default: return data;
+    case 'Infinity':
+      return Infinity;
+    case '-Infinity':
+      return -Infinity;
+    case 'NaN':
+      return NaN;
+    default:
+      return data;
   }
 }
 
@@ -158,7 +161,7 @@ export abstract class Component {
     if (value && typeof value === 'object' && 'x' in value && 'y' in value && typeof value.x === 'number' && typeof value.y === 'number') {
       return {
         x: serializeNumber(value.x),
-        y: serializeNumber(value.y),
+        y: serializeNumber(value.y)
       };
     }
 

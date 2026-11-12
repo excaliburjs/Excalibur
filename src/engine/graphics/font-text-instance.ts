@@ -79,7 +79,7 @@ export class FontTextInstance {
     const lineHeight = this.font.lineHeight || textHeight;
     const totalHeight =
       textHeight + // single line
-      (lineHeight * (lines.length - 1)) + // multi line space lineHeight, with 1 line this term is 0
+      lineHeight * (lines.length - 1) + // multi line space lineHeight, with 1 line this term is 0
       adjustedPadding * 2;
 
     this._maxAscent = maxAscent;
@@ -289,7 +289,6 @@ export class FontTextInstance {
       this.dimensions = this.measureText(this.text, maxWidth);
       this._setDimension(this.dimensions, this.ctx!);
       const lines = this._getLinesFromText(this.text, maxWidth);
-
 
       // draws the text to the main bitmap
       this._drawText(this.ctx!, lines, this._lineHeight);
