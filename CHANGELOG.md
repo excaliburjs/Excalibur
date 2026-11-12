@@ -17,6 +17,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue with multiline text where lines were drawn too close to together if lineHeight wasn't explicitly set
+- Fixed issue with JSON parse round tripping through JSON when null/NaN/Infinite
+- Fixed issue with GraphicsComponent serialization not correctly restoring graphics
 
 ### Updates
 

@@ -23,6 +23,11 @@ export class FontTextInstance {
    */
   private _totalHeight: number = 0;
 
+  /**
+   * Distance between baselines, in text space
+   */
+  private _lineHeight: number = 0;
+
   constructor(
     public readonly font: Font,
     public readonly text: string,
@@ -71,9 +76,14 @@ export class FontTextInstance {
     }
 
     const textHeight = Math.abs(maxAscent) + Math.abs(maxDescent);
-    const totalHeight = textHeight * lines.length + adjustedPadding * 2;
+    const lineHeight = this.font.lineHeight || textHeight;
+    const totalHeight =
+      textHeight + // single line
+      (lineHeight * (lines.length - 1)) + // multi line space lineHeight, with 1 line this term is 0
+      adjustedPadding * 2;
 
     this._maxAscent = maxAscent;
+    this._lineHeight = lineHeight;
     this._totalHeight = totalHeight;
 
     // dimensions are in text space
@@ -86,12 +96,8 @@ export class FontTextInstance {
   }
 
   private _setDimension(textBounds: BoundingBox, bitmap: CanvasRenderingContext2D) {
-    let lineHeightRatio = 1;
-    if (this.font.lineHeight) {
-      lineHeightRatio = this.font.lineHeight / this.font.size;
-    }
     bitmap.canvas.width = (textBounds.width + this.font.padding * 2) * this.font.quality;
-    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * this.font.quality * lineHeightRatio;
+    bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * this.font.quality;
   }
 
   public static getHashCode(font: Font, text: string, color?: Color): number {
@@ -284,10 +290,9 @@ export class FontTextInstance {
       this._setDimension(this.dimensions, this.ctx!);
       const lines = this._getLinesFromText(this.text, maxWidth);
 
-      const lineHeight = !this.font.lineHeight ? (this.dimensions.height - this._maxAscent) / lines.length : this.font.lineHeight;
 
       // draws the text to the main bitmap
-      this._drawText(this.ctx!, lines, lineHeight);
+      this._drawText(this.ctx!, lines, this._lineHeight);
 
       // clear any out old fragments
       if (ex instanceof ExcaliburGraphicsContextWebGL) {
