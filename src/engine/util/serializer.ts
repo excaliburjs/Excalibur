@@ -334,9 +334,15 @@ export class Serializer {
         component.deserialize(data);
 
         if (attachGraphic) {
-          const grph = Serializer.getGraphic((data as any).current).clone();
-          if (grph) {
-            (component as GraphicsComponent).use(grph);
+
+          const currentGfx = (data as any).current;
+          const registeredGfx = Serializer.getGraphic(currentGfx);
+          if (registeredGfx) {
+            const graphics = component as GraphicsComponent;
+            graphics.add(currentGfx, registeredGfx.clone());
+            graphics.use(currentGfx);
+          } else {
+            Serializer._LOGGER.warn(`Graphic ${currentGfx} is not registered with Serializer.registerGraphic(...) cannot be deserialized!`);
           }
 
           if (data.tint) {

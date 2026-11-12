@@ -20,6 +20,28 @@ function hasClone(x: any): x is { clone(): any } {
   return !!x?.clone;
 }
 
+
+type EncodedNumber = number | 'NaN' | 'Infinity' | '-Infinity';
+
+function serializeNumber(value: number): EncodedNumber {
+  if (Number.isFinite(value)) {
+    return value;
+  }
+  if (Number.isNaN(value)) {
+    return 'NaN';
+  }
+  return value > 0 ? 'Infinity' : '-Infinity';
+}
+
+function hydrateNumber(data: EncodedNumber): number {
+  switch (data) {
+    case 'Infinity': return Infinity;
+    case '-Infinity': return -Infinity;
+    case 'NaN': return NaN;
+    default: return data;
+  }
+}
+
 /**
  * Components are containers for state in Excalibur, the are meant to convey capabilities that an Entity possesses
  *
@@ -128,9 +150,16 @@ export abstract class Component {
       return value;
     }
 
+    if (typeof value === 'number') {
+      return serializeNumber(value);
+    }
+
     // Handle Vector-like objects (any object with x/y numeric properties)
     if (value && typeof value === 'object' && 'x' in value && 'y' in value && typeof value.x === 'number' && typeof value.y === 'number') {
-      return { x: value.x, y: value.y };
+      return {
+        x: serializeNumber(value.x),
+        y: serializeNumber(value.y),
+      };
     }
 
     // Handle arrays
@@ -149,8 +178,8 @@ export abstract class Component {
       return obj;
     }
 
-    // Primitives (string, number, boolean) and other types
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    // Primitives (string, boolean) and other types
+    if (typeof value === 'string' || typeof value === 'boolean') {
       return value;
     }
 
@@ -161,6 +190,10 @@ export abstract class Component {
   protected _deserializeValue(data: any, existingValue?: any): any {
     if (data === null || data === undefined) {
       return data;
+    }
+
+    if (typeof existingValue === 'number') {
+      return hydrateNumber(data);
     }
 
     // If existing value has x/y (Vector-like), update it in place
@@ -174,8 +207,8 @@ export abstract class Component {
       'x' in data &&
       'y' in data
     ) {
-      existingValue.x = data.x;
-      existingValue.y = data.y;
+      existingValue.x = hydrateNumber(data.x);
+      existingValue.y = hydrateNumber(data.y);
       return existingValue;
     }
 
