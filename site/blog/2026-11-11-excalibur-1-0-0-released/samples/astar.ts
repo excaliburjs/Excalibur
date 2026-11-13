@@ -120,7 +120,7 @@ function walkTo(target: ex.Tile) {
       const neighbor = tileMap.getTile(tile.x + dx, tile.y + dy);
       const other = neighbor && nodes.get(neighbor);
       // Don't cut diagonally around the corner of a wall
-      const cutsCorner = dx !== 0 && dy !== 0 && (tileMap.getTile(tile.x + dx, tile.y)!.isSolid || tileMap.getTile(tile.x, tile.y + dy)!.isSolid);
+      const cutsCorner = dx !== 0 && dy !== 0 && (tileMap.getTile(tile.x + dx, tile.y)?.isSolid || tileMap.getTile(tile.x, tile.y + dy)?.isSolid);
       if (other && !cutsCorner) {
         graph.addEdge(node, other, { useEuclidean: true });
       }
