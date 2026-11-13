@@ -25,8 +25,14 @@ npm install excalibur@latest
 But there are several ways you can start from scratch with Excalibur
 - [From `npm`](#npm-package) or [`nuget`](#nuget-package)
 - Using a template from the [Excalibur CLI](/docs/quick-start)
-- [as ESM script](#esm-javascript), or [old school JavaScript](#old-school-javascript) from downloaded scripts on our [releases page](https://github.com/excaliburjs/Excalibur/releases)
+- [as an ES module script](#esm-javascript) with no build step, from a CDN or downloaded from our [releases page](https://github.com/excaliburjs/Excalibur/releases)
 - [by using a script CDN](#using-a-cdn) - e.g. for working with [`Deno`](https://deno.land/)
+
+:::info Excalibur v1 is ES modules only
+
+Since v1 Excalibur ships only as an ES module, there is no UMD/global `ex` script anymore. Load it with `import` from a bundler or a `<script type="module">`. Upgrading from v0.x? See the [migration guide](/docs/migration).
+
+:::
 
 
 ## Start From a Template
@@ -50,20 +56,12 @@ Check out the [Excalibur CLI](/docs/quick-start) to spin up a template or sample
 - [Sample Shootem-Up](https://github.com/excaliburjs/sample-shootemup)
 - [Sample Brick Breaker](https://github.com/excaliburjs/sample-breakout)
 
-### Older Templates
-
-- [TypeScript, Angular2 & SystemJS](https://github.com/excaliburjs/example-ts-angular2)
-- [TypeScript & Browserify](https://github.com/excaliburjs/example-ts-browserify)
-- [Universal Windows Platform (UWP)](https://github.com/excaliburjs/example-uwp)
-- [Apache Cordova](https://github.com/excaliburjs/example-cordova)
-- [Xamarin Forms](https://github.com/excaliburjs/example-xamarin)
-
 ## Starting from Scratch
 
 There are several ways you can start from scratch with Excalibur:
 
 - as standalone packages [from `npm`](#npm-package) or [`nuget`](#nuget-package)
-- [as raw script files](#old-school-javascript) you can download
+- [as an ES module script](#esm-javascript) from a CDN or a downloaded file
 - [by using a CDN](#using-a-cdn) - e.g. for working with [`Deno`](https://deno.land/)
 
 :::note
@@ -95,23 +93,25 @@ This will add excalibur to your package.json as a project dependency and will cr
 /node_modules
     /excalibur
         /build
-            /dist
+            /esm
                 excalibur.js
                 excalibur.min.js
-                excalibur.d.ts
+                excalibur.development.js
+                /src/engine/excalibur.d.ts
                 ...other files
 ```
 
-See below for how to reference these files in your project after Excalibur is installed.
+Then import it like any other package, your bundler will pick the production or development build based on its mode:
+
+```typescript
+import * as ex from 'excalibur';
+```
 
 View the [excalibur](https://www.npmjs.com/package/excalibur) package on npm.
 
 :::tip
 
-If you used `npm` to install Excalibur, you can use the
-`node_modules/excalibur/build/esm/excalibur.min.js` path above in the HTML. We
-recommend [parcel](https://github.com/excaliburjs/example-ts-parcel) for quick projects or [webpack](https://github.com/excaliburjs/example-ts-webpack) for
-more sophisticated projects. Read more about [builds and bundlers](/docs/bundlers)
+We recommend [Vite](https://vitejs.dev/) for new projects, the [Excalibur CLI](/docs/quick-start) templates are set up with it. Read more about [builds and bundlers](/docs/bundlers)
 
 :::
 
@@ -132,7 +132,7 @@ Excalibur publishes an ESM build that you can use with modern ES module syntax.
     <script type="importmap">
         {
             "imports": {
-                "excalibur": "https://www.unpkg.com/excalibur@latest/build/esm/excalibur.min.js"
+                "excalibur": "https://unpkg.com/excalibur@1.0.0/build/esm/excalibur.min.js"
             }
         }
     </script>
@@ -141,7 +141,16 @@ Excalibur publishes an ESM build that you can use with modern ES module syntax.
 </html>
 ```
 
-### Old School JavaScript
+Then `src/game.js` can import Excalibur by name:
+
+```javascript
+import * as ex from 'excalibur';
+
+const game = new ex.Engine();
+game.start();
+```
+
+### Script tag without a bundler
 
 :::note
 
@@ -149,30 +158,38 @@ Best for quick prototypes or small projects
 
 :::
 
-If you are using Excalibur in a script tag, [unpkg](https://unpkg.com/) provides a quick way to include published npm packages as scripts.
+If you do not want an import map, [unpkg](https://unpkg.com/) serves the published npm package and you can import it by URL from a module script.
 
-It is recommended you pin your version of excalibur to specific version like `excalibur@0.30.0`, however you can get the latest `https://unpkg.com/excalibur@latest`
+It is recommended you pin your version of excalibur to a specific version like `excalibur@1.0.0`, however you can get the latest with `https://unpkg.com/excalibur@latest`
 
 ```html
 <!DOCTYPE html>
 <html>
   <head></head>
   <body>
-    <script src="https://unpkg.com/excalibur@0.30.0"></script>
-    <script src="./my-game.js"></script>
+    <script type="module">
+      import * as ex from 'https://unpkg.com/excalibur@1.0.0/build/esm/excalibur.min.js';
+
+      const game = new ex.Engine();
+      game.start();
+    </script>
   </body>
 </html>
 ```
 
-You can also download the compiled script from [Excalibur repository](https://github.com/excaliburjs/excalibur/releases).
+You can also download the compiled module from the [Excalibur releases](https://github.com/excaliburjs/excalibur/releases) and serve it next to your game. A `<script type="module">` must be served over `http://`, opening the file directly from disk will not work.
 
 ```html
 <!DOCTYPE html>
 <html>
   <head></head>
   <body>
-    <script src="excalibur.min.js"></script>
-    <script src="./my-game.js"></script>
+    <script type="module">
+      import * as ex from './excalibur.min.js';
+
+      const game = new ex.Engine();
+      game.start();
+    </script>
   </body>
 </html>
 ```
@@ -200,9 +217,12 @@ Nuget will automatically place the Excalibur files in the `Content/Scripts` fold
     /Scripts
         excalibur.js
         excalibur.min.js
-        excalibur.d.ts
-        ...other files
+        excalibur.development.js
+        /src/engine/excalibur.d.ts
+        ...other declaration files
 ```
+
+The scripts are ES modules, load them with `<script type="module">` as shown in [ESM JavaScript](#esm-javascript).
 
 See below for how to reference these files in your project after Excalibur is installed.
 

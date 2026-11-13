@@ -82,16 +82,34 @@ to automatically generate the actions needed to do pathing.
 
 ### Custom Actions
 
-The API does allow you to implement new actions by implementing the [[Action]]
-interface, but this will be improved in future versions as right now it
-is meant for the Excalibur team and can be advanced to implement.
+You can write your own actions by implementing the [[Action]] interface and
+queueing them with [[ActionContext.runAction]]. An action gets `update(elapsed)`
+every frame until `isComplete(entity)` returns true, `reset()` when a repeat
+starts it over, and `stop()` when the queue is cleared.
 
-You can manually manipulate an Actor's [[ActionQueue]] using
-[[Actor.actionQueue]]. For example, using [[ActionQueue.add]] for
-custom actions.
+```typescript
+class Shake implements ex.Action {
+  id = ex.nextActionId();
+  private _elapsed = 0;
+  constructor(private actor: ex.Actor, private duration: number, private magnitude: number) {}
 
-### Future Plans
+  update(elapsed: number) {
+    this._elapsed += elapsed;
+    this.actor.pos = this.actor.pos.add(ex.vec(Math.random() - 0.5, Math.random() - 0.5).scale(this.magnitude));
+  }
+  isComplete() {
+    return this._elapsed >= this.duration;
+  }
+  reset() {
+    this._elapsed = 0;
+  }
+  stop() {
+    this._elapsed = this.duration;
+  }
+}
 
-The Excalibur team is working on extending and rebuilding the Action API
-in future versions to support multiple timelines/scripts, better eventing,
-and a more robust API to allow for complex and customized actions.
+actor.actions.runAction(new Shake(actor, 500, 4)).fade(0, 200).die();
+```
+
+You can also manipulate an Actor's [[ActionQueue]] directly through
+[[Actor.actionQueue]], for example with [[ActionQueue.add]].

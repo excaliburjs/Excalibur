@@ -201,12 +201,6 @@ The drawback to this method is that it doesn't give you type annotations in your
 
 #### Importing into a JavaScript or TypeScript File
 
-:::note
-
-We have tested the following examples with version `0.26.0-alpha.264` of the excalibur package. We recommend you run at least that version for this to work. You can get [the latest excalibur version on npm](https://www.npmjs.com/package/excalibur).
-
-:::
-
 More likely, you will want to import Excalibur into a JavaScript or TypeScript file.
 
 Since it goes very well with [Deno](https://deno.land/), we use TypeScript in the following examples. We will have to set up our TypeScript compiler and pick our import syntax before we can make our bundle.
@@ -231,7 +225,7 @@ After that, Excalibur can be imported. This can be done in one of two ways:
 ```typescript
 // index.ts
 
-import { Engine } from 'https://esm.sh/excalibur@0.26.0-alpha.264';
+import { Engine } from 'https://esm.sh/excalibur@1.0.0';
 
 const game = new Engine();
 game.start();
@@ -242,7 +236,7 @@ game.start();
 ```typescript
 // index.ts
 
-import * as ex from 'https://esm.sh/excalibur@0.26.0-alpha.264';
+import * as ex from 'https://esm.sh/excalibur@1.0.0';
 
 const game = new ex.Engine();
 game.start();
@@ -313,7 +307,7 @@ import { Engine } from "https://cdn.skypack.dev/excalibur?dts
 Or, if you want to use a specific version:
 
 ```typescript
-import { Engine } from "https://cdn.skypack.dev/excalibur@0.26.0-alpha.264?dts
+import { Engine } from "https://cdn.skypack.dev/excalibur@1.0.0?dts
 ```
 
 :::note
