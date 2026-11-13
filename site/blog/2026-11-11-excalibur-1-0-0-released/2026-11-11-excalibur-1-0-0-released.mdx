@@ -25,7 +25,7 @@ import PixelArtSample from '!!raw-loader!./samples/pixel-art.ts';
 import GpuParticlesSample from '!!raw-loader!./samples/gpu-particles.ts';
 
 
-It's finally happening! Excalibur.js, has been a labor of love for thirteen years! And we are finally here at v1!
+It's finally happening! Excalibur.js has been a labor of love for thirteen years! And we are finally here at v1!
 
 ```sh
 npm install excalibur@1.0.0
@@ -35,8 +35,8 @@ npm install excalibur@1.0.0
 
 ## What does v1 mean?
 
-Not much, it's basically been v1 for a while. Excalibur been relatively stable with low bug reports, all our internal goals have been met, 
-AND people are making commerical games on Steam and Itch.io.
+Not much, it's basically been v1 for a while. Excalibur has been relatively stable with low bug reports, all our internal goals have been met, 
+AND people are making commercial games on Steam and Itch.io.
 
 Starting with v1, we'll be following semantic versioning as best we can and breaks are considered bugs and will be patched or feature flagged. 
 As a result v1 does have some breaks (but it's mostly just api names) that have been batched up for a while, but we have [codemods](https://github.com/excaliburjs/create-excalibur/) to make this painless.
@@ -140,7 +140,7 @@ Lighting is opt-in because the overlay is rasterized with the 2D Canvas API and 
 
 ## Pause System
 
-Ever want to pause a game? Well now you can without stopping the game loop that drives your UI/UX. Add or configure `ex.PauseComponent`'s on your
+Ever want to pause a game? Well now you can without stopping the game loop that drives your UI/UX. Add or configure `ex.PauseComponent`s on your
 entities or actors.
 
 Scenes can `pause()` and `resume()`. Every `Actor` carries a `PauseComponent` by default, `canPause: false` opts an entity out so menus, 
@@ -152,7 +152,7 @@ Read more in the [pause docs](/docs/pause).
 ## Material/Postprocessor Shader Pipelines
 
 Before v1 you could only have 1 shader on your Actor materials or on the Screen postprocessors. Now you can compose shaders together in sequence making
-it much easier to acheive composible and re-usable effects. This enables a cheap way to implement Blur, Glow, and Bloom effects by upsampling
+it much easier to achieve composable and re-usable effects. This enables a cheap way to implement Blur, Glow, and Bloom effects by upsampling
 and downsampling in between shader passes.
 
 
@@ -183,7 +183,7 @@ Under the hood these are built on new public primitives: `ex.Framebuffer` (a ren
 ### The `glsl` tag and writing your own pipelines
 
 One foot-gun we've heard about is Excalibur's rendering is [premultiplied-alpha](https://www.realtimerendering.com/blog/gpus-prefer-premultiplication/). The new `ex.glsl` tagged template literal fixes that by
-detecting if your fragment is authored in a straight-alpha space and updating it accordingly. The tag also adds the annoying glsl `#version es 300`
+detecting if your fragment is authored in a straight-alpha space and updating it accordingly. The tag also adds the annoying glsl `#version 300 es`
 and `precision mediump float` boilerplate.
 
 Pass a list of fragments as `passes` and they run in order. Add a `fragmentSource` too and it becomes the final composite, with the pipeline output bound as `u_graphic` and the untouched graphic as `u_original`. Uniforms are now a plain dictionary on the material that reaches every pass:
@@ -285,7 +285,7 @@ Custom types get a `registerCustomSerializer(name, serialize, deserialize)` hook
 
 ### Custom Renderer 
 
-A renderer owns its vertex layout, so it is not limited to textured quads. This water renderer runs a row of springs (each column pulls back toward rest and hands its motion to its neighbours), then uploads two triangles per column with the depth and the surface speed as vertex attributes. The fragment shader turns those into the color gradient, the drifting caustics, and the foam on fast moving crests. Every body of water in the frame lands in the same vertex buffer and one `drawArrays` call. The plugin side is the same three pieces as the SDF text example: a `RendererPlugin`, a `Graphic` that calls `context.draw('water', ...)`, and a `Plugin` that registers it.
+A renderer owns its vertex layout, so it is not limited to textured quads. This water renderer runs a row of springs (each column pulls back toward rest and hands its motion to its neighbors), then uploads two triangles per column with the depth and the surface speed as vertex attributes. The fragment shader turns those into the color gradient, the drifting caustics, and the foam on fast moving crests. Every body of water in the frame lands in the same vertex buffer and one `drawArrays` call. The plugin side is the same three pieces as the SDF text example: a `RendererPlugin`, a `Graphic` that calls `context.draw('water', ...)`, and a `Plugin` that registers it.
 
 ```typescript
 class WaterRenderer implements ex.RendererPlugin {
@@ -451,7 +451,7 @@ npx create-excalibur@latest docs       # search the docs from your terminal, off
 npx create-excalibur@latest mcp        # MCP server so AI agents use the real docs and codemods
 ```
 
-If you install it globally you have access to the `ex` command for short ((yes, I did overload the oldschool text editor command...)[https://en.wikipedia.org/wiki/Ex_(text_editor)])
+If you install it globally you have access to the `ex` command for short ([yes, I did overload the oldschool text editor command...](https://en.wikipedia.org/wiki/Ex_(text_editor)))
 
 ```sh
 ex upgrade    # migrate to a newer Excalibur, codemod-style
@@ -465,7 +465,7 @@ ex mcp        # MCP server so AI agents use the real docs and codemods
 
 #### A\* pathfinding
 
-The [pathfinding plugin](https://github.com/excaliburjs/excalibur-pathfinding) gives you A\*, Dijkstra, breadth first and depth first search over a graph you build by hand or straight from the cells of a `TileMap`. Click a tile and the knight finds its way around the stone and the spiders, click a stone tile to clear it or a spider to squash it and watch the route change. The search reports how long it took, and it is fast enough to run on every click. The art and sound effects are from the [sample tactics game](https://excaliburjs.com/sample-tactics/).
+The core `ex.Graph` now gives you A\*, Dijkstra, breadth first and depth first search, no plugin required. Build a graph by hand, or straight from the cells of a `TileMap` like below: one `PositionNode` per walkable tile, an edge to each walkable neighbor, then call `graph.aStar(start, end)`. Click a tile and the knight finds its way around the stone and the spiders, click a stone tile to clear it or a spider to squash it and watch the route change. The graph is rebuilt and searched from scratch on every click, and the status label reports how long that took. The art and sound effects are from the [sample tactics game](https://excaliburjs.com/sample-tactics/).
 
 Art authored by discord member HintOfLime!
 
@@ -487,7 +487,7 @@ Read more here, we use the Inigo Quilez version of the [pixel art filter](https:
 
 #### GPU particles
 
-`ex.GpuParticleEmitter` has the same configuration as the CPU `ParticleEmitter` but simulates and draws the particles on the GPU. Tens of thousands of particles cost roughly the same as a few hundred, so rain, sparks, dust and spell effects stop being a performance burdne. Good looking fire is really four cheap emitters stacked up.
+`ex.GpuParticleEmitter` has the same configuration as the CPU `ParticleEmitter` but simulates and draws the particles on the GPU. Tens of thousands of particles cost roughly the same as a few hundred, so rain, sparks, dust and spell effects stop being a performance burden. Good looking fire is really four cheap emitters stacked up.
 
 <PlaygroundEmbed title="GPU particles" code={GpuParticlesSample} mount="visible" />
 

@@ -1,6 +1,4 @@
 import * as ex from 'excalibur';
-// The pathfinding plugin runs A* over a grid of walkable/solid cells, here the cells of a TileMap
-import { ExcaliburAStar } from 'https://unpkg.com/@excaliburjs/plugin-pathfinding@0.32.0/dist/excalibur-pathfinding.js';
 
 // Art and sound effects are from the Excalibur sample tactics game: https://excaliburjs.com/sample-tactics/
 const game = new ex.Engine({
@@ -105,16 +103,38 @@ game.add(status);
 
 let highlighted: ex.Tile[] = [];
 function walkTo(target: ex.Tile) {
-  // Build the grid from the map's solid tiles, then search from the knight's tile to the target.
-  // (You can also pass the TileMap itself once the plugin reads v1's `tile.isSolid`)
-  const astar = new ExcaliburAStar({ cols: COLS, rows: ROWS, tiles: tileMap.tiles.map((tile) => ({ collider: tile.isSolid })) });
+  // Build an ex.Graph with a node for every walkable tile and an edge to each walkable neighbor,
+  // then search from the knight's tile to the target with the core A*.
   const here = tileMap.getTileByPoint(knight.pos)!;
-  const path = astar.astar(astar.getNodeByCoord(here.x, here.y), astar.getNodeByCoord(target.x, target.y), true);
-  status.text = path.length ? `${path.length} steps, solved in ${astar.duration.toFixed(2)} ms` : 'no path to that tile';
+  const start = performance.now();
+  const graph = new ex.Graph<ex.Tile>();
+  const nodes = new Map<ex.Tile, ex.PositionNode<ex.Tile>>();
+  for (const tile of tileMap.tiles) {
+    if (!tile.isSolid) {
+      nodes.set(tile, graph.addNode(tile, ex.vec(tile.x, tile.y)) as ex.PositionNode<ex.Tile>);
+    }
+  }
+  for (const [tile, node] of nodes) {
+    // Right, down, and the two down diagonals, edges are undirected so every pair is linked both ways
+    for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [-1, 1]]) {
+      const neighbor = tileMap.getTile(tile.x + dx, tile.y + dy);
+      const other = neighbor && nodes.get(neighbor);
+      // Don't cut diagonally around the corner of a wall
+      const cutsCorner = dx !== 0 && dy !== 0 && (tileMap.getTile(tile.x + dx, tile.y)!.isSolid || tileMap.getTile(tile.x, tile.y + dy)!.isSolid);
+      if (other && !cutsCorner) {
+        graph.addEdge(node, other, { useEuclidean: true });
+      }
+    }
+  }
+  const result = graph.aStar(nodes.get(here)!, nodes.get(target)!);
+  const duration = performance.now() - start;
+  // The path starts on the knight's own tile, so skip it
+  const path = (result.path ?? []).slice(1).map((node) => node.data);
+  status.text = path.length ? `${path.length} steps, solved in ${duration.toFixed(2)} ms` : 'no path to that tile';
 
   // Tiles can carry more than one graphic, the path is a second layer on top of the terrain
   highlighted.forEach((tile) => tile.removeGraphic(pathHighlight));
-  highlighted = path.map((node) => tileMap.getTile(node.x, node.y)!);
+  highlighted = path;
   highlighted.forEach((tile) => tile.addGraphic(pathHighlight, { offset: ex.vec(0, -6) }));
 
   knight.actions.clearActions();
