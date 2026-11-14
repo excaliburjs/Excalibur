@@ -1,0 +1,24 @@
+---
+id: ui
+title: User Interface
+slug: /ui
+section: User Interface
+---
+
+Excalibur games usually need some kind of UI on top of the game itself — a HUD, a score display, menus, dialogs. There are three broad approaches, and which one fits depends on how much of the UI needs to feel like part of the game world versus part of the surrounding page.
+
+## In-canvas, with [Screen Elements](/docs/screen-elements)
+
+If the UI should feel like part of the game — drawn with your game's art style, positioned in game/screen space, reacting to pointer input the same way actors do — use a [[ScreenElement]]. It's rendered by Excalibur itself, above all other actors, so it gets all the same graphics, actions, and event handling as any other actor.
+
+## On top of the canvas, with HTML/CSS/JS
+
+HTML and CSS are still the best tools for building UI on the web: accessibility, layout, and styling come for free. If you'd rather build your HUD, menus, or dialogs as regular DOM elements positioned over the canvas, see [HTML, CSS, and JavaScript](/docs/html).
+
+## As part of a larger web app
+
+If your game is embedded inside a Next.js or Solid.js app rather than being the whole page, start with [Using NextJS](/docs/nextjs) or [Using SolidJS](/docs/solidjs) to get the canvas loading correctly (these frameworks server-render by default, which Excalibur can't run under). Once that's working, bridging game state into your framework's UI components has its own set of tradeoffs — see [Combining Excalibur with a Reactive UI Framework](/blog/bridging-excalibur-and-a-reactive-ui-framework) on the blog.
+
+## Fonts
+
+Whichever approach you use for text, see [Web Fonts](/docs/web-fonts) to avoid a flash of unstyled content while a custom font loads. In-canvas text is covered under [Text](/docs/text).
