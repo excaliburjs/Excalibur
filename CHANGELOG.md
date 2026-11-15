@@ -17,6 +17,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed issue where `ex.Color.lerp` in the default `'hsl'` mode tinted gradients that start or end at white, black or gray (#3922)
 - Fixed issue with multiline text where lines were drawn too close to together if lineHeight wasn't explicitly set
 - Fixed issue with JSON parse round tripping through JSON when null/NaN/Infinite
 - Fixed issue with GraphicsComponent serialization not correctly restoring graphics
