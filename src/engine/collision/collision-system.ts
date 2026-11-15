@@ -21,7 +21,7 @@ import { SeparatingAxis } from './colliders/separating-axis';
 import { MotionSystem } from './motion-system';
 import { Pair } from './detection/pair';
 import { BodyComponent } from './index';
-import { buildContactIslands, updateIslandSleepState } from './island';
+import { updateIslandSleepState } from './island';
 import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 export class CollisionSystem extends System {
   static override priority = SystemPriority.Higher;
