@@ -7,10 +7,63 @@ import { BodyComponent } from './body-component';
 import type { PhysicsConfig } from './physics-config';
 import { watchDeep } from '../util/watch';
 import type { Vector } from '../math/vector';
+import type { DistanceJoint } from './distance-joint';
+import { CollisionType } from './collision-type';
+import { SolverStrategy } from './solver-strategy';
 import { SpatialPartitionStrategy } from './detection/spatial-partition-strategy';
 
 export class PhysicsWorld {
   $configUpdate = new Observable<DeepRequired<PhysicsConfig>>();
+
+  private _joints: DistanceJoint[] = [];
+
+  /** Connections registered in this physics world. */
+  public get joints(): readonly DistanceJoint[] {
+    return this._joints;
+  }
+
+  public addJoint(joint: DistanceJoint): void {
+    const { bodyA, bodyB } = joint;
+    const scene = bodyA.owner?.scene;
+    const validType = (body: BodyComponent) => body.collisionType === CollisionType.Active || body.collisionType === CollisionType.Fixed;
+    if (
+      this._config.solver !== SolverStrategy.Realistic ||
+      bodyA === bodyB ||
+      !scene ||
+      scene.physics !== this ||
+      bodyB.owner?.scene !== scene ||
+      !validType(bodyA) ||
+      !validType(bodyB) ||
+      (bodyA.collisionType !== CollisionType.Active && bodyB.collisionType !== CollisionType.Active)
+    ) {
+      throw new Error('Distance joints require distinct Active/Fixed bodies in the same realistic physics world');
+    }
+    if (!this._joints.includes(joint)) {
+      this._joints.push(joint);
+      joint.setPhysicsWorld(this);
+      bodyA.wake();
+      bodyB.wake();
+    }
+  }
+
+  public removeJoint(joint: DistanceJoint): void {
+    const index = this._joints.indexOf(joint);
+    if (index !== -1) {
+      this._joints.splice(index, 1);
+      joint.setPhysicsWorld(null);
+      joint.bodyA.wake();
+      joint.bodyB.wake();
+    }
+  }
+
+  /** @internal */
+  public removeBodyJoints(body: BodyComponent): void {
+    for (const joint of this._joints.slice()) {
+      if (joint.bodyA === body || joint.bodyB === body) {
+        this.removeJoint(joint);
+      }
+    }
+  }
 
   private _configDirty = false;
   private _config!: DeepRequired<PhysicsConfig>;
