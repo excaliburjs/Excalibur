@@ -18,6 +18,7 @@ import { Actor } from './actor';
 import type { CanInitialize, CanActivate, CanDeactivate, CanUpdate, CanDraw, SceneActivationContext } from './interfaces/lifecycle-events';
 import * as Util from './util/util';
 import { Trigger } from './trigger';
+import type { System } from './entity-component-system/system';
 import { SystemType } from './entity-component-system/system';
 import { World } from './entity-component-system/world';
 import { MotionSystem } from './collision/motion-system';
@@ -184,6 +185,9 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
 
   private _isInitialized: boolean = false;
   private _lastLightingEnabled: boolean = false;
+  private _defaultSystemsRemoved = false;
+  private _defaultSystems = new Set<System>();
+  private _constructorSystems: readonly System[];
   private _timers: Timer[] = [];
   public get timers(): readonly Timer[] {
     return this._timers;
@@ -204,6 +208,55 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
     this.world.add(GraphicsSystem);
     this.world.add(DebugSystem);
     this.world.add(new PauseSystem(this));
+    // Reuse these systems on restoration rather than duplicating their query subscriptions.
+    this._constructorSystems = [...this.world.systemManager.systems];
+    this._defaultSystems = new Set(this._constructorSystems);
+  }
+
+  private _addLightingSystems(): void {
+    if (!this.world.get(FlickerSystem)) {
+      this._addDefaultSystem(new FlickerSystem());
+    }
+    if (!this.world.get(LightingSystem)) {
+      this._addDefaultSystem(new LightingSystem());
+    }
+  }
+
+  private _addDefaultSystem(system: System): void {
+    this._defaultSystems.add(system);
+    this.world.add(system);
+  }
+
+  /** @internal */
+  public _setDefaultSystemsRemoved(removed: boolean): void {
+    if (this._defaultSystemsRemoved === removed) {
+      return;
+    }
+    this._defaultSystemsRemoved = removed;
+    if (removed) {
+      for (const system of [...this._defaultSystems]) {
+        if (!this._defaultSystemsRemoved) {
+          break;
+        }
+        this._defaultSystems.delete(system);
+        this.world.remove(system);
+      }
+    } else {
+      for (const system of this._constructorSystems) {
+        if (this._defaultSystemsRemoved) {
+          break;
+        }
+        if (!this.world.systemManager.systems.includes(system)) {
+          this._addDefaultSystem(system);
+        }
+      }
+      if (!this._defaultSystemsRemoved && this.engine) {
+        this._lastLightingEnabled = this.engine.lighting.enabled;
+        if (this._lastLightingEnabled) {
+          this._addLightingSystems();
+        }
+      }
+    }
   }
 
   public emit<TEventName extends EventKey<SceneEvents>>(eventName: TEventName, event: SceneEvents[TEventName]): void;
@@ -365,13 +418,8 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
 
         // Lighting is opt-in, skip provisioning the systems entirely when disabled
         this._lastLightingEnabled = this.engine.lighting.enabled;
-        if (this._lastLightingEnabled) {
-          if (!this.world.systemManager.get(FlickerSystem)) {
-            this.world.add(new FlickerSystem());
-          }
-          if (!this.world.systemManager.get(LightingSystem)) {
-            this.world.add(new LightingSystem());
-          }
+        if (this._lastLightingEnabled && !this._defaultSystemsRemoved) {
+          this._addLightingSystems();
         }
 
         this.world.systemManager.initialize();
@@ -493,22 +541,22 @@ export class Scene<TActivationData = unknown> implements CanInitialize, CanActiv
   }
 
   private _checkEnableDisableSystems(): void {
+    if (this._defaultSystemsRemoved) {
+      return;
+    }
     if (this.engine.lighting.enabled !== this._lastLightingEnabled) {
       this._lastLightingEnabled = this.engine.lighting.enabled;
       if (this._lastLightingEnabled) {
-        if (!this.world.systemManager.get(FlickerSystem)) {
-          this.world.add(new FlickerSystem());
-        }
-        if (!this.world.systemManager.get(LightingSystem)) {
-          this.world.add(new LightingSystem());
-        }
+        this._addLightingSystems();
       } else {
         const flicker = this.world.systemManager.get(FlickerSystem);
-        if (flicker) {
+        if (flicker && !this.engine._isEngineSystem(this, flicker)) {
+          this._defaultSystems.delete(flicker);
           this.world.remove(flicker);
         }
         const lighting = this.world.systemManager.get(LightingSystem);
-        if (lighting) {
+        if (lighting && !this.engine._isEngineSystem(this, lighting)) {
+          this._defaultSystems.delete(lighting);
           this.world.remove(lighting);
         }
       }

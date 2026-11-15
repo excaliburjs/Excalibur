@@ -8,6 +8,7 @@ import { Loader } from './loader';
 import { Logger } from '../util/log';
 import { ActivateEvent, DeactivateEvent } from '../events';
 import { EventEmitter } from '../event-emitter';
+import type { SceneWorldOptions } from '../entity-component-system/scene-system-defaults';
 
 export interface DirectorNavigationEvent {
   sourceName: string;
@@ -52,6 +53,10 @@ export interface SceneWithOptions {
    * Optionally specify a loader for the scene
    */
   loader?: DefaultLoader | LoaderConstructor;
+  /**
+   * Systems supplied only to this scene and exceptions to Engine system defaults.
+   */
+  world?: SceneWorldOptions;
 }
 
 export type WithRoot<TScenes> = TScenes | 'root';
@@ -138,6 +143,7 @@ export class Director<TKnownScenes extends string = any> {
   public readonly rootScene: Scene;
 
   private _sceneToLoader = new Map<string, DefaultLoader>();
+  private _sceneToWorld = new Map<string, SceneWorldOptions>();
   private _sceneToTransition = new Map<string, { in?: Transition; out?: Transition }>();
   /**
    * Used to keep track of scenes that have already been loaded so we don't load multiple times
@@ -171,6 +177,7 @@ export class Director<TKnownScenes extends string = any> {
         this.currentScene = this.rootScene;
       }
     }
+    this.getSceneInstance('root');
   }
 
   /**
@@ -352,8 +359,13 @@ export class Director<TKnownScenes extends string = any> {
    * @param sceneOrRoute
    */
   add<TScene extends string>(name: TScene, sceneOrRoute: Scene | SceneConstructor | SceneWithOptions): Director<TKnownScenes | TScene> {
+    this._sceneToInstance.delete(name);
+    this._sceneToWorld.delete(name);
     if (!(sceneOrRoute instanceof Scene) && !isSceneConstructor(sceneOrRoute)) {
-      const { loader, transitions } = sceneOrRoute;
+      const { loader, transitions, world } = sceneOrRoute;
+      if (world) {
+        this._sceneToWorld.set(name, world);
+      }
       const { in: inTransition, out: outTransition } = transitions ?? {};
       this._sceneToTransition.set(name, { in: inTransition, out: outTransition });
 
@@ -368,6 +380,10 @@ export class Director<TKnownScenes extends string = any> {
       this._logger.warn('Scene', name, 'already exists overwriting');
     }
     this.scenes[name as unknown as TKnownScenes] = sceneOrRoute;
+    const supplied = sceneOrRoute instanceof Scene || isSceneConstructor(sceneOrRoute) ? sceneOrRoute : sceneOrRoute.scene;
+    if (supplied instanceof Scene) {
+      this.getSceneInstance(name);
+    }
     return this.assertAdded(name);
   }
 
@@ -396,6 +412,7 @@ export class Director<TKnownScenes extends string = any> {
             this._sceneToInstance.delete(key);
             this._sceneToTransition.delete(key);
             this._sceneToLoader.delete(key);
+            this._sceneToWorld.delete(key);
             delete this.scenes[key as TKnownScenes];
           }
         }
@@ -410,6 +427,7 @@ export class Director<TKnownScenes extends string = any> {
       this._sceneToInstance.delete(nameOrScene);
       this._sceneToTransition.delete(nameOrScene);
       this._sceneToLoader.delete(nameOrScene);
+      this._sceneToWorld.delete(nameOrScene);
       delete this.scenes[nameOrScene as TKnownScenes];
     }
   }
@@ -507,11 +525,18 @@ export class Director<TKnownScenes extends string = any> {
     }
     if (sceneDefinition instanceof Scene) {
       this._sceneToInstance.set(scene, sceneDefinition);
+      this._engine._configureSceneSystems(sceneDefinition, this._sceneToWorld.get(scene));
       return sceneDefinition;
     }
     const newScene = new sceneDefinition();
     this._sceneToInstance.set(scene, newScene);
+    this._engine._configureSceneSystems(newScene, this._sceneToWorld.get(scene));
     return newScene;
+  }
+
+  /** @internal */
+  getInstantiatedScenes(): Iterable<Scene> {
+    return this._sceneToInstance.values();
   }
 
   /**

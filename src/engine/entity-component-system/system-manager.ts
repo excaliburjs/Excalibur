@@ -25,6 +25,7 @@ export class SystemManager {
    */
   public systems: System[] = [];
   public initialized = false;
+  private _pendingInitialization?: Set<System>;
   constructor(private _world: World) {}
 
   /**
@@ -62,6 +63,9 @@ export class SystemManager {
    */
   public removeSystem(system: System) {
     const removed = removeItemFromArray(system, this.systems);
+    if (removed) {
+      this._pendingInitialization?.delete(system);
+    }
     if (removed && this.initialized && system.dispose) {
       system.dispose(this._world, this._world.scene);
     }
@@ -75,10 +79,14 @@ export class SystemManager {
   public initialize() {
     if (!this.initialized) {
       this.initialized = true;
-      for (const s of this.systems) {
-        if (s.initialize) {
-          s.initialize(this._world, this._world.scene);
+      this._pendingInitialization = new Set(this.systems);
+      try {
+        for (const system of this._pendingInitialization) {
+          this._pendingInitialization.delete(system);
+          system.initialize?.(this._world, this._world.scene);
         }
+      } finally {
+        this._pendingInitialization = undefined;
       }
     }
   }

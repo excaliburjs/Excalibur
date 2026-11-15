@@ -35,6 +35,10 @@ import { Color } from './color';
 import type { SceneConstructor } from './scene';
 import { Scene, isSceneConstructor } from './scene';
 import { Entity } from './entity-component-system/entity';
+import type { System } from './entity-component-system/system';
+import type { SystemCtor } from './entity-component-system/system-manager';
+import type { EngineWorldOptions, SceneWorldOptions } from './entity-component-system/scene-system-defaults';
+import { SceneSystemDefaults } from './entity-component-system/scene-system-defaults';
 import type { DebugStats } from './debug/debug-config';
 import { DebugConfig } from './debug/debug-config';
 import { BrowserEvents } from './util/browser';
@@ -418,6 +422,11 @@ export interface EngineOptions<TKnownScenes extends string = any> {
   lighting?: boolean | LightingConfig;
 
   /**
+   * Configure systems supplied by the Engine to every scene's world.
+   */
+  world?: EngineWorldOptions;
+
+  /**
    * Optionally specify scenes with their transitions and loaders to excalibur's scene {@apilink Director}
    *
    * Scene transitions can can overridden dynamically by the `Scene` or by the call to `.goToScene`
@@ -433,6 +442,7 @@ export interface EngineOptions<TKnownScenes extends string = any> {
  * loading resources, and managing the scene.
  */
 export class Engine<TKnownScenes extends string = any> implements CanInitialize, CanUpdate, CanDraw {
+  private _sceneSystemDefaults!: SceneSystemDefaults;
   static Context: Context<Engine | null> = createContext<Engine | null>();
   static useEngine(): Engine {
     const value = useContext(Engine.Context);
@@ -946,6 +956,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
     for (const plugin of this._plugins) {
       plugin.onEnginePreConfig?.(this, options);
     }
+    this._sceneSystemDefaults = new SceneSystemDefaults(options.world?.systems, options.world?.removeDefaultSystems);
 
     Flags.freeze();
 
@@ -1495,6 +1506,30 @@ O|===|* >________________>\n\
    */
   public removeTimer(timer: Timer): Timer {
     return this.currentScene.removeTimer(timer);
+  }
+
+  /**
+   * Supplies a system of this type to every current and future scene.
+   */
+  public addDefaultSystem(system: SystemCtor<System>): void {
+    this._sceneSystemDefaults.add(system, this.director.getInstantiatedScenes());
+  }
+
+  /**
+   * Removes systems of this type that were supplied by this Engine.
+   */
+  public removeDefaultSystem(system: SystemCtor<System>): void {
+    this._sceneSystemDefaults.remove(system, this.director.getInstantiatedScenes());
+  }
+
+  /** @internal */
+  public _configureSceneSystems(scene: Scene, options?: SceneWorldOptions): void {
+    this._sceneSystemDefaults.configure(scene, options);
+  }
+
+  /** @internal */
+  public _isEngineSystem(scene: Scene, system: System): boolean {
+    return this._sceneSystemDefaults.owns(scene, system);
   }
 
   /**
