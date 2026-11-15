@@ -1,3 +1,4 @@
+import type { ParticleEmissionSchedule } from './emission-schedule';
 import type { Engine } from '../engine';
 import { Color } from '../color';
 import { Vector, vec } from '../math/vector';
@@ -74,6 +75,15 @@ export class Particle extends Entity {
 
   private _emitter?: ParticleEmitter;
   private _isDead = false;
+  private _birthDelay = 0;
+  private _scheduled = false;
+
+  /** @internal Elapsed time before this particle exists in its first update. */
+  public _delayFirstUpdate(elapsed: number): void {
+    this._birthDelay = elapsed;
+    this._scheduled = true;
+  }
+
   registerEmitter(emitter: ParticleEmitter) {
     this._emitter = emitter;
     if (this.particleTransform === ParticleTransform.Global) {
@@ -84,6 +94,10 @@ export class Particle extends Entity {
   }
 
   configure(options: ParticleConfig) {
+    this._isDead = false;
+    this._birthDelay = 0;
+    this._scheduled = false;
+    this.motion._elapsedOverride = undefined;
     this.particleTransform = options.transform ?? this.particleTransform;
     this.life = options.life ?? this.life;
     this.fade = options.fade ?? this.fade;
@@ -142,6 +156,10 @@ export class Particle extends Entity {
   }
 
   public override update(engine: Engine, elapsed: number) {
+    const delay = Math.min(this._birthDelay, elapsed);
+    this._birthDelay -= delay;
+    elapsed -= delay;
+    this.motion._elapsedOverride = this._scheduled ? elapsed : undefined;
     this.life = this.life - elapsed;
 
     if (this.life < 0) {
@@ -306,6 +324,8 @@ export enum ParticleTransform {
 }
 
 export interface ParticleEmitterOptions {
+  /** Optional timed bursts, in addition to continuous emission. */
+  emissionSchedule?: ParticleEmissionSchedule;
   particle?: ParticleConfig;
   x?: number;
   y?: number;

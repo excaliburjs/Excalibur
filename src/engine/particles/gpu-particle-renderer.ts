@@ -36,16 +36,26 @@ export class GpuParticleRenderer {
   private _random: Random;
 
   private _drawIndex = 0;
+  private _hasDrawn = false;
   private _currentVao!: WebGLVertexArrayObject;
   private _currentBuffer!: WebGLBuffer;
 
-  private _numInputFloats = 2 + 2 + 1 + 1 + 1;
+  private _numInputFloats = 2 + 2 + 1 + 1 + 1 + 1;
+  private _pendingElapsed = 0;
+  private _dirtyParticleCount = 0;
+
+  /** @internal Consume simulation time once, even if a frame draws more than once. */
+  public _takeElapsed(drawElapsed: number): number {
+    const elapsed = this.emitter.emissionSchedule ? this._pendingElapsed : drawElapsed;
+    this._pendingElapsed = 0;
+    return elapsed;
+  }
+
   private _particleData: Float32Array;
   private _particleIndex = 0;
   private _uploadIndex: number = 0;
 
   private _wrappedLife = 0;
-  private _wrappedParticles = 0;
   private _particleLife = 0;
 
   constructor(emitter: GpuParticleEmitter, random: Random, options: GpuParticleConfig) {
@@ -97,12 +107,16 @@ export class GpuParticleRenderer {
     gl.vertexAttribPointer(4, 1, gl.FLOAT, false, numInputFloats * bytesPerFloat, offset);
     offset += bytesPerFloat * 1;
 
+    // Time before a new particle is born in the pending simulation interval
+    gl.vertexAttribPointer(5, 1, gl.FLOAT, false, numInputFloats * bytesPerFloat, offset);
+
     // enable attributes
     gl.enableVertexAttribArray(0);
     gl.enableVertexAttribArray(1);
     gl.enableVertexAttribArray(2);
     gl.enableVertexAttribArray(3);
     gl.enableVertexAttribArray(4);
+    gl.enableVertexAttribArray(5);
 
     this._vaos.push(vao1);
     this._buffers.push(particleDataBuffer1);
@@ -132,12 +146,16 @@ export class GpuParticleRenderer {
     gl.vertexAttribPointer(4, 1, gl.FLOAT, false, numInputFloats * bytesPerFloat, offset);
     offset += bytesPerFloat * 1;
 
+    // Time before a new particle is born in the pending simulation interval
+    gl.vertexAttribPointer(5, 1, gl.FLOAT, false, numInputFloats * bytesPerFloat, offset);
+
     // enable attributes
     gl.enableVertexAttribArray(0);
     gl.enableVertexAttribArray(1);
     gl.enableVertexAttribArray(2);
     gl.enableVertexAttribArray(3);
     gl.enableVertexAttribArray(4);
+    gl.enableVertexAttribArray(5);
 
     this._vaos.push(vao2);
     this._buffers.push(particleDataBuffer2);
@@ -155,11 +173,17 @@ export class GpuParticleRenderer {
   private _clearRequested = false;
   clearParticles() {
     this._particleData.fill(0);
+    this._dirtyParticleCount = 0;
     this._clearRequested = true;
   }
 
   private _emitted: [life: number, index: number][] = [];
-  emitParticles(particleCount: number) {
+  emitParticles(particleCount: number, birthOffset = 0) {
+    if (particleCount <= 0 || this.maxParticles === 0) {
+      return;
+    }
+    const birthDelay = this.emitter.emissionSchedule ? this._pendingElapsed + birthOffset : 0;
+    this._dirtyParticleCount = Math.min(this.maxParticles, this._dirtyParticleCount + particleCount);
     const startIndex = this._particleIndex;
     const maxSize = this.maxParticles * this._numInputFloats;
     const endIndex = particleCount * this._numInputFloats + startIndex;
@@ -190,7 +214,8 @@ export class GpuParticleRenderer {
         dy, // velocity
         this.particle.randomRotation ? randomInRange(0, TwoPI, this._random) : this.particle.rotation || 0, // rotation
         this.particle.angularVelocity || 0, // angular velocity
-        this._particleLife // life
+        this._particleLife, // life
+        birthDelay
       ];
 
       countParticle++;
@@ -198,23 +223,22 @@ export class GpuParticleRenderer {
     }
 
     if (endIndex >= maxSize) {
-      this._wrappedParticles += (endIndex - maxSize) / this._numInputFloats;
-      this._wrappedLife = this._particleLife;
-    } else if (this._wrappedLife > 0) {
-      this._wrappedParticles += particleCount;
+      this._wrappedLife = this._particleLife + birthDelay;
     }
 
     this._particleIndex = endIndex % maxSize;
-    this._emitted.push([this._particleLife, startIndex]);
+    this._emitted.push([this._particleLife + birthDelay, startIndex]);
   }
 
   private _uploadEmitted(gl: WebGL2RenderingContext) {
     // upload index is the index of the previous upload
     // particle index is the current index of modification
-    if (this._particleIndex !== this._uploadIndex) {
+    if (this._dirtyParticleCount > 0) {
       // Bind one buffer to ARRAY_BUFFER and the other to TFB
       gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers[(this._drawIndex + 1) % 2]);
-      if (this._particleIndex >= this._uploadIndex) {
+      if (this._dirtyParticleCount === this.maxParticles) {
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._particleData);
+      } else if (this._particleIndex >= this._uploadIndex) {
         gl.bufferSubData(
           gl.ARRAY_BUFFER,
           this._uploadIndex * 4, // dst byte offset 4 bytes per float
@@ -233,30 +257,31 @@ export class GpuParticleRenderer {
 					this._particleData.length - this._uploadIndex
 				);
         // upload after the wrap if there are any
-        if (this._wrappedParticles) {
+        if (this._particleIndex > 0) {
           // prettier-ignore
           gl.bufferSubData(
 						gl.ARRAY_BUFFER,
 						0,
 						this._particleData,
 						0,
-						this._wrappedParticles * this._numInputFloats
+						this._particleIndex
 					);
         }
         this._wrappedLife = this._particleLife;
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, null);
     }
-    this._uploadIndex = this._particleIndex % (this.maxParticles * this._numInputFloats);
+    this._dirtyParticleCount = 0;
+    this._uploadIndex = this._particleIndex;
   }
 
   update(elapsed: number) {
+    this._pendingElapsed += elapsed;
     this._particleLife = this.particle.life ?? this._particleLife;
     if (this._wrappedLife > 0) {
       this._wrappedLife -= elapsed;
     } else {
       this._wrappedLife = 0;
-      this._wrappedParticles = 0;
     }
     if (!this._emitted.length) {
       return;
@@ -275,15 +300,17 @@ export class GpuParticleRenderer {
 
   draw(gl: WebGL2RenderingContext) {
     if (this._initialized) {
+      if (!this._hasDrawn && this.emitter.emissionSchedule) {
+        this._currentVao = this._vaos[1];
+        this._currentBuffer = this._buffers[0];
+      }
+      this._hasDrawn = true;
       // Emit
       if (this._clearRequested) {
-        gl.bindBuffer(gl.ARRAY_BUFFER, this._buffers[(this._drawIndex + 1) % 2]);
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._particleData);
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        this._dirtyParticleCount = this.maxParticles;
         this._clearRequested = false;
-      } else {
-        this._uploadEmitted(gl);
       }
+      this._uploadEmitted(gl);
 
       // Bind one buffer to ARRAY_BUFFER and the other to transform feedback buffer
       gl.bindVertexArray(this._currentVao);

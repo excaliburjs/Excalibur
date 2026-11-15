@@ -17,6 +17,7 @@ layout(location=1)in vec2 velocity;
 layout(location=2)in float rotation;
 layout(location=3)in float angularVelocity;
 layout(location=4)in float lifeMs;
+layout(location=5)in float birthDelayMs;
 
 // TODO z index to handle buffer wrapping?
 
@@ -26,9 +27,12 @@ out vec2 finalVelocity;
 out float finalRotation;
 out float finalAngularVelocity;
 out float finalLifeMs;
+out float finalBirthDelayMs;
 void main(){
   // Evolve particle
-  float seconds = deltaMs / 1000.;
+  float ageMs = max(0., deltaMs - birthDelayMs);
+  finalBirthDelayMs = max(0., birthDelayMs - deltaMs);
+  float seconds = ageMs / 1000.;
   // euler integration
   // Weird artifact of re-using the same buffer layout for update/draw
   // we need differently named variables
@@ -37,7 +41,7 @@ void main(){
   finalPosition = position + velocity * seconds + finalGravity * .5 * seconds * seconds;
   finalRotation = rotation + angularVelocity * seconds;
   finalAngularVelocity = angularVelocity;
-  finalLifeMs = clamp(lifeMs - deltaMs, 0., maxLifeMs);
+  finalLifeMs = clamp(lifeMs - ageMs, 0., maxLifeMs);
 
   // Collision mask sampling
   // vec2 samplePoint = finalPosition / vec2(width, height);

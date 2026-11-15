@@ -39,6 +39,9 @@ export interface Motion {
 }
 
 export class MotionComponent extends Component {
+  /** @internal Entity update can supply the time for a particle born within this frame. */
+  public _elapsedOverride?: number;
+
   // @ts-ignore
   private static _NAME = 'MotionComponent';
   /**

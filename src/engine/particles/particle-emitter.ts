@@ -1,3 +1,5 @@
+import { EmissionSchedule } from './emission-schedule';
+import type { ParticleEmissionSchedule } from './emission-schedule';
 import type { Engine } from '../engine';
 import { Actor } from '../actor';
 import { vec } from '../math/vector';
@@ -17,6 +19,21 @@ import { RentalPool } from '../util/rental-pool';
  * These particles are simulated on the CPU in JavaScript
  */
 export class ParticleEmitter extends Actor {
+  private _emissionSchedule = new EmissionSchedule();
+
+  public get emissionSchedule(): ParticleEmissionSchedule | undefined {
+    return this._emissionSchedule.schedule;
+  }
+
+  public set emissionSchedule(value: ParticleEmissionSchedule | undefined) {
+    this._emissionSchedule.schedule = value;
+  }
+
+  /** Restart the burst clock without changing live particles or isEmitting. */
+  public restartEmission(): void {
+    this._emissionSchedule.restart();
+  }
+
   private _particlesToEmit: number = 0;
 
   private _particlePool = new RentalPool(
@@ -84,6 +101,7 @@ export class ParticleEmitter extends Actor {
     this.pos = pos ?? vec(x ?? 0, y ?? 0);
     this.z = z ?? 0;
     this.isEmitting = isEmitting ?? this.isEmitting;
+    this.emissionSchedule = config.emissionSchedule;
     this.emitRate = emitRate ?? this.emitRate;
     this.emitterType = emitterType ?? this.emitterType;
     this.radius = radius ?? this.radius;
@@ -107,9 +125,18 @@ export class ParticleEmitter extends Actor {
     if (particleCount <= 0) {
       return;
     }
-    particleCount = particleCount | 0; // coerce to int
+    this._emitParticles(particleCount | 0, 0);
+  }
+
+  private _emitParticles(particleCount: number, birthDelay: number): void {
+    if (!Number.isFinite(particleCount) || particleCount <= 0) {
+      return;
+    }
     for (let i = 0; i < particleCount; i++) {
       const p = this._createParticle();
+      if (this.emissionSchedule) {
+        p._delayFirstUpdate(birthDelay);
+      }
       if (this?.scene?.world) {
         if (this.particle.transform === ParticleTransform.Global) {
           this.scene.world.add(p);
@@ -185,6 +212,9 @@ export class ParticleEmitter extends Actor {
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
+      }
+      for (const burst of this._emissionSchedule.advance(elapsed)) {
+        this._emitParticles(burst.count, burst.time);
       }
     }
 

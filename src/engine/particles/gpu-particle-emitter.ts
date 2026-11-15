@@ -1,3 +1,5 @@
+import { EmissionSchedule } from './emission-schedule';
+import type { ParticleEmissionSchedule } from './emission-schedule';
 import type { Engine } from '../engine';
 import { Actor } from '../actor';
 import { EmitterType } from './emitter-type';
@@ -14,6 +16,21 @@ import type { ExcaliburGraphicsContextWebGL } from '../graphics/context/excalibu
 import type { ParticleRenderer } from '../graphics/context/particle-renderer/particle-renderer';
 
 export class GpuParticleEmitter extends Actor {
+  private _emissionSchedule = new EmissionSchedule();
+
+  public get emissionSchedule(): ParticleEmissionSchedule | undefined {
+    return this._emissionSchedule.schedule;
+  }
+
+  public set emissionSchedule(value: ParticleEmissionSchedule | undefined) {
+    this._emissionSchedule.schedule = value;
+  }
+
+  /** Restart the burst clock without changing live particles or isEmitting. */
+  public restartEmission(): void {
+    this._emissionSchedule.restart();
+  }
+
   public particle: GpuParticleConfig = {
     /**
      * Gets or sets the life of each particle in milliseconds
@@ -67,6 +84,7 @@ export class GpuParticleEmitter extends Actor {
     this.z = z ?? 0;
 
     this.isEmitting = isEmitting ?? this.isEmitting;
+    this.emissionSchedule = config.emissionSchedule;
 
     this.emitRate = emitRate ?? this.emitRate;
 
@@ -96,6 +114,9 @@ export class GpuParticleEmitter extends Actor {
       if (this._particlesToEmit > 1.0) {
         this.emitParticles(Math.floor(this._particlesToEmit));
         this._particlesToEmit = this._particlesToEmit - Math.floor(this._particlesToEmit);
+      }
+      for (const burst of this._emissionSchedule.advance(elapsed)) {
+        this.renderer.emitParticles(burst.count, burst.time);
       }
     }
     this.renderer.update(elapsed);

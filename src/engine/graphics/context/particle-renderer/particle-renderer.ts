@@ -29,7 +29,7 @@ export class ParticleRenderer implements RendererPlugin {
       onPreLink: (program) => {
         gl.transformFeedbackVaryings(
           program,
-          ['finalPosition', 'finalVelocity', 'finalRotation', 'finalAngularVelocity', 'finalLifeMs'],
+          ['finalPosition', 'finalVelocity', 'finalRotation', 'finalAngularVelocity', 'finalLifeMs', 'finalBirthDelayMs'],
           gl.INTERLEAVED_ATTRIBS
         );
       }
@@ -72,7 +72,7 @@ export class ParticleRenderer implements RendererPlugin {
     this._shader.setUniformBoolean('fade', renderer.particle.fade ? true : false);
     this._shader.setUniformBoolean('useTexture', renderer.particle.graphic ? true : false);
     this._shader.setUniformFloat('maxLifeMs', renderer.particle.life ?? 2000);
-    this._shader.setUniformFloat('deltaMs', elapsed);
+    this._shader.setUniformFloat('deltaMs', renderer._takeElapsed(elapsed));
     this._shader.setUniformFloatVector('gravity', renderer.particle.acc ?? vec(0, 0));
     this._shader.setUniformFloatColor('beginColor', renderer.particle.beginColor ?? Color.Transparent);
     this._shader.setUniformFloatColor('endColor', renderer.particle.endColor ?? Color.Transparent);
