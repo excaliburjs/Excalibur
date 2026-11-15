@@ -5,6 +5,8 @@ import type { ExcaliburGraphicsContext } from './context/excalibur-graphics-cont
 import type { Font } from './font';
 import { vec, Vector } from '../math';
 import { combineHashes, hashString } from '../util/string';
+import { getWrappedTextLines } from './text-layout';
+import type { WordWrap } from './text-layout';
 
 export class FontTextInstance {
   public canvas: HTMLCanvasElement;
@@ -27,7 +29,8 @@ export class FontTextInstance {
     public readonly font: Font,
     public readonly text: string,
     public readonly color: Color,
-    public readonly maxWidth?: number
+    public readonly maxWidth?: number,
+    public readonly wordWrap?: WordWrap
   ) {
     this.canvas = document.createElement('canvas');
     const ctx = this.canvas.getContext('2d');
@@ -40,19 +43,19 @@ export class FontTextInstance {
 
     this.canvas.dataset.originalSrc = `text(${text}) font(${font.fontString}`;
 
-    this.dimensions = this.measureText(text);
+    this.dimensions = this.measureText(text, maxWidth, wordWrap);
 
     this._setDimension(this.dimensions, this.ctx);
     this._lastHashCode = this.getHashCode();
   }
 
-  measureText(text: string, maxWidth?: number): BoundingBox {
+  measureText(text: string, maxWidth?: number, wordWrap?: WordWrap): BoundingBox {
     if (this.disposed) {
       throw Error('Accessing disposed text instance! ' + this.text);
     }
     let lines = null;
     if (maxWidth != null) {
-      lines = this._getLinesFromText(text, maxWidth);
+      lines = this._getLinesFromText(text, maxWidth, wordWrap);
     } else {
       lines = text.split('\n');
     }
@@ -94,12 +97,13 @@ export class FontTextInstance {
     bitmap.canvas.height = (textBounds.height + this.font.padding * 2) * this.font.quality * lineHeightRatio;
   }
 
-  public static getHashCode(font: Font, text: string, color?: Color): number {
-    return combineHashes(hashString(text), font.hashCode, color?.hashCode ?? 0);
+  public static getHashCode(font: Font, text: string, color?: Color, maxWidth?: number, wordWrap?: WordWrap): number {
+    const hash = combineHashes(hashString(text), font.hashCode, color?.hashCode ?? 0);
+    return maxWidth == null && wordWrap === undefined ? hash : combineHashes(hash, hashString(JSON.stringify([maxWidth, wordWrap])));
   }
 
   public getHashCode(includeColor: boolean = true): number {
-    return FontTextInstance.getHashCode(this.font, this.text, includeColor ? this.color : undefined);
+    return FontTextInstance.getHashCode(this.font, this.text, includeColor ? this.color : undefined, this.maxWidth, this.wordWrap);
   }
 
   /**
@@ -280,9 +284,9 @@ export class FontTextInstance {
 
     // Calculate image chunks
     if (this._dirty) {
-      this.dimensions = this.measureText(this.text, maxWidth);
+      this.dimensions = this.measureText(this.text, maxWidth, this.wordWrap);
       this._setDimension(this.dimensions, this.ctx);
-      const lines = this._getLinesFromText(this.text, maxWidth);
+      const lines = this._getLinesFromText(this.text, maxWidth, this.wordWrap);
 
       const lineHeight = !this.font.lineHeight ? (this.dimensions.height - this._maxAscent) / lines.length : this.font.lineHeight;
 
@@ -355,7 +359,16 @@ export class FontTextInstance {
   private _cachedText?: string;
   private _cachedLines?: string[];
   private _cachedRenderWidth?: number;
-  private _getLinesFromText(text: string, maxWidth?: number): string[] {
+  private _getLinesFromText(text: string, maxWidth?: number, wordWrap?: WordWrap): string[] {
+    if (wordWrap !== undefined) {
+      this._applyFont(this.ctx);
+      return getWrappedTextLines(
+        text,
+        maxWidth,
+        wordWrap,
+        (line) => this.ctx.measureText(line).width + (this.font.padding / this.font.quality) * 2
+      );
+    }
     if (this._cachedText === text && this._cachedRenderWidth === maxWidth && this._cachedLines?.length) {
       return this._cachedLines;
     }

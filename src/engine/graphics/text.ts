@@ -5,6 +5,7 @@ import type { GraphicOptions } from './graphic';
 import { Graphic } from './graphic';
 import { Color } from '../color';
 import { Font } from './font';
+import type { WordWrap } from './text-layout';
 
 export interface TextOptions {
   /**
@@ -26,6 +27,9 @@ export interface TextOptions {
    * Optionally specify a maximum width in pixels for our text, and wrap to the next line if needed.
    */
   maxWidth?: number;
+
+  /** Optional whole-word wrapping; undefined keeps the existing layout. */
+  wordWrap?: WordWrap;
 }
 
 /**
@@ -35,12 +39,37 @@ export interface TextOptions {
  */
 export class Text extends Graphic {
   public color?: Color;
-  public maxWidth?: number;
+  private _maxWidth?: number;
+
+  public get maxWidth(): number | undefined {
+    return this._maxWidth;
+  }
+
+  public set maxWidth(value: number | undefined) {
+    this._maxWidth = value;
+    this._textWidth = 0;
+    this._textHeight = 0;
+  }
+  private _wordWrap?: WordWrap;
+
+  public get wordWrap(): WordWrap | undefined {
+    return this._wordWrap;
+  }
+
+  public set wordWrap(value: WordWrap | undefined) {
+    this._wordWrap = value;
+    this._textWidth = 0;
+    this._textHeight = 0;
+  }
   constructor(options: TextOptions & GraphicOptions) {
     super(options);
     // This order is important font, color, then text
     this.font = options.font ?? new Font();
     this.color = options.color ?? this.color;
+    this.wordWrap = options.wordWrap;
+    if (this.wordWrap !== undefined) {
+      this.maxWidth = options.maxWidth;
+    }
     this.text = options.text;
     this.maxWidth = options.maxWidth;
   }
@@ -50,7 +79,8 @@ export class Text extends Graphic {
       text: this.text.slice(),
       color: this.color?.clone() ?? Color.Black,
       font: this.font.clone(),
-      maxWidth: this.maxWidth
+      maxWidth: this.maxWidth,
+      wordWrap: this.wordWrap
     });
   }
 
@@ -75,7 +105,7 @@ export class Text extends Graphic {
   private _textWidth: number = 0;
 
   public override get width() {
-    if (this._textWidth === 0) {
+    if (this._textWidth === 0 || this.wordWrap !== undefined) {
       this._calculateDimension();
     }
     return this._textWidth * this.scale.x;
@@ -83,20 +113,20 @@ export class Text extends Graphic {
 
   private _textHeight: number = 0;
   public override get height() {
-    if (this._textHeight === 0) {
+    if (this._textHeight === 0 || this.wordWrap !== undefined) {
       this._calculateDimension();
     }
     return this._textHeight * this.scale.y;
   }
 
   private _calculateDimension() {
-    const { width, height } = this.font.measureText(this._text, this.maxWidth);
+    const { width, height } = this.font.measureText(this._text, this.maxWidth, this.wordWrap);
     this._textWidth = width;
     this._textHeight = height;
   }
 
   public override get localBounds(): BoundingBox {
-    return this.font.measureText(this._text, this.maxWidth).scale(this.scale);
+    return this.font.measureText(this._text, this.maxWidth, this.wordWrap).scale(this.scale);
   }
 
   protected override _rotate(_ex: ExcaliburGraphicsContext) {
@@ -127,11 +157,11 @@ export class Text extends Graphic {
       color = this.color ?? this.font.color;
     }
 
-    const { width, height } = this.font.measureText(this._text, this.maxWidth);
+    const { width, height } = this.font.measureText(this._text, this.maxWidth, this.wordWrap);
     this._textWidth = width;
     this._textHeight = height;
 
-    this.font.render(ex, this._text, color, x, y, this.maxWidth);
+    this.font.render(ex, this._text, color, x, y, this.maxWidth, this.wordWrap);
 
     if (this.font.showDebug) {
       ex.debug.drawRect(x - width, y - height, width * 2, height * 2);

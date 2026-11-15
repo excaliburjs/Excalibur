@@ -10,6 +10,7 @@ import type { RasterOptions } from './raster';
 import { ImageFiltering } from './filtering';
 import { FontTextInstance } from './font-text-instance';
 import { FontCache } from './font-cache';
+import type { WordWrap } from './text-layout';
 import { combineHashes, hashString } from '../util/string';
 /**
  * Represents a system or web font in Excalibur
@@ -77,7 +78,8 @@ export class Font extends Graphic implements FontRenderer {
       +this.lineWidth,
       +this.lineDash.reduce((a, b) => a + b, 0),
       +(this.strokeColor?.hashCode ?? 0),
-      this.color.hashCode
+      this.color.hashCode,
+      +this.quality
     );
   }
 
@@ -170,8 +172,8 @@ export class Font extends Graphic implements FontRenderer {
 
   private _textMeasurement: FontTextInstance;
 
-  public measureTextWithoutCache(text: string, maxWidth?: number) {
-    return this._textMeasurement.measureText(text, maxWidth);
+  public measureTextWithoutCache(text: string, maxWidth?: number, wordWrap?: WordWrap) {
+    return this._textMeasurement.measureText(text, maxWidth, wordWrap);
   }
 
   /**
@@ -181,16 +183,24 @@ export class Font extends Graphic implements FontRenderer {
    * @param text
    * @returns BoundingBox
    */
-  public measureText(text: string, maxWidth?: number): BoundingBox {
-    return FontCache.measureText(text, this, maxWidth);
+  public measureText(text: string, maxWidth?: number, wordWrap?: WordWrap): BoundingBox {
+    return FontCache.measureText(text, this, maxWidth, wordWrap);
   }
 
   protected override _postDraw(ex: ExcaliburGraphicsContext): void {
     ex.restore();
   }
 
-  public render(ex: ExcaliburGraphicsContext, text: string, colorOverride: Color, x: number, y: number, maxWidth?: number) {
-    const textInstance = FontCache.getTextInstance(text, this, colorOverride);
+  public render(
+    ex: ExcaliburGraphicsContext,
+    text: string,
+    colorOverride: Color,
+    x: number,
+    y: number,
+    maxWidth?: number,
+    wordWrap?: WordWrap
+  ) {
+    const textInstance = FontCache.getTextInstance(text, this, colorOverride, maxWidth, wordWrap);
 
     // Apply affine transformations
     this._textBounds = textInstance.dimensions;

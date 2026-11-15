@@ -7,6 +7,8 @@ import { Graphic } from './graphic';
 import type { Sprite } from './sprite';
 import type { SpriteSheet } from './sprite-sheet';
 import { BoundingBox } from '../collision/bounding-box';
+import { getWrappedTextLines } from './text-layout';
+import type { WordWrap } from './text-layout';
 
 export interface SpriteFontOptions {
   /**
@@ -87,10 +89,10 @@ export class SpriteFont extends Graphic implements FontRenderer {
     return results;
   }
 
-  public measureText(text: string, maxWidth?: number): BoundingBox {
-    const lines = this._getLinesFromText(text, maxWidth);
+  public measureText(text: string, maxWidth?: number, wordWrap?: WordWrap): BoundingBox {
+    const lines = this._getLinesFromText(text, maxWidth, wordWrap);
     const maxWidthLine = lines.reduce((a, b) => {
-      return a.length > b.length ? a : b;
+      return wordWrap === undefined ? (a.length > b.length ? a : b) : this._measureLine(a) > this._measureLine(b) ? a : b;
     });
     const sprites = this._getCharacterSprites(maxWidthLine);
     let width = 0;
@@ -102,11 +104,11 @@ export class SpriteFont extends Graphic implements FontRenderer {
     return BoundingBox.fromDimension(width * this.scale.x, height * lines.length * this.scale.y, Vector.Zero);
   }
 
-  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number): void {
+  protected _drawImage(ex: ExcaliburGraphicsContext, x: number, y: number, maxWidth?: number, wordWrap?: WordWrap): void {
     let xCursor = 0;
     let yCursor = 0;
     let height = 0;
-    const lines = this._getLinesFromText(this._text, maxWidth);
+    const lines = this._getLinesFromText(this._text, maxWidth, wordWrap);
     for (const line of lines) {
       for (const sprite of this._getCharacterSprites(line)) {
         // draw it in the right spot and increase the cursor by sprite width
@@ -119,23 +121,23 @@ export class SpriteFont extends Graphic implements FontRenderer {
     }
   }
 
-  render(ex: ExcaliburGraphicsContext, text: string, _color: any, x: number, y: number, maxWidth?: number) {
+  render(ex: ExcaliburGraphicsContext, text: string, _color: any, x: number, y: number, maxWidth?: number, wordWrap?: WordWrap) {
     // SpriteFont doesn't support _color, yet...
     this._text = text;
-    const bounds = this.measureText(text, maxWidth);
+    const bounds = this.measureText(text, maxWidth, wordWrap);
     this.width = bounds.width;
     this.height = bounds.height;
     if (this.shadow) {
       ex.save();
       ex.translate(this.shadow.offset.x, this.shadow.offset.y);
       this._preDraw(ex, x, y);
-      this._drawImage(ex, 0, 0, maxWidth);
+      this._drawImage(ex, 0, 0, maxWidth, wordWrap);
       this._postDraw(ex);
       ex.restore();
     }
 
     this._preDraw(ex, x, y);
-    this._drawImage(ex, 0, 0, maxWidth);
+    this._drawImage(ex, 0, 0, maxWidth, wordWrap);
     this._postDraw(ex);
   }
 
@@ -155,7 +157,14 @@ export class SpriteFont extends Graphic implements FontRenderer {
   private _cachedText?: string;
   private _cachedLines?: string[];
   private _cachedRenderWidth?: number;
-  protected _getLinesFromText(text: string, maxWidth?: number) {
+  private _measureLine(text: string): number {
+    return this._getCharacterSprites(text).reduce((width, sprite) => width + sprite.width + this.spacing, 0) * this.scale.x;
+  }
+
+  protected _getLinesFromText(text: string, maxWidth?: number, wordWrap?: WordWrap) {
+    if (wordWrap !== undefined) {
+      return getWrappedTextLines(text, maxWidth, wordWrap, (line) => this._measureLine(line));
+    }
     if (this._cachedText === text && this._cachedRenderWidth === maxWidth && this._cachedLines?.length) {
       return this._cachedLines;
     }

@@ -1,0 +1,16 @@
+{
+  "extends": "../engine/tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "incremental": false,
+    "noEmit": true,
+    "rootDir": "../..",
+    "skipLibCheck": true,
+    "types": ["node", "vitest/globals"],
+    "paths": {
+      "@excalibur": ["../engine/"]
+    }
+  },
+  "include": ["vitest/text-layout-options-2a75e2.test-d.ts"],
+  "files": ["../engine/files.d.ts", "../engine/globals.d.ts"]
+}

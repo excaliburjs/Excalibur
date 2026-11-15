@@ -3,6 +3,7 @@ import type { Color } from '../color';
 import { Logger } from '../util/log';
 import type { Font } from './font';
 import { FontTextInstance } from './font-text-instance';
+import type { WordWrap } from './text-layout';
 
 export class FontCache {
   public static FONT_TIMEOUT = 500;
@@ -11,22 +12,22 @@ export class FontCache {
   private static _TEXT_CACHE = new Map<number, FontTextInstance>();
   private static _MEASURE_CACHE = new Map<number, BoundingBox>();
 
-  static measureText(text: string, font: Font, maxWidth?: number): BoundingBox {
-    const hash = FontTextInstance.getHashCode(font, text);
+  static measureText(text: string, font: Font, maxWidth?: number, wordWrap?: WordWrap): BoundingBox {
+    const hash = FontTextInstance.getHashCode(font, text, undefined, maxWidth, wordWrap);
     if (FontCache._MEASURE_CACHE.has(hash)) {
       return FontCache._MEASURE_CACHE.get(hash)!;
     }
     FontCache._LOGGER.debug(`Font text measurement cache miss: text(${text}) font(${font.fontString}) hash(${hash})`);
-    const measurement = font.measureTextWithoutCache(text, maxWidth);
+    const measurement = font.measureTextWithoutCache(text, maxWidth, wordWrap);
     FontCache._MEASURE_CACHE.set(hash, measurement);
     return measurement;
   }
 
-  static getTextInstance(text: string, font: Font, color: Color): FontTextInstance {
-    const hash = FontTextInstance.getHashCode(font, text, color);
+  static getTextInstance(text: string, font: Font, color: Color, maxWidth?: number, wordWrap?: WordWrap): FontTextInstance {
+    const hash = FontTextInstance.getHashCode(font, text, color, maxWidth, wordWrap);
     let textInstance = FontCache._TEXT_CACHE.get(hash);
     if (!textInstance) {
-      textInstance = new FontTextInstance(font, text, color);
+      textInstance = new FontTextInstance(font, text, color, maxWidth, wordWrap);
       FontCache._TEXT_CACHE.set(hash, textInstance);
       FontCache._LOGGER.debug(`Font text instance cache miss: text(${text}) font(${font.fontString}) hash(${hash})`);
     }

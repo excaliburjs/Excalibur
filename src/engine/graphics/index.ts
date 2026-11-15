@@ -20,6 +20,7 @@ export * from './circle';
 export * from './rectangle';
 export * from './polygon';
 export * from './text';
+export type { WordWrap } from './text-layout';
 export * from './font-common';
 export * from './font';
 export * from './font-cache';
