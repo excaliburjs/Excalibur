@@ -20,14 +20,17 @@ export class Island {
     }
   }
 
-  updateSleepState(elapsed: number) {
+  updateSleepState(elapsed: number, updateMotion: boolean = true) {
     let islandHasMotion = false;
     let allBodiesCanSleep = true;
     let anyAwake = false;
     let anySleeping = false;
 
-    for (const body of this.bodies) {
-      body.updateMotion(elapsed);
+    for (let i = 0; i < this.bodies.length; i++) {
+      const body = this.bodies[i];
+      if (updateMotion) {
+        body.updateMotion(elapsed);
+      }
 
       if (!body.canFallAsleep) {
         allBodiesCanSleep &&= false;
@@ -129,4 +132,24 @@ export function buildContactIslands(config: BodyConfig, bodies: BodyComponent[],
     island.contacts = Array.from(new Set(bodies.flatMap((b) => bodyToContacts.get(b)!)));
     return island;
   });
+}
+
+export function updateIslandSleepState(config: BodyConfig, bodies: BodyComponent[], contacts: CollisionContact[], elapsed: number): void {
+  // Something has to be awake, or a sleeping body has to have been moved from the outside (teleported, etc.)
+  let islandsNeeded = false;
+  for (let i = 0; i < bodies.length; i++) {
+    const body = bodies[i];
+    body.updateMotion(elapsed);
+    if (body.collisionType === CollisionType.Active && (!body.isSleeping || body.canWakeUp)) {
+      islandsNeeded = true;
+    }
+  }
+  if (!islandsNeeded) {
+    return;
+  }
+
+  const islands = buildContactIslands(config, bodies, contacts);
+  for (let i = 0; i < islands.length; i++) {
+    islands[i].updateSleepState(elapsed, false);
+  }
 }

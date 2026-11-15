@@ -21,7 +21,7 @@ import { SeparatingAxis } from './colliders/separating-axis';
 import { MotionSystem } from './motion-system';
 import { Pair } from './detection/pair';
 import { BodyComponent } from './index';
-import { buildContactIslands } from './island';
+import { buildContactIslands, updateIslandSleepState } from './island';
 import { PauseComponentTag } from '../entity-component-system/components/pause-component';
 export class CollisionSystem extends System {
   static override priority = SystemPriority.Higher;
@@ -168,12 +168,7 @@ export class CollisionSystem extends System {
         const frameContacts = dormantContacts.length ? contacts.concat(dormantContacts) : contacts;
 
         if (this._physics.config.solver === SolverStrategy.Realistic) {
-          // TODO we could possbily enable this for Arcade, will require some thinking
-          const islands = buildContactIslands(this._physics.config.bodies, this._bodies, frameContacts);
-
-          for (const island of islands) {
-            island.updateSleepState(elapsed / substep);
-          }
+          updateIslandSleepState(this._physics.config.bodies, this._bodies, frameContacts, elapsed / substep);
         }
 
         solver.solve(frameContacts, elapsed / substep, step, substep);
@@ -265,6 +260,11 @@ export class CollisionSystem extends System {
     this._processor.debug(ex, 0);
   }
 
+
+  private _isDormantContact(contact: CollisionContact): boolean {
+    return Pair.isDormant(contact.bodyA, contact.bodyB) && !!contact.colliderA.owner?.isActive && !!contact.colliderB.owner?.isActive;
+  }
+
   public runContactStartEnd() {
     // If composite colliders are 'together' collisions may have a duplicate id because we want to treat those as a singular start/end
     for (const [id, c] of this._currentFrameContacts) {
@@ -273,8 +273,10 @@ export class CollisionSystem extends System {
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
         // A new contact wakes both participants, sleeping bodies are not solved
-        c.bodyA!.isSleeping = false;
-        c.bodyB!.isSleeping = false;
+        if (!this._isDormantContact(c)) {
+          c.bodyA!.isSleeping = false;
+          c.bodyB!.isSleeping = false;
+        }
         const side = Side.fromDirection(c.mtv);
         const opposite = Side.getOpposite(side);
         colliderA.events.emit('collisionstart', new CollisionStartEvent(colliderA, colliderB, side, c));
@@ -287,6 +289,12 @@ export class CollisionSystem extends System {
     // find all contacts that have ceased
     for (const [id, c] of this._lastFrameContacts) {
       if (!this._currentFrameContacts.has(id)) {
+        if (this._isDormantContact(c)) {
+          // neither body can move, the narrowphase just stopped reporting a barely touching
+          c.persist();
+          this._currentFrameContacts.set(id, c);
+          continue;
+        }
         const colliderA = c.colliderA;
         const colliderB = c.colliderB;
         c.bodyA!.isSleeping = false;
