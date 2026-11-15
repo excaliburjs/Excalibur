@@ -10,6 +10,7 @@ import type { EventKey, Handler, Subscription } from '../event-emitter';
 import { EventEmitter } from '../event-emitter';
 import { Color } from '../color';
 import { delay } from '../util/util';
+import { abortError, throwIfAborted, withAbort } from '../resources/abort';
 
 export interface DefaultLoaderOptions {
   /**
@@ -54,6 +55,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
     draw: this.onDraw.bind(this)
   });
   private _resources: Loadable<any>[] = [];
+  private _completedResources = new Set<Loadable<any>>();
   public get resources(): readonly Loadable<any>[] {
     return this._resources;
   }
@@ -64,6 +66,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * @param options Optionally provide the list of resources you want to load at constructor time
    */
   constructor(options?: DefaultLoaderOptions) {
+    this._resourcesLoadedFuture.promise.catch(() => undefined);
     if (options && options.loadables?.length) {
       this.addResources(options.loadables);
     }
@@ -86,21 +89,21 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * audio from playing until the user performs an action.
    *
    */
-  public async onUserAction(): Promise<void> {
+  public async onUserAction(_signal?: AbortSignal): Promise<void> {
     return await Promise.resolve();
   }
 
   /**
    * Overridable lifecycle method, called directly before loading starts
    */
-  public async onBeforeLoad() {
+  public async onBeforeLoad(_signal?: AbortSignal) {
     // override me
   }
 
   /**
    * Overridable lifecycle method, called after loading has completed
    */
-  public async onAfterLoad() {
+  public async onAfterLoad(_signal?: AbortSignal) {
     // override me
     await delay(500, this.engine.clock); // avoid a flicker
   }
@@ -141,7 +144,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   }
 
   private _loaded = false;
-  private _isLoading = false;
+  protected _isLoading = false;
   /**
    * Returns true if the loader has completely loaded all resources
    */
@@ -190,6 +193,7 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   }
 
   private _resourcesLoadedFuture = new Future<void>();
+  private _resourcesFutureFailed = false;
   public areResourcesLoaded() {
     if (this._resources.length === 0) {
       // special case no resources mean loaded;
@@ -199,6 +203,9 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
   }
 
   private _loaderCompleteFuture = new Future<Loadable<any>[]>();
+  private _activeLoadController?: AbortController;
+  private _activeLoadTask?: Promise<void>;
+  protected _loadWaiters = 0;
 
   /**
    * Not meant to be overridden
@@ -206,58 +213,136 @@ export class DefaultLoader implements Loadable<Loadable<any>[]> {
    * Begin loading all of the supplied resources, returning a promise
    * that resolves when loading of all is complete AND the user has interacted with the loading screen
    */
-  public async load(): Promise<Loadable<any>[]> {
-    if (this._isLoading) {
-      return this._loaderCompleteFuture.promise;
+  public load(signal?: AbortSignal): Promise<Loadable<any>[]> {
+    if (signal?.aborted) {
+      return Promise.reject(abortError());
     }
     if (this.isLoaded()) {
       // Already loaded quick exit
-      return (this.data = this._resources);
+      return Promise.resolve((this.data = this._resources));
     }
-    this._isLoading = true;
-    this._loaderCompleteFuture = new Future();
-    await this.onBeforeLoad();
-    this.events.emit('beforeload');
-    this.canvas.flagDirty();
-
-    await Promise.all(
-      this._resources
-        .filter((r) => {
-          return !r.isLoaded();
-        })
-        .map(async (r) => {
-          this.events.emit('loadresourcestart', r);
-          await r.load().finally(() => {
-            // capture progress
-            this._numLoaded++;
-            this.canvas.flagDirty();
-            this.events.emit('loadresourceend', r);
-          });
-        })
-    );
-
-    // Wire all sound to the engine
-    for (const resource of this._resources) {
-      if (resource instanceof Sound) {
-        resource.wireEngine(this.engine);
+    if (this._isLoading && this._activeLoadController?.signal.aborted) {
+      return withAbort(
+        (this._activeLoadTask ?? Promise.resolve()).then(() => this.load(signal)),
+        signal
+      );
+    }
+    const startsLoad = !this._isLoading;
+    if (startsLoad) {
+      if (this._resourcesFutureFailed) {
+        this._resourcesLoadedFuture = new Future<void>();
+        this._resourcesLoadedFuture.promise.catch(() => undefined);
+        this._resourcesFutureFailed = false;
       }
+      this._isLoading = true;
+      this._loaderCompleteFuture = new Future();
+      this._loaderCompleteFuture.promise.catch(() => undefined);
+      this._activeLoadController = new AbortController();
+      for (const resource of this._completedResources) {
+        if (resource.isLoaded()) {
+          this._completedResources.delete(resource);
+        }
+      }
+      this._numLoaded = this._resources.filter((resource) => resource.isLoaded() || this._completedResources.has(resource)).length;
     }
+    this._loadWaiters++;
+    let released = false;
+    const release = () => {
+      if (released) {
+        return;
+      }
+      released = true;
+      signal?.removeEventListener('abort', release);
+      this._loadWaiters--;
+      if (this._loadWaiters === 0 && this._isLoading && !this._loaderCompleteFuture.isCompleted) {
+        this._activeLoadController?.abort();
+      }
+    };
+    signal?.addEventListener('abort', release, { once: true });
+    const result = withAbort(this._loaderCompleteFuture.promise, signal).finally(release);
+    if (startsLoad) {
+      this._activeLoadTask = this._runLoad(this._activeLoadController!.signal).then(
+        () => undefined,
+        () => undefined
+      );
+    }
+    return result;
+  }
 
-    this._resourcesLoadedFuture.resolve();
-    this.canvas.flagDirty();
-    // Unlock browser AudioContext in after user gesture
-    // See: https://github.com/excaliburjs/Excalibur/issues/262
-    // See: https://github.com/excaliburjs/Excalibur/issues/1031
-    await this.onUserAction();
-    this.events.emit('useraction');
-    await WebAudio.unlock();
+  private async _runLoad(activeSignal: AbortSignal): Promise<void> {
+    let resourcesFinished = false;
+    try {
+      await withAbort(Promise.resolve(this.onBeforeLoad(activeSignal)), activeSignal);
+      throwIfAborted(activeSignal);
+      this.events.emit('beforeload');
+      this.canvas.flagDirty();
 
-    await this.onAfterLoad();
-    this.events.emit('afterload');
-    this._isLoading = false;
-    this._loaded = true;
-    this._loaderCompleteFuture.resolve(this._resources);
-    return (this.data = this._resources);
+      await withAbort(
+        Promise.all(
+          this._resources
+            .filter((resource) => !resource.isLoaded() && !this._completedResources.has(resource))
+            .map(async (resource) => {
+              throwIfAborted(activeSignal);
+              this.events.emit('loadresourcestart', resource);
+              try {
+                throwIfAborted(activeSignal);
+                await resource.load(activeSignal);
+                if (!resource.isLoaded()) {
+                  this._completedResources.add(resource);
+                }
+                throwIfAborted(activeSignal);
+                this._numLoaded++;
+              } finally {
+                this.canvas.flagDirty();
+                this.events.emit('loadresourceend', resource);
+              }
+            })
+        ),
+        activeSignal
+      );
+      throwIfAborted(activeSignal);
+      resourcesFinished = true;
+
+      // Wire all sound to the engine
+      for (const resource of this._resources) {
+        if (resource instanceof Sound) {
+          resource.wireEngine(this.engine);
+        }
+      }
+
+      this._resourcesLoadedFuture.resolve();
+      this.canvas.flagDirty();
+      // Unlock browser AudioContext in after user gesture
+      // See: https://github.com/excaliburjs/Excalibur/issues/262
+      // See: https://github.com/excaliburjs/Excalibur/issues/1031
+      await withAbort(Promise.resolve(this.onUserAction(activeSignal)), activeSignal);
+      throwIfAborted(activeSignal);
+      this.events.emit('useraction');
+      await withAbort(WebAudio.unlock(), activeSignal);
+      throwIfAborted(activeSignal);
+
+      await withAbort(Promise.resolve(this.onAfterLoad(activeSignal)), activeSignal);
+      throwIfAborted(activeSignal);
+      this.events.emit('afterload');
+      throwIfAborted(activeSignal);
+      this._loaded = true;
+      this._completedResources.clear();
+      this._loaderCompleteFuture.resolve(this._resources);
+      this.data = this._resources;
+    } catch (error) {
+      const rejection = error instanceof Error ? error : new Error(String(error));
+      this._loaded = false;
+      this._numLoaded = this._resources.filter((resource) => resource.isLoaded() || this._completedResources.has(resource)).length;
+      if (!resourcesFinished) {
+        this._resourcesLoadedFuture.reject(rejection);
+        this._resourcesFutureFailed = true;
+      }
+      this._loaderCompleteFuture.reject(rejection);
+    } finally {
+      this._isLoading = false;
+      this._activeLoadController = undefined;
+      this._activeLoadTask = undefined;
+    }
   }
 
   public emit<TEventName extends EventKey<LoaderEvents>>(eventName: TEventName, event: LoaderEvents[TEventName]): void;

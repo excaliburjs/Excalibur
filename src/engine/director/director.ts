@@ -8,6 +8,7 @@ import { Loader } from './loader';
 import { Logger } from '../util/log';
 import { ActivateEvent, DeactivateEvent } from '../events';
 import { EventEmitter } from '../event-emitter';
+import { throwIfAborted, withAbort } from '../resources/abort';
 
 export interface DirectorNavigationEvent {
   sourceName: string;
@@ -89,6 +90,8 @@ export interface GoToOptions<TActivationData = any> {
    * Optionally supply a different loader for the destination scene, this will override any previously defined loader
    */
   loader?: DefaultLoader;
+  /** Cancel loading the destination without leaving the current scene. */
+  signal?: AbortSignal;
 }
 
 /**
@@ -143,6 +146,7 @@ export class Director<TKnownScenes extends string = any> {
    * Used to keep track of scenes that have already been loaded so we don't load multiple times
    */
   private _loadedScenes = new Set<Scene>();
+  private _preloadedScenes = new Set<Scene>();
 
   private _isTransitioning = false;
 
@@ -393,6 +397,10 @@ export class Director<TKnownScenes extends string = any> {
               throw new Error(`Cannot remove a currently active scene: ${key}`);
             }
 
+            const instance = this._sceneToInstance.get(key);
+            if (instance) {
+              this._preloadedScenes.delete(instance);
+            }
             this._sceneToInstance.delete(key);
             this._sceneToTransition.delete(key);
             this._sceneToLoader.delete(key);
@@ -407,6 +415,10 @@ export class Director<TKnownScenes extends string = any> {
       }
 
       // remove scene
+      const instance = this._sceneToInstance.get(nameOrScene);
+      if (instance) {
+        this._preloadedScenes.delete(instance);
+      }
       this._sceneToInstance.delete(nameOrScene);
       this._sceneToTransition.delete(nameOrScene);
       this._sceneToLoader.delete(nameOrScene);
@@ -420,6 +432,7 @@ export class Director<TKnownScenes extends string = any> {
    * @param options
    */
   async goToScene(destinationScene: TKnownScenes | string, options?: GoToOptions) {
+    throwIfAborted(options?.signal);
     const maybeDest = this.getSceneInstance(destinationScene);
     if (!maybeDest) {
       this._logger.warn(`Scene ${destinationScene} does not exist! Check the name, are you sure you added it?`);
@@ -441,54 +454,45 @@ export class Director<TKnownScenes extends string = any> {
       ...options
     };
 
-    const { sourceOut, destinationIn, sceneActivationData } = options;
+    const { sourceOut, destinationIn, sceneActivationData, signal } = options;
 
     const outTransition = sourceOut ?? this._getOutTransition(this.currentSceneName);
     const inTransition = destinationIn ?? this._getInTransition(destinationScene);
 
     const hideLoader = outTransition?.hideLoader || inTransition?.hideLoader;
-    if (hideLoader) {
-      // Start hidden loader early and take advantage of the transition
-      // Don't await and block on a hidden loader
+    const earlyLoad = hideLoader ? this.maybeLoadScene(destinationScene, true, signal) : undefined;
+    // The transition may still be playing when an early load rejects.
+    void earlyLoad?.catch(() => undefined);
+    try {
+      this._emitEvent('navigationstart', sourceScene, destinationScene);
 
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.maybeLoadScene(destinationScene, hideLoader);
+      if (outTransition) {
+        await this.playTransition(outTransition, sourceSceneInstance);
+      }
+
+      throwIfAborted(signal);
+      await (earlyLoad ?? this.maybeLoadScene(destinationScene, false, signal));
+      throwIfAborted(signal);
+
+      if (inTransition) {
+        await withAbort(inTransition.onPreviousSceneDeactivate(this.currentScene), signal);
+        throwIfAborted(signal);
+        inTransition._addToTargetScene(this._engine, maybeDest);
+      }
+
+      throwIfAborted(signal);
+      // Loading is complete. Finish the lifecycle transaction once deactivation starts.
+      await this.swapScene(destinationScene, sceneActivationData, signal);
+      this._emitEvent('navigation', sourceScene, destinationScene);
+
+      if (inTransition) {
+        await this.playTransition(inTransition, maybeDest);
+      }
+      this._emitEvent('navigationend', sourceScene, destinationScene);
+    } finally {
+      this._engine.input?.toggleEnabled(engineInputEnabled);
+      this._isTransitioning = false;
     }
-
-    this._emitEvent('navigationstart', sourceScene, destinationScene);
-
-    // Run the out transition on the current scene if present
-    if (outTransition) {
-      await this.playTransition(outTransition, sourceSceneInstance);
-    }
-
-    // Run the loader if present
-    await this.maybeLoadScene(destinationScene, hideLoader);
-
-    // Give incoming transition a chance to grab info from previous
-    if (inTransition) {
-      await inTransition.onPreviousSceneDeactivate(this.currentScene);
-    }
-
-    // Setup the in transition on the destination scene if present
-    // this is important to it can be initialized with the
-    if (inTransition) {
-      inTransition._addToTargetScene(this._engine, maybeDest);
-    }
-
-    // Swap to the new scene
-    // Runs scene lifecycle init and activate
-    await this.swapScene(destinationScene, sceneActivationData);
-    this._emitEvent('navigation', sourceScene, destinationScene);
-
-    // Run the in transition on the new scene if present
-    if (inTransition) {
-      await this.playTransition(inTransition, maybeDest);
-    }
-    this._emitEvent('navigationend', sourceScene, destinationScene);
-
-    this._engine.input?.toggleEnabled(engineInputEnabled);
-    this._isTransitioning = false;
   }
 
   /**
@@ -519,22 +523,33 @@ export class Director<TKnownScenes extends string = any> {
    * @param scene
    * @param hideLoader
    */
-  async maybeLoadScene(scene: string, hideLoader = false) {
+  async maybeLoadScene(scene: string, hideLoader = false, signal?: AbortSignal) {
+    throwIfAborted(signal);
     const loader = this._getLoader(scene) ?? new DefaultLoader();
     const sceneToLoad = this.getSceneDefinition(scene);
     const sceneToLoadInstance = this.getSceneInstance(scene);
     if (sceneToLoad && sceneToLoadInstance && !this._loadedScenes.has(sceneToLoadInstance)) {
-      sceneToLoadInstance.onPreLoad(loader);
-      sceneToLoadInstance.events.emit('preload', { loader });
-      if (hideLoader) {
-        // Don't await a hidden loader
-
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this._engine.load(loader, hideLoader);
-      } else {
-        await this._engine.load(loader);
+      // Keep onPreLoad resources available when a canceled load is retried.
+      this._sceneToLoader.set(scene, loader);
+      if (!this._preloadedScenes.has(sceneToLoadInstance)) {
+        sceneToLoadInstance.onPreLoad(loader);
+        sceneToLoadInstance.events.emit('preload', { loader });
+        this._preloadedScenes.add(sceneToLoadInstance);
       }
-      this._loadedScenes.add(sceneToLoadInstance);
+      const loading = this._engine.load(loader, hideLoader, signal);
+      if (hideLoader && !signal) {
+        // Preserve early entry for ordinary hidden loads without cancellation.
+        void loading.catch(() => this._loadedScenes.delete(sceneToLoadInstance));
+        this._loadedScenes.add(sceneToLoadInstance);
+      } else {
+        await loading;
+        throwIfAborted(signal);
+        this._loadedScenes.add(sceneToLoadInstance);
+      }
+    } else if (sceneToLoadInstance && signal && !loader.isLoaded()) {
+      // A hidden load may have started earlier but still be waiting on a hook.
+      await this._engine.load(loader, hideLoader, signal);
+      throwIfAborted(signal);
     }
   }
 
@@ -574,7 +589,7 @@ export class Director<TKnownScenes extends string = any> {
    * @param destinationScene
    * @param data
    */
-  async swapScene<TData = undefined>(destinationScene: string, data?: TData): Promise<void> {
+  async swapScene<TData = undefined>(destinationScene: string, data?: TData, signal?: AbortSignal): Promise<void> {
     const engine = this._engine;
     // if not yet initialized defer goToScene
     if (!this.isInitialized) {
@@ -588,6 +603,13 @@ export class Director<TKnownScenes extends string = any> {
       const previousScene = this.currentScene;
       const nextScene = maybeDest;
       let previousSceneData: any = undefined;
+      const destLoader = this._sceneToLoader.get(destinationScene);
+
+      if (signal) {
+        // Keep the current scene active while an earlier hidden preload finishes.
+        await withAbort(destLoader?.areResourcesLoaded() ?? Promise.resolve(), signal);
+        throwIfAborted(signal);
+      }
 
       this._logger.debug('Going to scene:', destinationScene);
       // only deactivate when initialized
@@ -599,8 +621,9 @@ export class Director<TKnownScenes extends string = any> {
       }
 
       // wait for the scene to be loaded if needed
-      const destLoader = this._sceneToLoader.get(destinationScene);
-      await destLoader?.areResourcesLoaded();
+      if (!signal) {
+        await destLoader?.areResourcesLoaded();
+      }
 
       // set current scene to new one
       this.currentScene = nextScene;

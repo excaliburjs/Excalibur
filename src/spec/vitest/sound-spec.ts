@@ -298,8 +298,13 @@ describe('Sound resource', () => {
   it('should return the current playback position of the audio track', async () => {
     sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
+    await ex.AudioContextFactory.create().resume();
+    const playbackStarted = new Promise<void>((resolve) => {
+      sut.once('playbackstart', () => resolve());
+    });
     sut.play();
-    await delay(1000);
+    await playbackStarted;
+    await delay(1100);
     // appveyor is a little fast for some reason
     expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(0.98);
   });

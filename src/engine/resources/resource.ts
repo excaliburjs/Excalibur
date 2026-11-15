@@ -1,6 +1,7 @@
 import type { Loadable } from '../interfaces/loadable';
 import { Logger } from '../util/log';
 import { EventEmitter } from '../event-emitter';
+import { abortError, SharedLoad } from './abort';
 
 export interface ResourceEvents {
   complete: any;
@@ -37,9 +38,11 @@ export class ResourceLoadingError extends Error {
  * For any type of remote resource it is recommended to use {@apilink Resource} for preloading.
  */
 export class Resource<T> implements Loadable<T> {
+  private _sharedLoad = new SharedLoad<T>();
   public data!: T;
   public logger: Logger = Logger.getInstance();
   public events = new EventEmitter();
+  private _loaded = false;
 
   /**
    * @param path          Path to the remote resource
@@ -57,7 +60,7 @@ export class Resource<T> implements Loadable<T> {
    * to be drawn.
    */
   public isLoaded(): boolean {
-    return !!this.data;
+    return this._loaded || !!this.data;
   }
 
   private _cacheBust(uri: string): string {
@@ -72,24 +75,57 @@ export class Resource<T> implements Loadable<T> {
   /**
    * Begin loading the resource and returns a promise to be resolved on completion
    */
-  public load(): Promise<T> {
+  public load(signal?: AbortSignal): Promise<T> {
+    if (!signal) {
+      return this._load();
+    }
+    return this._sharedLoad.load((activeSignal) => this._load(activeSignal), signal);
+  }
+
+  private _load(signal?: AbortSignal): Promise<T> {
     return new Promise((resolve, reject) => {
+      if (signal?.aborted) {
+        reject(abortError());
+        return;
+      }
       // Exit early if we already have data
-      if (this.data) {
+      if (this.isLoaded()) {
         this.logger.debug('Already have data for resource', this.path);
         this.events.emit('complete', this.data as any);
-        resolve(this.data);
+        if (signal?.aborted) {
+          reject(abortError());
+        } else {
+          resolve(this.data);
+        }
         return;
       }
 
       const request = new XMLHttpRequest();
+      let settled = false;
+      const finish = (error?: unknown, data?: T) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        signal?.removeEventListener('abort', onSignalAbort);
+        if (error) {
+          reject(error);
+        } else {
+          resolve(data as T);
+        }
+      };
+      const onSignalAbort = () => {
+        request.abort();
+        finish(abortError());
+      };
+      signal?.addEventListener('abort', onSignalAbort, { once: true });
       request.open('GET', this.bustCache ? this._cacheBust(this.path) : this.path, true);
       request.responseType = this.responseType;
       request.addEventListener('loadstart', (e) => this.events.emit('loadstart', e as any));
       request.addEventListener('progress', (e) => this.events.emit('progress', e as any));
       request.addEventListener('error', (e) => {
         this.events.emit('error', e as any);
-        reject(
+        finish(
           new ResourceLoadingError(
             this.path,
             `Failed to load resource at ${this.path}. This may be a network error, CORS issue, or the resource is unreachable.`
@@ -98,19 +134,24 @@ export class Resource<T> implements Loadable<T> {
       });
       request.addEventListener('abort', (e) => {
         this.events.emit('error', e as any);
-        reject(new ResourceLoadingError(this.path, `Request to load resource at ${this.path} was aborted.`));
+        finish(
+          signal?.aborted ? abortError() : new ResourceLoadingError(this.path, `Request to load resource at ${this.path} was aborted.`)
+        );
       });
       request.addEventListener('timeout', (e) => {
         this.events.emit('error', e as any);
-        reject(new ResourceLoadingError(this.path, `Request to load resource at ${this.path} timed out.`));
+        finish(new ResourceLoadingError(this.path, `Request to load resource at ${this.path} timed out.`));
       });
       request.addEventListener('load', (e) => this.events.emit('load', e as any));
       request.addEventListener('load', () => {
+        if (settled || signal?.aborted) {
+          return;
+        }
         // XHR on file:// success status is 0, such as with PhantomJS
         if (request.status !== 0 && request.status !== 200) {
           this.logger.error('Failed to load resource ', this.path, ' server responded with error code', request.status);
           this.events.emit('error', request.response);
-          reject(new Error(request.statusText));
+          finish(new Error(request.statusText));
           return;
         }
 
@@ -119,16 +160,25 @@ export class Resource<T> implements Loadable<T> {
 
 Check your server configuration, for example Vite serves static files from the /public folder`;
           this.events.emit('error', request.response);
-          reject(new Error(errorText));
+          finish(new Error(errorText));
           return;
         }
 
         this.data = request.response;
+        this._loaded = true;
+        finish(undefined, this.data);
         this.events.emit('complete', this.data as any);
         this.logger.debug('Completed loading resource', this.path);
-        resolve(this.data);
       });
-      request.send();
+      if (signal?.aborted) {
+        finish(abortError());
+      } else {
+        try {
+          request.send();
+        } catch (error) {
+          finish(error);
+        }
+      }
     });
   }
 }

@@ -8,6 +8,7 @@ import { Future } from '../util/future';
 import { TextureLoader } from '../graphics/context/texture-loader';
 import { ImageWrapping } from './wrapping';
 import type { GraphicOptions } from './graphic';
+import { SharedLoad, throwIfAborted, withAbort } from '../resources/abort';
 
 export interface ImageSourceOptions {
   filtering?: ImageFiltering;
@@ -28,6 +29,7 @@ export const ImageSourceAttributeConstants = {
 } as const;
 
 export class ImageSource implements Loadable<HTMLImageElement> {
+  private _sharedLoad = new SharedLoad<HTMLImageElement>();
   private _logger = Logger.getInstance();
   private _resource: Resource<Blob>;
   public filtering?: ImageFiltering;
@@ -237,17 +239,35 @@ export class ImageSource implements Loadable<HTMLImageElement> {
   /**
    * Begins loading the image and returns a promise that resolves when the image is loaded
    */
-  async load(): Promise<HTMLImageElement> {
+  load(signal?: AbortSignal): Promise<HTMLImageElement> {
+    if (!signal) {
+      return this._load();
+    }
+    return this._sharedLoad.load((activeSignal) => this._load(activeSignal), signal);
+  }
+
+  private async _load(signal?: AbortSignal): Promise<HTMLImageElement> {
+    throwIfAborted(signal);
     if (this.isLoaded()) {
       return this.data;
     }
     let objectUrl: string | null = null;
+    let image: HTMLImageElement | undefined;
     let contentType = 'unknown content';
+    const onAbort = () => {
+      if (image) {
+        image.onload = null;
+        image.onerror = null;
+        image.removeAttribute('src');
+      }
+    };
+    signal?.addEventListener('abort', onAbort, { once: true });
     try {
       // Load base64 or blob if needed
       let url: string;
       if (!this.path.includes('data:image/')) {
-        const blob = await this._resource.load();
+        const blob = await this._resource.load(signal);
+        throwIfAborted(signal);
         contentType = `${blob.type || 'unknown type'}, ${blob.size} bytes`;
         url = objectUrl = URL.createObjectURL(blob);
       } else {
@@ -256,7 +276,7 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       }
 
       // Decode the image
-      const image = new Image();
+      image = new Image();
       // Use Image.onload over Image.decode()
       // https://bugs.chromium.org/p/chromium/issues/detail?id=1055828#c7
       // Otherwise chrome will throw still Image.decode() failures for large textures
@@ -266,22 +286,28 @@ export class ImageSource implements Loadable<HTMLImageElement> {
       image.src = url;
       image.setAttribute('data-original-src', this.path);
 
-      await loadedFuture.promise;
+      await withAbort(loadedFuture.promise, signal);
+      throwIfAborted(signal);
 
       this.data = image;
 
       // emit warning if potentially too big
       TextureLoader.checkImageSizeSupportedAndLog(this.data);
     } catch (error: any) {
+      if (error?.name === 'AbortError') {
+        throw error;
+      }
       const message = `Error loading ImageSource from path '${this.path}' with error [${
         error instanceof Error ? error.message : String(error)
       }]`;
       this._logger.error(message);
       this._readyFuture.reject(new Error(message));
+      throw new Error(message);
+    } finally {
+      signal?.removeEventListener('abort', onAbort);
       if (objectUrl) {
         URL.revokeObjectURL(objectUrl);
       }
-      throw new Error(message);
     }
     // Do a bad thing to pass the filtering as an attribute
     this.data.setAttribute(ImageSourceAttributeConstants.Filtering, this.filtering as any); // TODO fix type

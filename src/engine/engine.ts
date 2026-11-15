@@ -60,6 +60,7 @@ import type { InputMapper } from './input/input-mapper';
 import type { GoToOptions, SceneMap, StartOptions, SceneWithOptions, WithRoot } from './director/director';
 import { Director, DirectorEvents } from './director/director';
 import { InputHost } from './input/input-host';
+import { throwIfAborted } from './resources/abort';
 import type { PhysicsConfig } from './collision/physics-config';
 import { getDefaultPhysicsConfig } from './collision/physics-config';
 import type { LightingConfig } from './lighting/lighting-config';
@@ -838,6 +839,7 @@ export class Engine<TKnownScenes extends string = any> implements CanInitialize,
 
   // loading
   private _loader!: DefaultLoader;
+  private _activeLoaderCalls: { loader: DefaultLoader; hideLoader: boolean }[] = [];
 
   private _isInitialized: boolean = false;
 
@@ -2096,13 +2098,17 @@ O|===|* >________________>\n\
    * will appear.
    * @param loader  Some {@apilink Loadable} such as a {@apilink Loader} collection, {@apilink Sound}, or {@apilink Texture}.
    */
-  public async load(loader: DefaultLoader, hideLoader = false): Promise<void> {
+  public async load(loader: DefaultLoader, hideLoader = false, signal?: AbortSignal): Promise<void> {
     await this.scope(async () => {
+      throwIfAborted(signal);
+      let activeCall: { loader: DefaultLoader; hideLoader: boolean } | undefined;
       try {
         // early exit if loaded
         if (loader.isLoaded()) {
           return;
         }
+        activeCall = { loader, hideLoader };
+        this._activeLoaderCalls.push(activeCall);
         this._loader = loader;
         this._isLoading = true;
         this._hideLoader = hideLoader;
@@ -2112,14 +2118,21 @@ O|===|* >________________>\n\
         }
         this._loader.onInitialize(this);
 
-        await loader.load();
+        await loader.load(signal);
       } catch (e) {
+        if ((e as Error)?.name === 'AbortError') {
+          throw e;
+        }
         this._logger.error('Error loading resources, things may not behave properly', e);
         await Promise.resolve();
       } finally {
-        this._isLoading = false;
-        this._hideLoader = false;
-        this._loader = null as any;
+        if (activeCall) {
+          this._activeLoaderCalls.splice(this._activeLoaderCalls.indexOf(activeCall), 1);
+        }
+        const current = this._activeLoaderCalls[this._activeLoaderCalls.length - 1];
+        this._isLoading = !!current;
+        this._hideLoader = current?.hideLoader ?? false;
+        this._loader = current?.loader ?? (null as any);
       }
     });
   }

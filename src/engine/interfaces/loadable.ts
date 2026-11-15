@@ -11,7 +11,7 @@ export interface Loadable<T> {
   /**
    * Begins loading the resource and returns a promise to be resolved on completion
    */
-  load(): Promise<T>;
+  load(signal?: AbortSignal): Promise<T>;
 
   /**
    * Returns true if the loadable is loaded

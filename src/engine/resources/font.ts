@@ -3,6 +3,7 @@ import type { FontOptions } from '../graphics/font-common';
 import type { GraphicOptions, RasterOptions } from '../graphics';
 import type { Loadable } from '../interfaces/loadable';
 import { Resource } from './resource';
+import { SharedLoad, throwIfAborted, withAbort } from './abort';
 
 export interface FontSourceOptions extends Omit<FontOptions, 'family'>, GraphicOptions, RasterOptions {
   /**
@@ -12,6 +13,7 @@ export interface FontSourceOptions extends Omit<FontOptions, 'family'>, GraphicO
 }
 
 export class FontSource implements Loadable<FontFace> {
+  private _sharedLoad = new SharedLoad<FontFace>();
   private _resource: Resource<Blob>;
   private _isLoaded = false;
   private _options: FontSourceOptions;
@@ -33,24 +35,46 @@ export class FontSource implements Loadable<FontFace> {
     this._options = options;
   }
 
-  async load(): Promise<FontFace> {
+  load(signal?: AbortSignal): Promise<FontFace> {
+    if (!signal) {
+      return this._load();
+    }
+    return this._sharedLoad.load((activeSignal) => this._load(activeSignal), signal);
+  }
+
+  private async _load(signal?: AbortSignal): Promise<FontFace> {
+    throwIfAborted(signal);
     if (this.isLoaded()) {
       return this.data;
     }
 
+    let url: string | undefined;
     try {
-      const blob = await this._resource.load();
-      const url = URL.createObjectURL(blob);
-
-      if (!this.data) {
-        this.data = new FontFace(this.family, `url(${url})`);
-        document.fonts.add(this.data);
+      const blob = await this._resource.load(signal);
+      throwIfAborted(signal);
+      url = URL.createObjectURL(blob);
+      const fontFace = !signal && this.data ? this.data : new FontFace(this.family, `url(${url})`);
+      if (!signal && !this.data) {
+        this.data = fontFace;
+        document.fonts.add(fontFace);
       }
-
-      await this.data.load();
+      await withAbort(fontFace.load(), signal);
+      throwIfAborted(signal);
+      if (signal) {
+        document.fonts.add(fontFace);
+        this.data = fontFace;
+      }
       this._isLoaded = true;
     } catch (error) {
+      if ((error as Error)?.name === 'AbortError') {
+        throw error;
+      }
       throw `Error loading FontSource from path '${this.path}' with error [${(error as Error).message}]`;
+    } finally {
+      // An unsignaled failed load retains its FontFace for a later retry.
+      if (url && (signal || this._isLoaded)) {
+        URL.revokeObjectURL(url);
+      }
     }
     return this.data;
   }

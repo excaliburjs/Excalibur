@@ -13,6 +13,8 @@ import type { Engine } from '../engine';
 import type { Screen } from '../screen';
 import { Logger } from '../util/log';
 import { Future } from '../util/future';
+import type { Subscription } from '../event-emitter';
+import { throwIfAborted, withAbort } from '../resources/abort';
 
 export interface LoaderOptions extends DefaultLoaderOptions {
   /**
@@ -101,6 +103,8 @@ export class Loader extends DefaultLoader {
   public override events = new EventEmitter();
   public screen!: Screen;
   private _playButtonShown: boolean = false;
+  private _hasLoaderViewport = false;
+  private _resizeSubscription?: Subscription;
 
   // logo drawing stuff
 
@@ -236,11 +240,12 @@ export class Loader extends DefaultLoader {
   }
 
   public override onInitialize(engine: Engine): void {
+    this._resizeSubscription?.close();
     this.engine = engine;
     this.screen = engine.screen;
     this.canvas.width = this.engine.canvas.width;
     this.canvas.height = this.engine.canvas.height;
-    this.screen.events.on('resize', () => {
+    this._resizeSubscription = this.screen.events.on('resize', () => {
       this.canvas.width = this.engine.canvas.width;
       this.canvas.height = this.engine.canvas.height;
     });
@@ -249,11 +254,12 @@ export class Loader extends DefaultLoader {
   /**
    * Shows the play button and returns a promise that resolves when clicked
    */
-  public async showPlayButton(): Promise<void> {
+  public async showPlayButton(signal?: AbortSignal): Promise<void> {
+    throwIfAborted(signal);
     if (this.suppressPlayButton) {
       this.hidePlayButton();
       // Delay is to give the logo a chance to show, otherwise don't delay
-      await delay(500, this.engine?.clock);
+      await withAbort(delay(500, this.engine?.clock), signal);
     } else {
       const resizeHandler = () => {
         try {
@@ -266,15 +272,19 @@ export class Loader extends DefaultLoader {
         this.engine.browser.window.on('resize', resizeHandler);
       }
       this._playButtonShown = true;
-      this._playButton.style.display = 'flex';
-      document.body.addEventListener('keyup', (evt: KeyboardEvent) => {
+      const button = this._playButton;
+      button.style.display = 'flex';
+      const onKeyUp = (evt: KeyboardEvent) => {
         if (evt.key === 'Enter') {
-          this._playButton.click();
+          button.click();
         }
-      });
+      };
+      document.body.addEventListener('keyup', onKeyUp);
       this._positionPlayButton();
+      let gamepadButton: Subscription | undefined;
+      let startButtonHandler: ((event: Event) => void) | undefined;
       const playButtonClicked = new Promise<void>((resolve) => {
-        const startButtonHandler = (e: Event) => {
+        startButtonHandler = (e: Event) => {
           // We want to stop propagation to keep bubbling to the engine pointer handlers
           e.stopPropagation();
           // Hide Button after click
@@ -300,15 +310,25 @@ export class Loader extends DefaultLoader {
 
           resolve();
         };
-        this._playButton.addEventListener('click', startButtonHandler);
-        this._playButton.addEventListener('touchend', startButtonHandler);
-        this._playButton.addEventListener('pointerup', startButtonHandler);
+        button.addEventListener('click', startButtonHandler);
+        button.addEventListener('touchend', startButtonHandler);
+        button.addEventListener('pointerup', startButtonHandler);
         if (this.engine) {
-          this.engine.input.gamepads.once('button', () => startButtonHandler(new Event('button')));
+          gamepadButton = this.engine.input.gamepads.once('button', () => startButtonHandler!(new Event('button')));
         }
       });
-
-      return await playButtonClicked;
+      try {
+        await withAbort(playButtonClicked, signal);
+      } finally {
+        button.removeEventListener('click', startButtonHandler!);
+        button.removeEventListener('touchend', startButtonHandler!);
+        button.removeEventListener('pointerup', startButtonHandler!);
+        document.body.removeEventListener('keyup', onKeyUp);
+        this.engine?.browser?.window.off('resize', resizeHandler);
+        gamepadButton?.close();
+        button.style.display = 'none';
+        this._playButtonShown = false;
+      }
     }
   }
 
@@ -321,28 +341,30 @@ export class Loader extends DefaultLoader {
    * Clean up generated elements for the loader
    */
   public dispose() {
-    if (this._playButtonRootElement.parentElement) {
-      this._playButtonRootElement.removeChild(this._playButtonElement);
-      document.body.removeChild(this._playButtonRootElement);
-      document.head.removeChild(this._styleBlock);
-      this._playButtonRootElement = null as any;
-      this._playButtonElement = null as any;
-      this._styleBlock = null as any;
-    }
+    this._resizeSubscription?.close();
+    this._resizeSubscription = undefined;
+    this._playButtonElement?.remove();
+    this._playButtonRootElement?.remove();
+    this._styleBlock?.remove();
+    this._playButtonRootElement = null as any;
+    this._playButtonElement = null as any;
+    this._styleBlock = null as any;
   }
 
   override data!: Loadable<any>[];
 
-  public override async onUserAction(): Promise<void> {
+  public override async onUserAction(signal?: AbortSignal): Promise<void> {
     // short delay in showing the button for aesthetics
-    await delay(200, this.engine?.clock);
+    await withAbort(delay(200, this.engine?.clock), signal);
+    throwIfAborted(signal);
     this.canvas.flagDirty();
     // show play button
-    await this.showPlayButton();
+    await this.showPlayButton(signal);
   }
 
   public override async onBeforeLoad(): Promise<void> {
     this.screen.pushResolutionAndViewport();
+    this._hasLoaderViewport = true;
     this.screen.resolution = { width: this.screen.resolution.width, height: this.screen.resolution.height };
     this.screen.applyResolutionAndViewport();
     const image = this._image;
@@ -353,8 +375,28 @@ export class Loader extends DefaultLoader {
   // eslint-disable-next-line require-await
   public override async onAfterLoad(): Promise<void> {
     this.screen.popResolutionAndViewport();
+    this._hasLoaderViewport = false;
     this.screen.applyResolutionAndViewport();
     this.dispose();
+  }
+
+  public override async load(signal?: AbortSignal): Promise<Loadable<any>[]> {
+    try {
+      return await super.load(signal);
+    } catch (error) {
+      if (this._loadWaiters === 0 && (error as Error)?.name === 'AbortError') {
+        if (this._hasLoaderViewport) {
+          this.screen.popResolutionAndViewport();
+          this._hasLoaderViewport = false;
+          this.screen.applyResolutionAndViewport();
+        }
+        if (this._playButtonRootElement) {
+          this.hidePlayButton();
+        }
+        this.dispose();
+      }
+      throw error;
+    }
   }
 
   private _positionPlayButton() {

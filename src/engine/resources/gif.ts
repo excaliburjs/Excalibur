@@ -4,12 +4,14 @@ import { SpriteSheet } from '../graphics/sprite-sheet';
 import { Animation } from '../graphics/animation';
 import type { Loadable } from '../interfaces/index';
 import { ImageSource } from '../graphics/image-source';
+import { SharedLoad, throwIfAborted } from './abort';
 /**
  * The {@apilink Texture} object allows games built in Excalibur to load image resources.
  * {@apilink Texture} is an {@apilink Loadable} which means it can be passed to a {@apilink Loader}
  * to pre-load before starting a level or game.
  */
 export class Gif implements Loadable<ImageSource[]> {
+  private _sharedLoad = new SharedLoad<ImageSource[]>();
   private _resource: Resource<ArrayBuffer>;
 
   /**
@@ -22,7 +24,6 @@ export class Gif implements Loadable<ImageSource[]> {
    */
   public height: number = 0;
 
-  private _stream?: Stream;
   private _gif?: GifParser;
   private _images: ImageSource[] = [];
   private _animation?: Animation;
@@ -56,13 +57,27 @@ export class Gif implements Loadable<ImageSource[]> {
   /**
    * Begins loading the texture and returns a promise to be resolved on completion
    */
-  public async load(): Promise<ImageSource[]> {
-    const arraybuffer = await this._resource.load();
-    this._stream = new Stream(arraybuffer);
-    this._gif = new GifParser(this._stream);
-    const images = this._gif.images.map((i) => new ImageSource(i.src, false));
+  public load(signal?: AbortSignal): Promise<ImageSource[]> {
+    if (!signal) {
+      return this._load();
+    }
+    return this._sharedLoad.load((activeSignal) => this._load(activeSignal), signal);
+  }
+
+  private async _load(signal?: AbortSignal): Promise<ImageSource[]> {
+    throwIfAborted(signal);
+    const arraybuffer = await this._resource.load(signal);
+    throwIfAborted(signal);
+    const stream = new Stream(arraybuffer);
+    const gif = new GifParser(stream);
+    if (!signal) {
+      this._gif = gif;
+    }
+    const images = gif.images.map((i) => new ImageSource(i.src, false));
     // Load all textures
-    await Promise.all(images.map((t) => t.load()));
+    await Promise.all(images.map((t) => t.load(signal)));
+    throwIfAborted(signal);
+    this._gif = gif;
     this.data = this._images = images;
     this._sprites = this._images.map((image) => {
       return image.toSprite();

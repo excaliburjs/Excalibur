@@ -10,6 +10,7 @@ import type { Loadable } from '../../interfaces/index';
 import { Logger } from '../../util/log';
 import type { EventKey, Handler, Subscription } from '../../event-emitter';
 import { EventEmitter } from '../../event-emitter';
+import { SharedLoad, throwIfAborted, withAbort } from '../abort';
 
 export interface SoundEvents {
   volumechange: NativeSoundEvent;
@@ -103,6 +104,7 @@ function isSoundOptions(x: any): x is SoundOptions[] {
  * which means it can be passed to a {@apilink Loader} to pre-load before a game or level.
  */
 export class Sound implements Audio, Loadable<AudioBuffer> {
+  private _sharedLoad = new SharedLoad<AudioBuffer>();
   public events = new EventEmitter<SoundEvents>();
   public logger: Logger = Logger.getInstance();
   public data!: AudioBuffer;
@@ -207,6 +209,7 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   // private _isPaused = false;
   private _tracks: WebAudioInstance[] = [];
   private _engine?: Engine;
+  private _wiredEngines = new WeakSet<Engine>();
   private _wasPlayingOnHidden: boolean = false;
   private _playbackRate = 1.0;
   private _audioContext = AudioContextFactory.create();
@@ -263,14 +266,31 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
     return !!this.data;
   }
 
-  public async load(): Promise<AudioBuffer> {
+  public load(signal?: AbortSignal): Promise<AudioBuffer> {
+    if (!signal) {
+      return this._load();
+    }
+    return this._sharedLoad.load((activeSignal) => this._load(activeSignal), signal);
+  }
+
+  private async _load(signal?: AbortSignal): Promise<AudioBuffer> {
+    throwIfAborted(signal);
     if (this.data) {
       return this.data;
     }
-    const arraybuffer = await this._resource.load();
-    const audiobuffer = await this.decodeAudio(arraybuffer.slice(0));
-    this._duration = this._duration ?? audiobuffer?.duration ?? undefined;
+    const arraybuffer = await this._resource.load(signal);
+    throwIfAborted(signal);
+    const audiobuffer = await withAbort(this.decodeAudio(arraybuffer.slice(0)), signal);
+    throwIfAborted(signal);
+    const decodedDuration = this._duration ?? audiobuffer?.duration ?? undefined;
+    if (!signal) {
+      this._duration = decodedDuration;
+    }
     this.events.emit('processed', new NativeSoundProcessedEvent(this, audiobuffer));
+    throwIfAborted(signal);
+    if (signal) {
+      this._duration = this._duration ?? decodedDuration;
+    }
     return (this.data = audiobuffer);
   }
 
@@ -290,6 +310,10 @@ export class Sound implements Audio, Loadable<AudioBuffer> {
   public wireEngine(engine: Engine) {
     if (engine) {
       this._engine = engine;
+      if (this._wiredEngines.has(engine)) {
+        return;
+      }
+      this._wiredEngines.add(engine);
 
       this._engine.on('hidden', () => {
         if (engine.pauseAudioWhenHidden && this.isPlaying()) {
