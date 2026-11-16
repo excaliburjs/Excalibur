@@ -666,14 +666,19 @@ class HSLColor {
   public static lerp(a: HSLColor, b: HSLColor, t: number): HSLColor {
     t = Math.max(0, Math.min(1, t));
 
-    let dh = b.h - a.h;
+    // White, black and grays have no hue (fromRGBA gives them 0, red). Take the other color's
+    // hue for them, so only saturation and lightness change instead of sweeping through red.
+    const aHue = a.s === 0 ? b.h : a.h;
+    const bHue = b.s === 0 ? a.h : b.h;
+
+    let dh = bHue - aHue;
     if (dh > 0.5) {
       dh -= 1;
     } else if (dh < -0.5) {
       dh += 1;
     }
 
-    const h = (a.h + dh * t + 1) % 1;
+    const h = (aHue + dh * t + 1) % 1;
     const s = a.s + (b.s - a.s) * t;
     const l = a.l + (b.l - a.l) * t;
     const alpha = a.a + (b.a - a.a) * t;
