@@ -197,6 +197,13 @@ describe('A color', () => {
     expect(color.b, 'b').toBe(186.08371347438444);
   });
 
+  it('does not tint when lerping to or from achromatic colors in hsl mode', () => {
+    expect(ex.Color.lerp(ex.Color.White, ex.Color.Blue, 0.5).toHex()).toBe('#9f9fdf');
+    expect(ex.Color.lerp(ex.Color.Black, ex.Color.Blue, 0.5).toHex()).toBe('#202060');
+    expect(ex.Color.lerp(ex.Color.Cyan, ex.Color.Black, 0.5).toHex()).toBe('#206060');
+    expect(ex.Color.lerp(ex.Color.Gray, ex.Color.Green, 0.5).toHex()).toBe('#40bf40');
+  });
+
   it('can be randomly generated', () => {
     color = ex.Color.random();
     expect(color.r).toBeGreaterThanOrEqual(0);
