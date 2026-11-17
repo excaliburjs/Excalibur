@@ -96,6 +96,44 @@ describe('A Screen', () => {
     expect(sut.viewport.height).toBe(800);
   });
 
+  it('gives the page back the body styles a fit mode took, when it is disposed', () => {
+    document.body.style.margin = '7px';
+    document.body.style.overflow = 'auto';
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitScreen,
+      viewport: { width: 800, height: 600 }
+    });
+
+    expect(document.body.style.margin).toBe('0px');
+    expect(document.body.style.overflow).toBe('hidden');
+
+    sut.dispose();
+
+    expect(document.body.style.margin).toBe('7px');
+    expect(document.body.style.overflow).toBe('auto');
+  });
+
+  it('leaves the body alone in a container display mode', () => {
+    document.body.style.margin = '9px';
+    document.body.style.overflow = 'scroll';
+
+    const sut = new ex.Screen({
+      canvas,
+      context,
+      browser,
+      displayMode: ex.DisplayMode.FitContainer,
+      viewport: { width: 800, height: 600 }
+    });
+
+    expect(document.body.style.margin).toBe('9px');
+    expect(document.body.style.overflow).toBe('scroll');
+    sut.dispose();
+  });
+
   it('can use the FitScreenAndFill display mode, screen aspectRatio > window aspect ratio', () => {
     const sut = new ex.Screen({
       canvas,

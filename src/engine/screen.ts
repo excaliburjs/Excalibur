@@ -330,6 +330,8 @@ export class Screen {
   private _isDisposed = false;
   private _logger = Logger.getInstance();
   private _resizeObserver!: ResizeObserver;
+  /** What the page had in `body.style.margin`/`overflow` before a fit mode took them. */
+  private _savedBodyStyle: { margin: string; overflow: string } | null = null;
 
   constructor(options: ScreenOptions) {
     this.viewport = options.viewport;
@@ -386,6 +388,7 @@ export class Screen {
         this._mediaQueryList.removeListener(this._pixelRatioChangeHandler);
       }
       this._canvas.removeEventListener('fullscreenchange', this._fullscreenChangeHandler);
+      this._restoreBodyScroll();
       this._canvas = null as any;
     }
   }
@@ -1005,9 +1008,34 @@ export class Screen {
   private _unsafeArea: BoundingBox = new BoundingBox();
   private _contentAreaOffset: Vector = Vector.Zero;
 
+  /**
+   * Fitting the canvas to the window means the page must not scroll behind it, so the screen
+   * takes the body's margin and overflow. Remember what it replaced: `dispose()` puts it back,
+   * instead of leaving the host page unable to scroll for the rest of its life.
+   */
+  private _lockBodyScroll(): void {
+    if (this._savedBodyStyle) {
+      return;
+    }
+    const style = document.body.style;
+    this._savedBodyStyle = { margin: style.margin, overflow: style.overflow };
+    style.margin = '0px';
+    style.overflow = 'hidden';
+  }
+
+  /** Gives the body back the styles a fit mode took from it. */
+  private _restoreBodyScroll(): void {
+    if (!this._savedBodyStyle) {
+      return;
+    }
+    const style = document.body.style;
+    style.margin = this._savedBodyStyle.margin;
+    style.overflow = this._savedBodyStyle.overflow;
+    this._savedBodyStyle = null;
+  }
+
   private _computeFit() {
-    document.body.style.margin = '0px';
-    document.body.style.overflow = 'hidden';
+    this._lockBodyScroll();
     const aspect = this.aspectRatio;
     let adjustedWidth = 0;
     let adjustedHeight = 0;
@@ -1033,8 +1061,7 @@ export class Screen {
   }
 
   private _computeFitScreenAndFill() {
-    document.body.style.margin = '0px';
-    document.body.style.overflow = 'hidden';
+    this._lockBodyScroll();
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     this._computeFitAndFill(vw, vh);
@@ -1109,8 +1136,7 @@ export class Screen {
   }
 
   private _computeFitScreenAndZoom() {
-    document.body.style.margin = '0px';
-    document.body.style.overflow = 'hidden';
+    this._lockBodyScroll();
     this.canvas.style.position = 'absolute';
 
     const vw = window.innerWidth;
@@ -1277,8 +1303,7 @@ export class Screen {
     }
 
     if (this.displayMode === DisplayMode.FillScreen) {
-      document.body.style.margin = '0px';
-      document.body.style.overflow = 'hidden';
+      this._lockBodyScroll();
       this.resolution = {
         width: (<Window>parent).innerWidth,
         height: (<Window>parent).innerHeight
