@@ -1,3 +1,4 @@
+import type { DistanceJoint } from '../distance-joint';
 import { CollisionPostSolveEvent, CollisionPreSolveEvent, PostCollisionEvent, PreCollisionEvent } from '../../events';
 import { clamp } from '../../math/util';
 import { vec } from '../../math/vector';
@@ -44,7 +45,13 @@ export class RealisticSolver implements CollisionSolver {
    * @param substep index of the substep within the frame, collision events are emitted on the first and last substep only
    * @param substepCount total substeps in the frame
    */
-  public solve(contacts: CollisionContact[], _duration?: number, substep: number = 0, substepCount: number = 1): CollisionContact[] {
+  public solve(
+    contacts: CollisionContact[],
+    _duration?: number,
+    substep: number = 0,
+    substepCount: number = 1,
+    joints: readonly DistanceJoint[] = []
+  ): CollisionContact[] {
     // Events and init
     this.preSolve(contacts, substep);
 
@@ -78,10 +85,10 @@ export class RealisticSolver implements CollisionSolver {
     });
 
     // Solve velocity first
-    this.solveVelocity(contacts);
+    this.solveVelocity(contacts, joints);
 
     // Solve position last because non-overlap is the most important
-    this.solvePosition(contacts);
+    this.solvePosition(contacts, joints);
 
     // Events and any contact house-keeping the solver needs
     const emitEventsLastSubstep = substep === substepCount - 1;
@@ -347,7 +354,7 @@ export class RealisticSolver implements CollisionSolver {
    * Iteratively solve the position overlap constraint
    * @param contacts
    */
-  solvePosition(contacts: CollisionContact[]) {
+  solvePosition(contacts: CollisionContact[], joints: readonly DistanceJoint[] = []) {
     const steeringConstant = this.config!.steeringFactor; //0.2 pixels;
     const slop = this.config!.slop; //1 pixel;
     for (let i = 0; i < this.config!.positionIterations; i++) {
@@ -397,6 +404,9 @@ export class RealisticSolver implements CollisionSolver {
           }
         }
       }
+      for (const joint of joints) {
+        joint.solvePosition(this.config!);
+      }
     }
   }
 
@@ -439,7 +449,7 @@ export class RealisticSolver implements CollisionSolver {
     }
   }
 
-  solveVelocity(contacts: CollisionContact[]) {
+  solveVelocity(contacts: CollisionContact[], joints: readonly DistanceJoint[] = []) {
     // velocityIterations:
     for (let i = 0; i < this.config!.velocityIterations; i++) {
       for (let j = 0; j < contacts.length; j++) {
@@ -532,6 +542,9 @@ export class RealisticSolver implements CollisionSolver {
           bodyA.applyImpulseAtOffset(rA._x, rA._y, -impulseX, -impulseY);
           bodyB.applyImpulseAtOffset(rB._x, rB._y, impulseX, impulseY);
         }
+      }
+      for (const joint of joints) {
+        joint.solveVelocity();
       }
     }
   }
