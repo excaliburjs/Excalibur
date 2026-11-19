@@ -39,7 +39,7 @@ concurrency:
 
 env:
   # Pin the benchmark tool to a known commit. Update deliberately when the tool or its scenarios change, and re-run
-  # `npm run test:scripts` with a fresh results.json: the validator in post-benchmark-comment.js is coupled to the
+  # `npm run test:scripts` with a fresh results.json: the validator in post-benchmark-comment.cjs is coupled to the
   # results schema.
   BENCHMARK_REPO: excaliburjs/excalibur-benchmark
   BENCHMARK_REF: afdbdb0a478113165357b81cd486b5a2f1aafeae

@@ -8,6 +8,9 @@
  *
  * Executed by github-script@v7 in benchmark-comment.yml.
  *
+ * Deliberately CommonJS (hence .cjs): github-script hands the inline script a CommonJS require() that
+ * resolves './...' against the workspace, and the root package.json has "type": "module".
+ *
  * @param {Object} github - GitHub API client (octokit)
  * @param {Object} context - GitHub Actions context
  * @param {Object} core - GitHub Actions core helpers

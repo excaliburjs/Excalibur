@@ -4,6 +4,9 @@
  * Runs in benchmark-results.yml on `workflow_run` (a Benchmark run completed) or `workflow_dispatch` (a collaborator
  * re-posting a run by id). Keeps ONE sticky comment per PR, updated in place.
  *
+ * Deliberately CommonJS (hence .cjs): github-script hands the inline script a CommonJS require() that
+ * resolves './...' against the workspace, and the root package.json has "type": "module".
+ *
  * Trust model. The Benchmark run executed the PR's code with the PR's own copy of benchmark.yml, so everything about its
  * artifact (name, count, size, layout, bytes) is attacker controlled. This script is the only privileged consumer and:
  *   - takes the PR number, commit sha, branch and run url from the workflow_run payload / API only, never from the artifact
