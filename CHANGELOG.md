@@ -20,6 +20,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue with multiline text where lines were drawn too close to together if lineHeight wasn't explicitly set
 - Fixed issue with JSON parse round tripping through JSON when null/NaN/Infinite
 - Fixed issue with GraphicsComponent serialization not correctly restoring graphics
+- Fixed issue where `getClosestLineBetween()` (and `Actor.within()`) on edges and polygons could return a line that was not the closest when the closest point was a segment endpoint
 
 ### Updates
 
