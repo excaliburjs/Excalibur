@@ -6,7 +6,7 @@ name: Benchmark Results
 # This is the privileged half of the benchmark and it never checks out or runs PR code: it runs from the default branch
 # on `workflow_run`, with a token scoped to reading the run's artifact and writing PR comments. The Benchmark run
 # executed the PR's code with the PR's own copy of benchmark.yml, so its artifact is untrusted input in every respect
-# (name, size, bytes). post-benchmark-comment.js takes the PR, commit and run url from the event payload only, picks the
+# (name, size, bytes). post-benchmark-comment.cjs takes the PR, commit and run url from the event payload only, picks the
 # artifact by API metadata before downloading a byte, extracts only results.json under a size cap, and rebuilds the
 # table from an allowlist of numbers and strictly shaped identifiers. No string produced by the code under test is
 # ever echoed into the comment; charts and full error text stay in the run's job summary and artifact.
@@ -57,5 +57,5 @@ jobs:
           RESULTS_RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
         with:
           script: |
-            const script = require('./.github/scripts/post-benchmark-comment.js');
+            const script = require('./.github/scripts/post-benchmark-comment.cjs');
             await script({ github, context, core, exec });
