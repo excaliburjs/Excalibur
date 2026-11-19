@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `ArenaPool.getWith(...args)` to get a pooled object built with arguments, for example `enemies.getWith(EnemyType.Rocket)`. A new instance gets the arguments from the builder and a reused one from the recycler; the argument types come from the builder's parameters, which need defaults since `get()` still builds without arguments (issue #3547)
 
 ### Fixed
 
