@@ -260,7 +260,6 @@ export class CollisionSystem extends System {
     this._processor.debug(ex, 0);
   }
 
-
   private _isDormantContact(contact: CollisionContact): boolean {
     return Pair.isDormant(contact.bodyA, contact.bodyB) && !!contact.colliderA.owner?.isActive && !!contact.colliderB.owner?.isActive;
   }
