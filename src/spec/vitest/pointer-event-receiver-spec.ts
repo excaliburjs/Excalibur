@@ -237,6 +237,27 @@ describe('A PointerEventReceiver', () => {
       receiver.detach();
     });
 
+    it('maps back, forward, pen eraser and other native buttons to Unknown instead of throwing', () => {
+      const receiver = new ex.PointerEventReceiver(engine.canvas, engine);
+      receiver.init();
+
+      // 3 = back, 4 = forward, 5 = pen eraser, 42 = anything else
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 1, clientX: 10, clientY: 10, button: 3 }));
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 2, clientX: 10, clientY: 10, button: 4 }));
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 3, clientX: 10, clientY: 10, button: 5 }));
+      engine.canvas.dispatchEvent(new window.PointerEvent('pointerdown', { pointerId: 4, clientX: 10, clientY: 10, button: 42 }));
+
+      // A throwing handler never queues the event, so all four must arrive
+      expect(receiver.currentFrameDown.map((e) => e.button)).toEqual([
+        ex.PointerButton.Unknown,
+        ex.PointerButton.Unknown,
+        ex.PointerButton.Unknown,
+        ex.PointerButton.Unknown
+      ]);
+
+      receiver.detach();
+    });
+
     it('normalizes native pointerType values (mouse/touch/pen)', () => {
       const receiver = new ex.PointerEventReceiver(engine.canvas, engine);
       receiver.init();

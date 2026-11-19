@@ -11,7 +11,6 @@ import { WheelDeltaMode } from './wheel-delta-mode';
 import { PointerSystem } from './pointer-system';
 import { NativePointerButton } from './native-pointer-button';
 import { PointerButton } from './pointer-button';
-import { fail } from '../util/util';
 import { PointerType } from './pointer-type';
 import { isCrossOriginIframe, isIframe } from '../util/iframe';
 import type { EventKey, Handler, Subscription } from '../event-emitter';
@@ -616,10 +615,10 @@ export class PointerEventReceiver {
         return PointerButton.Middle;
       case NativePointerButton.Right:
         return PointerButton.Right;
-      case NativePointerButton.Unknown:
-        return PointerButton.Unknown;
       default:
-        return fail(s);
+        // Buttons 3 (back), 4 (forward), 5 (pen eraser) and any other
+        // value the browser reports map to Unknown instead of throwing
+        return PointerButton.Unknown;
     }
   }
 
