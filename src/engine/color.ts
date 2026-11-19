@@ -666,14 +666,23 @@ class HSLColor {
   public static lerp(a: HSLColor, b: HSLColor, t: number): HSLColor {
     t = Math.max(0, Math.min(1, t));
 
-    let dh = b.h - a.h;
+    let hA = a.h;
+    let hB = b.h;
+
+    if (a.s === 0 || a.l === 0 || a.l === 1) {
+      hA = hB;
+    } else if (b.s === 0 || b.l === 0 || b.l === 1) {
+      hB = hA;
+    }
+
+    let dh = hB - hA;
     if (dh > 0.5) {
       dh -= 1;
     } else if (dh < -0.5) {
       dh += 1;
     }
 
-    const h = (a.h + dh * t + 1) % 1;
+    const h = (hA + dh * t + 1) % 1;
     const s = a.s + (b.s - a.s) * t;
     const l = a.l + (b.l - a.l) * t;
     const alpha = a.a + (b.a - a.a) * t;
