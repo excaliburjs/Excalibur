@@ -20,18 +20,21 @@ import type { RayCastOptions } from './ray-cast-options';
 import { HashGridCell, HashGridProxy, SparseHashGrid } from './sparse-hash-grid';
 
 /**
- * Packs two collider ids into one number for pair de-duplication, supports ids up to 2^26
- */
-function calculateHash(idA: number, idB: number): number {
-  const PAIR_KEY_RANGE = 1 << 26;
-  return idA < idB ? idA * PAIR_KEY_RANGE + idB : idB * PAIR_KEY_RANGE + idA;
-}
-
-/**
  * Proxy type to stash collision info
  */
 export class HashColliderProxy extends HashGridProxy<Collider> {
   override id: number = -1;
+  /**
+   * Last broadphase pass in which this proxy last looked for its own pairs
+   * @internal
+   */
+  broadphaseSweep: number = -1;
+  /**
+   * The proxy sweep (one per proxy per broadphase pass) that last tested this proxy as a possible pair
+   * @internal
+   */
+  proxySweep: number = -1;
+
   owner: Entity;
   body?: BodyComponent;
   collisionType: CollisionType;
@@ -110,8 +113,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
   readonly gridSize: number;
   readonly hashGrid: SparseHashGrid<Collider, HashColliderProxy>;
 
-  private _pairs = new Set<number>();
-  private _nonPairs = new Set<number>();
+  private _broadphaseSweep: number = -1;
+  private _proxySweep: number = -1;
 
   public _pairPool = new ArenaPool<Pair>(
     () => new Pair({ id: createId('collider', 0) } as Collider, { id: createId('collider', 0) } as Collider),
@@ -352,8 +355,8 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
    */
   broadphase(targets: Collider[], elapsed: number): Pair[] {
     const pairs: Pair[] = [];
-    this._pairs.clear();
-    this._nonPairs.clear();
+
+    const broadphaseSweep = ++this._broadphaseSweep;
 
     let proxyId = 0;
     for (const proxy of this.hashGrid.objectToProxy.values()) {
@@ -361,37 +364,40 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
       if (!proxy.owner.isActive || proxy.collisionType === CollisionType.PreventCollision) {
         continue;
       }
+
       // a sleeping body's pairs are either dormant (carried over) or found from its awake neighbour's side
       if (proxy.body?.isSleeping) {
         continue;
       }
+
+      proxy.broadphaseSweep = broadphaseSweep;
+      const proxySweep = ++this._proxySweep;
+
       // for every cell proxy collider is member of
       for (let cellIndex = 0; cellIndex < proxy.cells.length; cellIndex++) {
         const cell = proxy.cells[cellIndex];
-        // TODO Can we skip any cells or make this iteration faster?
-        // maybe a linked list here
+
         for (let otherIndex = 0; otherIndex < cell.proxies.length; otherIndex++) {
           const other = cell.proxies[otherIndex];
+
           if (other.id === proxy.id) {
-            // skip duplicates
+            // skip self pairs
             continue;
           }
-          const idA = proxy.collider.id.value;
-          const idB = other.collider.id.value;
-          const key = calculateHash(idA, idB);
-          if (this._nonPairs.has(key)) {
-            continue; // Is there a way we can re-use the non-pair cache
+
+          if (other.broadphaseSweep === broadphaseSweep || other.proxySweep === proxySweep) {
+            // skip already scanned proxy pairs in this broadphase
+            continue;
           }
+          other.proxySweep = proxySweep;
+
           // proxy bounds were refreshed by update() this frame, no need to recompute collider bounds
-          if (!this._pairs.has(key) && this._canCollide(proxy, other) && proxy.bounds.overlaps(other.bounds)) {
+          if (this._canCollide(proxy, other) && proxy.bounds.overlaps(other.bounds)) {
             const pair = this._pairPool.get();
             pair.colliderA = proxy.collider;
             pair.colliderB = other.collider;
             pair.id = Pair.calculatePairHash(proxy.collider.id, other.collider.id);
-            this._pairs.add(key);
             pairs.push(pair);
-          } else {
-            this._nonPairs.add(key);
           }
         }
       }
