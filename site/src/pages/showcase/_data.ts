@@ -17,8 +17,17 @@ import badRefImage from './images/bad-ref.png'
 import AxeNArrow from './images/AxeNArrow.png'
 import SpookyTruth from './images/SpookyTruth.png'
 import QuadRush from './images/QuadRush.png'
+import pixelFantasyWarImage from './images/pixel-fantasy-war.png'
 
 export default [
+  {
+    title: 'Pixel Fantasy War',
+    image: pixelFantasyWarImage,
+    description:
+      'A turn-based tactics game in the style of Fire Emblem and Final Fantasy Tactics. Build a 100-point army from 14 classes and battle on 12 maps against the AI, a friend on the same device, or online. Built with Excalibur, plugin-tiled and Lit.',
+    url: 'https://jeanomeg.github.io/pixelwar/',
+    source: 'https://github.com/JeanOmeg/pixelwar',
+  },
   {
     title: 'Axe n Arrow',
     image: AxeNArrow,
