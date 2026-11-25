@@ -96,6 +96,7 @@ export class HashColliderProxy extends HashGridProxy<Collider> {
    */
   override update(): void {
     super.update();
+    this.owner = this.collider.owner!;
     this.body = this.owner?.get(BodyComponent);
     this.collisionType = this.body?.collisionType ?? CollisionType.PreventCollision;
     this.hasZeroBounds = this.collider.localBounds.hasZeroDimensions;
@@ -338,7 +339,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     }
 
     // if either is dead short circuit
-    if (!colliderA.owner.isActive || !colliderB.owner.isActive) {
+    if (!colliderA.owner || !colliderB.owner || !colliderA.owner.isActive || !colliderB.owner.isActive) {
       return false;
     }
 
@@ -358,7 +359,7 @@ export class SparseHashGridCollisionProcessor implements CollisionProcessor {
     let proxyId = 0;
     for (const proxy of this.hashGrid.objectToProxy.values()) {
       proxy.id = proxyId++; // track proxies we've already processed
-      if (!proxy.owner.isActive || proxy.collisionType === CollisionType.PreventCollision) {
+      if (!proxy.owner || !proxy.owner.isActive || proxy.collisionType === CollisionType.PreventCollision) {
         continue;
       }
       // a sleeping body's pairs are either dormant (carried over) or found from its awake neighbour's side
