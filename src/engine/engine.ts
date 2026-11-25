@@ -1255,6 +1255,9 @@ O|===|* >________________>\n\
   }
 
   private _handleWebGLContextLost = (e: Event) => {
+    if (this._disposed) {
+      return;
+    }
     e.preventDefault();
     this.clock.stop();
     this._logger.fatalOnce('WebGL Graphics Lost', e);
@@ -1304,6 +1307,9 @@ O|===|* >________________>\n\
   };
 
   private _handleWebGLContextRestored = () => {
+    if (this._disposed) {
+      return;
+    }
     this._logger.debug('WebGL Graphics Context Restored');
 
     // Notify plugins that the graphics context was restored.

@@ -363,10 +363,12 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
     }
 
     if (handleContextLost) {
+      this._handleContextLost = handleContextLost;
       this.__gl.canvas.addEventListener('webglcontextlost', handleContextLost, false);
     }
 
     if (handleContextRestored) {
+      this._handleContextRestored = handleContextRestored;
       this.__gl.canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
     }
     if (onGraphicsPreInitialize) {
@@ -408,9 +410,19 @@ export class ExcaliburGraphicsContextWebGL implements ExcaliburGraphicsContext {
   }
 
   private _disposed = false;
+  private _handleContextLost?: (e: Event) => void;
+  private _handleContextRestored?: (e: Event) => void;
   public dispose() {
     if (!this._disposed) {
       this._disposed = true;
+      // Remove the external context lost/restored handlers so a disposed context (or engine)
+      // can't be resurrected by a late browser context restore event
+      if (this._handleContextLost) {
+        this.__gl.canvas.removeEventListener('webglcontextlost', this._handleContextLost, false);
+      }
+      if (this._handleContextRestored) {
+        this.__gl.canvas.removeEventListener('webglcontextrestored', this._handleContextRestored, false);
+      }
       this.textureLoader.dispose();
       for (const renderer of this._renderers.values()) {
         renderer.dispose();

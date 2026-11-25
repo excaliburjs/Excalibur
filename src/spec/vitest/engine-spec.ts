@@ -264,6 +264,20 @@ describe('The engine', () => {
     expect(engine.graphicsContext).toBeInstanceOf(ex.ExcaliburGraphicsContext2DCanvas);
   });
 
+  it('does not resurrect a disposed engine when the webgl context is restored', () => {
+    const game = TestUtils.engine();
+    const canvas = game.canvas;
+    const clockStart = vi.spyOn(game.clock, 'start');
+    game.dispose();
+
+    // A late browser context restore must not restart the clock of a disposed engine,
+    // otherwise a zombie main loop runs against a null graphics context every frame
+    canvas.dispatchEvent(new Event('webglcontextlost'));
+    canvas.dispatchEvent(new Event('webglcontextrestored'));
+
+    expect(clockStart).not.toHaveBeenCalled();
+  });
+
   it('should update the frame stats every tick', async () => {
     engine.dispose();
     engine = null as any;
