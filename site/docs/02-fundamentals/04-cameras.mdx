@@ -158,17 +158,15 @@ in-game effects.
 
 "Lerp" is short for [Linear Interpolation](http://en.wikipedia.org/wiki/Linear_interpolation)
 and it enables the camera focus to move smoothly between two points using timing functions.
-Use [[Camera.move]] to ease to a specific point using a provided [[Util.EasingFunction|EasingFunction]].
+Use [[Camera.move]] to ease to a specific point using a provided easing function.
 
 ```typescript
-export interface EasingFunction {
-  (currentTime: number, startValue: number, endValue: number, duration: number): number;
-}
+// Easings map a [0, 1] time value to a [0, 1] progress value
 
 // or any builtin
 
-const linear = ex.EasingFunctions.Linear;
-const easinQuad = ex.EasingFunctions.EaseInQuad;
+const linear = ex.linear;
+const easeInQuad = ex.easeInQuad;
 // ... and more!
 
 ```

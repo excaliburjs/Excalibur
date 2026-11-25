@@ -39,15 +39,21 @@ export function useDevTool() {
 
   const disposeEngine = () => {
     const engine = devtools.current as any;
-    if (!engine || engine.isDisposed?.()) {
+    if (!engine) {
+      return;
+    }
+    // Excalibur v1 exposes `isDisposed` as a boolean getter; older releases exposed it as a method
+    const disposed = typeof engine.isDisposed === 'function' ? engine.isDisposed() : Boolean(engine.isDisposed);
+    if (disposed) {
       return;
     }
     engine.stop?.();
     engine.input?.pointers?.detach?.();
-    engine.input?.toggleEnabled?.(false);
+    // v1 renamed `toggleEnabled` to `setEnabled`; support both
+    (engine.input?.setEnabled ?? engine.input?.toggleEnabled)?.(false);
     const scene = engine.currentScene ?? engine.director?.currentScene;
     scene?.input?.pointers?.detach?.();
-    scene?.input?.toggleEnabled?.(false);
+    (scene?.input?.setEnabled ?? scene?.input?.toggleEnabled)?.(false);
     engine.dispose?.();
   };
 

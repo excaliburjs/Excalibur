@@ -18,7 +18,7 @@ const game = new ex.Engine({
 
 game.start(loader).then(() => {
     game.input.pointers.primary.on('up', function () {
-        resources.sound.play(0.5);
+        resources.sound.play({ volume: 0.5 });
     });
 });
 
