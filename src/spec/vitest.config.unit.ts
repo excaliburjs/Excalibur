@@ -3,6 +3,7 @@ import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig, mergeConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import baseConfig from '../../vitest.config';
+import { findEngineFilesMatching } from './__util__/commands/find-engine-files-matching';
 
 export default defineConfig(
   mergeConfig(baseConfig, {
@@ -20,6 +21,9 @@ export default defineConfig(
       },
       browser: {
         enabled: true,
+        commands: {
+          findEngineFilesMatching
+        },
         provider: playwright({
           launchOptions: {
             channel: 'chromium',

@@ -1,10 +1,5 @@
 import * as ex from '@excalibur';
-
-// Engine sources, used by the coverage meta-test to find every class that defines clone()
-const engineSources = import.meta.glob(['../../engine/**/*.ts', '!../../engine/node_cache/**'], {
-  query: '?raw',
-  import: 'default'
-}) as Record<string, () => Promise<string>>;
+import { commands } from 'vitest/browser';
 
 /**
  * Deep structural snapshot of an object's own state (follows own enumerable props, Maps, Sets, arrays).
@@ -358,14 +353,9 @@ describe('clone() fidelity', () => {
   it('has a case (or a documented exemption) for every class that defines clone()', async () => {
     const covered = new Set(cases.map((c) => c.file));
     const cloneDef = /^\s*(?:public |override )*clone(?:<[^>]*>)?\(/m;
-    const missing: string[] = [];
-    for (const [path, load] of Object.entries(engineSources)) {
-      const rel = path.replace('../../engine/', '');
-      const src = await load();
-      if (cloneDef.test(src) && !covered.has(rel) && !(rel in EXEMPT)) {
-        missing.push(rel);
-      }
-    }
+    const filesWithClone = await commands.findEngineFilesMatching(cloneDef.source, cloneDef.flags);
+    expect(filesWithClone.length).toBeGreaterThan(0);
+    const missing = filesWithClone.filter((rel) => !covered.has(rel) && !(rel in EXEMPT));
     expect(missing, `Add a CloneCase (or an EXEMPT entry with a reason) in clone-fidelity-spec.ts for: ${missing.join(', ')}`).toEqual([]);
   });
 });
