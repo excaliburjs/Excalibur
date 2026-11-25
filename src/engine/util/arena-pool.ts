@@ -5,8 +5,20 @@ import { Logger } from '../util/log';
  * It is meant to be freed all at once, so things that can be reclaimed after a frame are the ideal type.
  *
  * If you need to take singular objects and put singular objects back {@link RentalPool} is ideal.
+ *
+ * The builder can take arguments: {@link ArenaPool.getWith} passes them to the builder for a new instance or to the
+ * recycler for a reused one. `get()`, `preallocate()` and `done()` still build with no arguments, so give the builder's
+ * parameters defaults.
+ *
+ * ```typescript
+ * const enemies = new ArenaPool(
+ *   (type: EnemyType = EnemyType.Basic) => new Enemy(type),
+ *   (enemy, type = EnemyType.Basic) => enemy.reset(type)
+ * );
+ * const rocket = enemies.getWith(EnemyType.Rocket);
+ * ```
  */
-export class ArenaPool<Type> {
+export class ArenaPool<Type, Args extends unknown[] = []> {
   public totalAllocations = 0;
   public index = 0;
   public objects: Type[] = [];
@@ -14,8 +26,8 @@ export class ArenaPool<Type> {
   private _logger = Logger.getInstance();
 
   constructor(
-    public builder: () => Type,
-    public recycler?: (instance: Type) => Type,
+    public builder: (...args: Args | []) => Type,
+    public recycler?: NoInfer<(instance: Type, ...args: Args) => Type>,
     public maxObjects: number = 100
   ) {}
 
@@ -35,7 +47,7 @@ export class ArenaPool<Type> {
    * By returning values out of the context they will be un-hooked from the pool and are free to be passed to consumers
    * @param context
    */
-  using(context: (pool: ArenaPool<Type>) => Type[] | void) {
+  using(context: (pool: ArenaPool<Type, Args>) => Type[] | void) {
     const result = context(this);
     if (result) {
       return this.done(...result);
@@ -67,13 +79,44 @@ export class ArenaPool<Type> {
     if (this.objects[this.index]) {
       // Pool has an available object already constructed
       if (this.recycler) {
-        return this.recycler(this.objects[this.index++]);
+        // Args comes from a builder that works without arguments, so the recycler does too
+        return (this.recycler as (instance: Type, ...args: Args | []) => Type)(this.objects[this.index++]);
       }
       return this.objects[this.index++];
     } else {
       // New allocation
       this.totalAllocations++;
       const object = (this.objects[this.index++] = this.builder());
+      return object;
+    }
+  }
+
+  /**
+   * Retrieve a value from the pool like {@link ArenaPool.get}, passing arguments along. A new instance gets them from the
+   * builder, a reused instance is passed to the recycler with them. Without a recycler a reused instance comes back as it
+   * was.
+   *
+   * The argument types come from the builder's parameters.
+   * @param args Arguments for the builder or recycler
+   */
+  getWith(...args: Args): Type {
+    if (this.index === this.maxObjects) {
+      if (!this.disableWarnings) {
+        this._logger.warn('Max pooled objects reached, possible memory leak? Doubling');
+      }
+      this.maxObjects = this.maxObjects * 2;
+    }
+
+    if (this.objects[this.index]) {
+      // Pool has an available object already constructed
+      if (this.recycler) {
+        return this.recycler(this.objects[this.index++], ...args);
+      }
+      return this.objects[this.index++];
+    } else {
+      // New allocation
+      this.totalAllocations++;
+      const object = (this.objects[this.index++] = this.builder(...args));
       return object;
     }
   }

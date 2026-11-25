@@ -14,6 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added `ArenaPool.getWith(...args)` to get a pooled object built with arguments, for example `enemies.getWith(EnemyType.Rocket)`. A new instance gets the arguments from the builder and a reused one from the recycler; the argument types come from the builder's parameters, which need defaults since `get()` still builds without arguments (issue #3547)
 - Improved Coroutine typings that will eliminate some footguns that would have failed or been a bug at runtime
   - Exported CoroutineYield and CoroutineIterator types so standalone generator functions and class methods can be cleanly typed without any
   - Removed any from CoroutineGenerator yields so invalid yielded values are caught at compile time, and made CoroutineInstance extend Iterable<CoroutineYield> with readonly done and generator.
