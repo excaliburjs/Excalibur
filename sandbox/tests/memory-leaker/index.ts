@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 var game = new ex.Engine({
   width: 1400,

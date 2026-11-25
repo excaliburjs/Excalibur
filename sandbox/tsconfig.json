@@ -11,11 +11,20 @@
     "skipLibCheck": true,
     "allowUmdGlobalAccess": true,
     "strict": false,
-    "lib": ["dom", "dom.iterable", "es2021"],
-    "types": ["node"],
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "lib": ["dom", "dom.iterable", "es2021", "esnext"],
+    "types": ["node", "vite/client"],
     "paths": {
-      "@excalibur": ["../src/engine/index.ts"]
+      "@excalibur": ["../src/engine/index.ts"],
+      "excalibur": ["../src/engine/index.ts"],
+      "react": ["../playground/node_modules/@types/react"],
+      "react/*": ["../playground/node_modules/@types/react/*"],
+      "react-dom": ["../playground/node_modules/@types/react-dom"],
+      "react-dom/*": ["../playground/node_modules/@types/react-dom/*"],
+      "monaco-editor": ["../playground/node_modules/monaco-editor"],
+      "monaco-editor/*": ["../playground/node_modules/monaco-editor/*"]
     }
   },
-  "include": ["./src/**/*.ts", "./tests/**/*.ts", "../src/engine/*.d.ts"]
+  "include": ["./main.tsx", "./src/**/*.ts", "./src/**/*.tsx", "./tests/**/*.ts", "../src/engine/*.d.ts"]
 }

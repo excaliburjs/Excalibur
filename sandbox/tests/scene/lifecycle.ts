@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 ex.Logger.getInstance().defaultLevel = ex.LogLevel.Debug;
 
 class MyGame2 extends ex.Engine {

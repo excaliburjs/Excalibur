@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 /**
  * Managed game class
  */

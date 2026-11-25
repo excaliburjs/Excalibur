@@ -1,3 +1,4 @@
+import * as ex from 'excalibur';
 // 0,0 3.0625,0 3,6.0625 -0.0625,6
 
 var game = new ex.Engine({

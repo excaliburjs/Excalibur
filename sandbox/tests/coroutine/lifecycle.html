@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coroutine - Lifecycle &amp; Cancellation</title>
+  </head>
+  <body>
+    <div style="font-family: sans-serif; padding: 8px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+      <button id="start">Start / Restart</button>
+      <button id="cancel">Cancel (runs finally)</button>
+      <button id="promise-ok">Yield Resolved Promise</button>
+      <button id="promise-catch">Yield Rejected (caught)</button>
+      <button id="promise-uncaught">Yield Rejected (uncaught)</button>
+      <span id="state"></span>
+    </div>
+    <script type="module" src="./lifecycle.js"></script>
+  </body>
+</html>

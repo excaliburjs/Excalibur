@@ -1,0 +1,326 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+#app {
+  height: 100%;
+}
+
+.runner {
+  display: grid;
+  grid-template-columns: 280px 4px minmax(0, 1fr);
+  gap: 4px;
+  height: 100vh;
+  background: #1e1f24;
+  color: #d4d4d4;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.runner-splitter {
+  background: #2a2d35;
+  touch-action: none;
+}
+
+.runner-splitter:focus-visible {
+  outline: 1px solid #264f78;
+  outline-offset: -1px;
+}
+
+.runner-splitter:hover,
+.runner-splitter:active {
+  background: #264f78;
+}
+
+.runner-splitter-row {
+  cursor: row-resize;
+}
+
+.runner-splitter-column {
+  cursor: col-resize;
+}
+
+.runner-nav {
+  overflow-y: auto;
+  padding: 12px;
+}
+
+.runner-nav h1 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+}
+
+.runner-nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.runner-nav a {
+  display: block;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #9cdcfe;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.runner-nav a:hover {
+  background: #2a2d35;
+}
+
+.runner-nav a.active {
+  background: #264f78;
+  color: #fff;
+}
+
+.runner-main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 4px minmax(0, 1fr);
+  gap: 4px;
+  padding: 8px;
+  min-width: 0;
+}
+
+.runner-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.runner-toolbar button {
+  padding: 4px 10px;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  background: #2d2d30;
+  color: #d4d4d4;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.runner-toolbar button:hover:not(:disabled) {
+  background: #3c3c3c;
+}
+
+.runner-toolbar button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.runner-toolbar kbd {
+  margin-left: 4px;
+  padding: 0 4px;
+  border: 1px solid #3c3c3c;
+  border-radius: 3px;
+  background: #1e1f24;
+  color: #888;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 10px;
+}
+
+.runner-status {
+  color: #888;
+  font-size: 12px;
+}
+
+.runner-preview {
+  position: relative;
+  border: 1px solid #333;
+  background: #fff;
+}
+
+.runner-preview iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.runner-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 4px;
+  min-height: 0;
+}
+
+.runner-editor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #333;
+}
+
+.runner-editor-header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-bottom: 1px solid #333;
+  color: #888;
+  font-size: 11px;
+}
+
+.runner-editor-file {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+.runner-vim-status {
+  margin-left: auto;
+  color: #9cdcfe;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  white-space: pre;
+}
+
+.runner-vim-toggle {
+  padding: 1px 8px;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  background: #2d2d30;
+  color: #d4d4d4;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.runner-vim-toggle:hover {
+  background: #3c3c3c;
+}
+
+.runner-vim-toggle[aria-pressed='true'] {
+  background: #264f78;
+  border-color: #264f78;
+  color: #fff;
+}
+
+.runner-editor-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.runner-console {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid #333;
+  background: #16171b;
+}
+
+.runner-console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  border-bottom: 1px solid #333;
+  color: #888;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.runner-console-header button {
+  padding: 1px 8px;
+  border: 1px solid #3c3c3c;
+  border-radius: 4px;
+  background: #2d2d30;
+  color: #d4d4d4;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.runner-console-header button:hover {
+  background: #3c3c3c;
+}
+
+.runner-console pre {
+  flex: 1;
+  overflow: auto;
+  margin: 0;
+  padding: 8px;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.runner-log {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 0;
+  border-bottom: 1px solid #1f2126;
+}
+
+.runner-log-time {
+  flex: none;
+  color: #6a6a6a;
+}
+
+.runner-log-level {
+  flex: none;
+  min-width: 34px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: #2d2d30;
+  color: #9d9d9d;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.runner-log-warn .runner-log-level {
+  color: #cca700;
+}
+
+.runner-log-info .runner-log-level {
+  color: #9cdcfe;
+}
+
+.runner-log-error .runner-log-level {
+  color: #f48771;
+}
+
+.runner-log-body {
+  min-width: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.runner-log-body a {
+  color: #3794ff;
+  text-decoration: none;
+}
+
+.runner-log-body a:hover {
+  text-decoration: underline;
+}
+
+.runner-log-object {
+  color: #c586c0;
+}
+
+/* %c-styled runs (badges, banners) stay intact like devtools; long ones scroll
+   horizontally instead of breaking mid-word into stacked blocks */
+.runner-log-styled {
+  white-space: pre;
+  word-break: normal;
+}
+
+.runner-log-count {
+  flex: none;
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: #2d2d30;
+  color: #888;
+  font-size: 11px;
+}

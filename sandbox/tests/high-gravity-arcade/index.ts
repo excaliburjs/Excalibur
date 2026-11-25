@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 const Category = {
   Ground: ex.CollisionGroupManager.create('ground'),
   Player: ex.CollisionGroupManager.create('player')
@@ -111,7 +113,7 @@ class ControlSystem extends ex.System {
     this.input = input;
   }
 
-  public update(elapsed) {
+  public onUpdate(elapsed: number) {
     if (!this.input) return;
     /**
      * get user controls intent

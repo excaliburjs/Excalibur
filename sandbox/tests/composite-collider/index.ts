@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var game = new ex.Engine({
   width: 1000,
   height: 1000,
@@ -8,13 +10,20 @@ var game = new ex.Engine({
 
 game.toggleDebug();
 
-let roomShape = new ex.Rectangle({ width: 700, height: 500, color: ex.Color.DarkGray, strokeColor: ex.Color.White });
+let roomShape = new ex.Rectangle({
+  width: 700,
+  height: 500,
+  color: ex.Color.DarkGray,
+  strokeColor: ex.Color.White
+});
 
 var topEdgeCollider = ex.Colliders.Box(700, 10, ex.Vector.Zero, ex.vec(0, 0));
 var leftEdgeCollider = ex.Colliders.Box(10, 500, ex.Vector.Zero, ex.vec(0, 0));
 var rightEdgeCollider = ex.Colliders.Box(10, 500, ex.Vector.One, ex.vec(700, 500));
 var bottomEdgeCollider = ex.Colliders.Box(700, 10, ex.Vector.One, ex.vec(700, 500));
 var compositeCollider = new ex.CompositeCollider([topEdgeCollider, leftEdgeCollider, rightEdgeCollider, bottomEdgeCollider]);
+// good for tilemap and large disconnected levels
+compositeCollider.compositeStrategy = 'separate';
 
 class RoomActor extends ex.Actor {
   roomId: string;

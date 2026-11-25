@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class Game5 {
   public engine: ex.Engine;
   public player: ex.Actor = new ex.Actor({

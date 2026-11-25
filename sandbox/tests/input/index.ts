@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var game = new ex.Engine({ width: 500, height: 500, canvasElementId: 'game' });
 var box = new ex.Actor({ x: 250, y: 250, width: 100, height: 100, color: ex.Color.Red });
 

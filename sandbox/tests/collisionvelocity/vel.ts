@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var engine = new ex.Engine({
   canvasElementId: 'game',
   width: 800,

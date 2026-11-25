@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 (function () {
   var width = 600;
   var height = 400;

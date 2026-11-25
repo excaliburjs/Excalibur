@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 const font = new ex.Font({
   size: 48,
   family: 'sans-serif',

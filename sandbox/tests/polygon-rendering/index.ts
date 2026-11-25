@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var engine = new ex.Engine({
   width: 500,
   height: 400

@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class SceneX extends ex.Scene {
   override backgroundColor = ex.Color.DarkGray;
   override onInitialize() {

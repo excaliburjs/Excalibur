@@ -1,9 +1,12 @@
-var game = new ex.Engine({
+import * as ex from 'excalibur';
+
+const game = new ex.Engine({
   width: 400,
-  height: 400
+  height: 400,
+  pixelArt: true
 });
 
-var animationImage = new ex.ImageSource('./explosion.png');
+const animationImage = new ex.ImageSource('./explosion.png');
 
 var explosionSpriteSheet = ex.SpriteSheet.fromImageSource({
   image: animationImage,

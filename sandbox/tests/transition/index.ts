@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class TestPlayer extends ex.Actor {
   constructor() {
     super({

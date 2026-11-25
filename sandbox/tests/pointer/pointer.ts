@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class Player extends ex.Actor {
   constructor(color: ex.Color, size = 100) {
     super({ x: 300, y: 200, width: size, height: size, color });
