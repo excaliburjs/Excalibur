@@ -1,5 +1,4 @@
 import * as ex from '@excalibur';
-import { delay } from '../../engine/util/util';
 
 declare global {
   interface Document {
@@ -746,74 +745,45 @@ describe('A Text Graphic', () => {
     expect(ex.FontCache.cacheSize).toBe(0);
   });
 
-  it('will collect text bitmap garbage', async () => {
+  it('will collect text bitmap garbage', () => {
     ex.FontCache.clearCache();
-    const sut = new ex.Font({
-      family: 'Open Sans',
-      size: 18,
-      quality: 1,
-      shadow: {
-        blur: 5,
-        offset: ex.vec(4, 4),
-        color: ex.Color.Blue
-      }
-    });
+    let now = performance.now();
+    const nowSpy = vi.spyOn(performance, 'now').mockImplementation(() => now);
+    try {
+      const sut = new ex.Font({
+        family: 'Open Sans',
+        size: 18,
+        quality: 1,
+        shadow: {
+          blur: 5,
+          offset: ex.vec(4, 4),
+          color: ex.Color.Blue
+        }
+      });
 
-    const text = new ex.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: sut
-    });
+      const text = new ex.Text({
+        text: 'green text',
+        color: ex.Color.Green,
+        font: sut
+      });
 
-    const text2 = new ex.Text({
-      text: 'red text',
-      color: ex.Color.Green,
-      font: sut
-    });
+      const text2 = new ex.Text({
+        text: 'red text',
+        color: ex.Color.Green,
+        font: sut
+      });
 
-    text.draw(ctx, 10, 50);
-    text2.draw(ctx, 10, 50);
-    expect(ex.FontCache.cacheSize).toBe(2);
+      text.draw(ctx, 10, 50);
+      text2.draw(ctx, 10, 50);
+      expect(ex.FontCache.cacheSize).toBe(2);
 
-    await delay(1001); // text is cached for 1 second
+      now += ex.FontCache.FONT_TIMEOUT + 1;
 
-    ex.FontCache.checkAndClearCache();
-    expect(ex.FontCache.cacheSize).toBe(0);
-  });
-
-  it('will collect text bitmap garbage', async () => {
-    ex.FontCache.clearCache();
-    const sut = new ex.Font({
-      family: 'Open Sans',
-      size: 18,
-      quality: 1,
-      shadow: {
-        blur: 5,
-        offset: ex.vec(4, 4),
-        color: ex.Color.Blue
-      }
-    });
-
-    const text = new ex.Text({
-      text: 'green text',
-      color: ex.Color.Green,
-      font: sut
-    });
-
-    const text2 = new ex.Text({
-      text: 'red text',
-      color: ex.Color.Green,
-      font: sut
-    });
-
-    text.draw(ctx, 10, 50);
-    text2.draw(ctx, 10, 50);
-    expect(ex.FontCache.cacheSize).toBe(2);
-
-    await delay(1001); // text is cached for 1 second
-
-    ex.FontCache.checkAndClearCache();
-    expect(ex.FontCache.cacheSize).toBe(0);
+      ex.FontCache.checkAndClearCache();
+      expect(ex.FontCache.cacheSize).toBe(0);
+    } finally {
+      nowSpy.mockRestore();
+    }
   });
 
   it('should cache based on text and raster props', () => {

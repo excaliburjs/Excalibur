@@ -9,7 +9,7 @@ describe('A PointerEventReceiver', () => {
   let engine: ex.Engine;
 
   beforeEach(async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await TestUtils.runToReady(engine);
   });
 

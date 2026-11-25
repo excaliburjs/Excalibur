@@ -360,59 +360,31 @@ describe('A loader', () => {
     expect(onUserAction).toHaveBeenCalledOnce();
   });
 
-  it('does not throw when more than 256 images are being loaded', () =>
-    new Promise<void>((done) => {
-      /**
-       *
-       */
-      function drawRandomCircleOnContext(ctx: any) {
-        const x = Math.floor(Math.random() * 100);
-        const y = Math.floor(Math.random() * 100);
-        const radius = Math.floor(Math.random() * 20);
+  it('does not throw when more than 256 images are being loaded', async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 2;
+    canvas.height = 2;
+    const ctx = canvas.getContext('2d')!;
 
-        const r = Math.floor(Math.random() * 255);
-        const g = Math.floor(Math.random() * 255);
-        const b = Math.floor(Math.random() * 255);
+    const generateUniqueImage = (index: number) => {
+      const r = index & 0xff;
+      const g = (index >> 8) & 0xff;
+      ctx.fillStyle = `rgb(${r},${g},0)`;
+      ctx.fillRect(0, 0, 2, 2);
+      return canvas.toDataURL('image/png');
+    };
 
-        ctx.beginPath();
-        ctx.arc(x, y, radius, Math.PI * 2, 0, false);
-        ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',1)';
-        ctx.fill();
-        ctx.closePath();
-      }
-
-      /**
-       *
-       */
-      function generateRandomImage() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 100;
-        canvas.height = 100;
-
-        const ctx = canvas.getContext('2d');
-        ctx!.clearRect(0, 0, 100, 100);
-
-        for (let i = 0; i < 20; i++) {
-          drawRandomCircleOnContext(ctx);
-        }
-        return canvas.toDataURL('image/png');
-      }
-
-      const logger = ex.Logger.getInstance();
-      vi.spyOn(logger, 'error');
-      const game = TestUtils.engine({
-        width: 100,
-        height: 100
-      });
+    const logger = ex.Logger.getInstance();
+    vi.spyOn(logger, 'error');
+    const game = TestUtils.engine({
+      width: 100,
+      height: 100
+    });
+    try {
       const testClock = game.clock as ex.TestClock;
-
       const loader = new ex.Loader();
 
-      const srcs = [];
-      for (let i = 0; i < 800; i++) {
-        srcs.push(generateRandomImage());
-      }
-      const images = srcs.map((src) => new ex.ImageSource(src));
+      const images = Array.from({ length: 300 }, (_, i) => new ex.ImageSource(generateUniqueImage(i)));
       images.forEach((image) => {
         image.ready.then(() => {
           testClock.step(1);
@@ -420,16 +392,12 @@ describe('A loader', () => {
       });
       loader.addResources(images);
 
-      TestUtils.runToReady(game, loader)
-        .then(() => {
-          expect(logger.error).not.toHaveBeenCalled();
-          game.dispose();
-          done();
-        })
-        .catch(() => {
-          throw new Error('fail');
-        });
-    }));
+      await TestUtils.runToReady(game, loader);
+      expect(logger.error).not.toHaveBeenCalled();
+    } finally {
+      game.dispose();
+    }
+  });
 
   describe('@visual', () => {
     it('should not show the play button when suppressPlayButton is turned on', () =>

@@ -7,10 +7,13 @@ describe('A Timer', () => {
   let engine: ex.Engine;
 
   beforeEach(async () => {
-    engine = TestUtils.engine({
-      width: 600,
-      height: 400
-    });
+    engine = TestUtils.engine(
+      {
+        width: 600,
+        height: 400
+      },
+      ['use-canvas-context']
+    );
     timer = new ex.Timer({
       interval: 500,
       action: function () {

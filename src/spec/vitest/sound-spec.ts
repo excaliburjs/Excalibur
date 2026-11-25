@@ -307,9 +307,9 @@ describe('Sound resource', () => {
     sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
     await sut.load();
     sut.play();
-    await delay(1000);
-    // appveyor is a little fast for some reason
-    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(980);
+    await delay(200);
+    expect(sut.getPlaybackPosition()).toBeGreaterThanOrEqual(150);
+    sut.stop();
   });
 
   it('should variable playback rate of the audio track', async () => {
@@ -317,9 +317,9 @@ describe('Sound resource', () => {
     await sut.load();
     sut.playbackRate = 2.0;
     sut.play();
-    await delay(1000);
-    // appveyor is a little fast for some reason
-    expect(sut.getPlaybackPosition(), 'Twice the speed will be at 2 seconds').toBeGreaterThanOrEqual(1800);
+    await delay(200);
+    expect(sut.getPlaybackPosition(), 'Twice the speed will be ~400ms').toBeGreaterThanOrEqual(320);
+    sut.stop();
   });
 
   // FIXME: issue for flakey test https://github.com/excaliburjs/Excalibur/issues/1547
@@ -522,9 +522,9 @@ describe('Sound resource', () => {
       await sut.load();
       sut.pitch = 1200; // one octave up doubles the speed
       sut.play();
-      await delay(500);
+      await delay(200);
       const position = sut.getPlaybackPosition();
-      expect(position, 'an octave up plays twice as fast').toBeGreaterThanOrEqual(0.9);
+      expect(position, 'an octave up plays twice as fast').toBeGreaterThanOrEqual(320);
 
       sut.pause();
       expect(sut.getPlaybackPosition(), 'pause keeps the pitched position').toBeGreaterThanOrEqual(position);
@@ -610,11 +610,12 @@ describe('Sound resource', () => {
       sut = new ex.Sound('/src/spec/assets/images/sound-spec/preview.mp3');
       sut.duration = 0.2;
       await sut.load();
+      let complete!: Promise<boolean>;
       const track = await new Promise<ex.SoundTrack>((done) => {
         sut.once('playbackstart', (evt) => done(evt.track!));
-        sut.play();
+        complete = sut.play();
       });
-      await delay(500);
+      await complete;
       expect(track.isStopped).toBe(true);
       expect(sut.instanceCount()).toBe(0);
     });

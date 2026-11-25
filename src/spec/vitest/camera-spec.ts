@@ -14,11 +14,14 @@ describe('A camera', () => {
     });
 
     // mock engine
-    engine = TestUtils.engine({
-      width: 500,
-      height: 500,
-      antialiasing: false
-    });
+    engine = TestUtils.engine(
+      {
+        width: 500,
+        height: 500,
+        antialiasing: false
+      },
+      ['use-canvas-context']
+    );
 
     engine.backgroundColor = ex.Color.Blue;
 
@@ -43,10 +46,13 @@ describe('A camera', () => {
   it('should be center screen by default (when loading not complete)', () => {
     engine.dispose();
     engine = null as any;
-    engine = TestUtils.engine({
-      viewport: { width: 100, height: 100 },
-      resolution: { width: 1000, height: 1200 }
-    });
+    engine = TestUtils.engine(
+      {
+        viewport: { width: 100, height: 100 },
+        resolution: { width: 1000, height: 1200 }
+      },
+      ['use-canvas-context']
+    );
     engine.screen.pushResolutionAndViewport();
     engine.screen.resolution = { width: 100, height: 1000 };
     vi.spyOn(engine, 'isLoaded', 'get').mockImplementation(() => false);
@@ -63,10 +69,13 @@ describe('A camera', () => {
   it('should run strategies on initialize for the first frame', () => {
     engine.dispose();
     engine = null as any;
-    engine = TestUtils.engine({
-      viewport: { width: 100, height: 100 },
-      resolution: { width: 1000, height: 1200 }
-    });
+    engine = TestUtils.engine(
+      {
+        viewport: { width: 100, height: 100 },
+        resolution: { width: 1000, height: 1200 }
+      },
+      ['use-canvas-context']
+    );
 
     const sut = new ex.Camera();
 
@@ -79,10 +88,13 @@ describe('A camera', () => {
   it('should update viewport on initialize for the first frame', () => {
     engine.dispose();
     engine = null as any;
-    engine = TestUtils.engine({
-      viewport: { width: 100, height: 100 },
-      resolution: { width: 1000, height: 1200 }
-    });
+    engine = TestUtils.engine(
+      {
+        viewport: { width: 100, height: 100 },
+        resolution: { width: 1000, height: 1200 }
+      },
+      ['use-canvas-context']
+    );
 
     const sut = new ex.Camera();
     expect(sut.viewport).toEqual(new ex.BoundingBox());
@@ -96,10 +108,13 @@ describe('A camera', () => {
   it('should be center screen by default (when loading complete)', () => {
     engine.dispose();
     engine = null as any;
-    engine = TestUtils.engine({
-      viewport: { width: 100, height: 100 },
-      resolution: { width: 1000, height: 1200 }
-    });
+    engine = TestUtils.engine(
+      {
+        viewport: { width: 100, height: 100 },
+        resolution: { width: 1000, height: 1200 }
+      },
+      ['use-canvas-context']
+    );
 
     vi.spyOn(engine, 'isLoaded', 'get').mockImplementation(() => true);
     vi.spyOn(engine.screen, 'peekResolution');
@@ -449,7 +464,7 @@ describe('A camera', () => {
 
     beforeEach(() => {
       camera = new ex.Camera();
-      engine = TestUtils.engine();
+      engine = TestUtils.engine({}, ['use-canvas-context']);
     });
     afterEach(() => {
       engine.dispose();
