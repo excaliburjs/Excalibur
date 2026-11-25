@@ -16,7 +16,7 @@ describe('A Coroutine', () => {
   });
 
   it('can use useEngine() and engine-less coroutine() after an await in an async scope', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       await Promise.resolve();
       expect(ex.Engine.useEngine()).toBe(engine);
@@ -30,7 +30,7 @@ describe('A Coroutine', () => {
   });
 
   it('can use useEngine() after an await in Scene.onInitialize reached through goToScene', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     let injected: ex.Engine | undefined;
     class MyScene extends ex.Scene {
       override async onInitialize() {
@@ -45,7 +45,7 @@ describe('A Coroutine', () => {
   });
 
   it('can be run', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -78,7 +78,7 @@ describe('A Coroutine', () => {
   });
 
   it('can bind a this arg overload 1', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -97,7 +97,7 @@ describe('A Coroutine', () => {
   });
 
   it('can bind a this arg overload 2', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -116,7 +116,7 @@ describe('A Coroutine', () => {
   });
 
   it('can bind an engine as this arg', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -133,7 +133,7 @@ describe('A Coroutine', () => {
   });
 
   it('can run overload 2', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -150,7 +150,7 @@ describe('A Coroutine', () => {
   });
 
   it('can be run on scheduled timing', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -230,7 +230,7 @@ describe('A Coroutine', () => {
   });
 
   it('can wait for given ms', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
     await engine.scope(async () => {
@@ -248,7 +248,7 @@ describe('A Coroutine', () => {
   });
 
   it('can wait for a promise', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -271,7 +271,7 @@ describe('A Coroutine', () => {
   });
 
   it('can throw error', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -295,7 +295,7 @@ describe('A Coroutine', () => {
   });
 
   it('can stop coroutines', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -317,7 +317,7 @@ describe('A Coroutine', () => {
   });
 
   it('can start coroutines', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const logger = ex.Logger.getInstance();
     vi.spyOn(logger, 'warn');
     engine.scope(() => {
@@ -347,7 +347,7 @@ describe('A Coroutine', () => {
   });
 
   it('can have nested coroutines', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -369,7 +369,7 @@ describe('A Coroutine', () => {
   });
 
   it('can iterate over coroutines', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -396,7 +396,7 @@ describe('A Coroutine', () => {
   });
 
   it('can iterate over coroutines with for..of', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     engine.scope(() => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -425,7 +425,7 @@ describe('A Coroutine', () => {
   });
 
   it('supports standalone CoroutineIterator annotations and class generator methods', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await engine.scope(async () => {
       const clock = engine.clock as ex.TestClock;
       clock.start();
@@ -448,7 +448,7 @@ describe('A Coroutine', () => {
   });
 
   it('enforces strong TypeScript typings', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     engine.scope(() => {
       const myThis = { count: 1 };
 
@@ -643,7 +643,7 @@ describe('A Coroutine', () => {
   });
 
   it('maintains engine.scope() across resumed preframe and postframe ticks outside external engine.scope()', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -681,7 +681,7 @@ describe('A Coroutine', () => {
   });
 
   it('supports arrow-function generator wrappers that capture lexical this and arguments', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -702,7 +702,7 @@ describe('A Coroutine', () => {
   });
 
   it('clears clock schedule and resolves immediately on cancel()', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
     const clearSpy = vi.spyOn(clock, 'clearSchedule');
@@ -729,7 +729,7 @@ describe('A Coroutine', () => {
   });
 
   it('does not run when start() is called after cancel()', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const logger = ex.Logger.getInstance();
     const warnSpy = vi.spyOn(logger, 'warn');
 
@@ -751,7 +751,7 @@ describe('A Coroutine', () => {
   });
 
   it('handles rejected yielded promises and supports try/catch inside the generator', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -788,7 +788,7 @@ describe('A Coroutine', () => {
   });
 
   it('marks coroutine as complete and not running when generator throws', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -804,7 +804,7 @@ describe('A Coroutine', () => {
   });
 
   it('honors explicit autostart: true when spawning a parallel coroutine inside another coroutine', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -827,7 +827,7 @@ describe('A Coroutine', () => {
   });
 
   it('logs original generator source when start() is called twice', () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const logger = ex.Logger.getInstance();
     const warnSpy = vi.spyOn(logger, 'warn');
 
@@ -846,7 +846,7 @@ describe('A Coroutine', () => {
   });
 
   it('runs generator finally blocks on external cancel() and self-cancellation', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -904,7 +904,7 @@ describe('A Coroutine', () => {
   });
 
   it('clears schedule on the original clock instance if engine.clock is swapped', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const oldClock = engine.clock as ex.TestClock;
     oldClock.start();
     const oldClearSpy = vi.spyOn(oldClock, 'clearSchedule');
@@ -924,7 +924,7 @@ describe('A Coroutine', () => {
   });
 
   it('completes nested child coroutine and warns if delegating to running or cancelled coroutines', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -970,7 +970,7 @@ describe('A Coroutine', () => {
   });
 
   it('handles self-cancel, parent cancel, isRunning, start() guard, and rejected promises inside yield* child', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
     const logger = ex.Logger.getInstance();
@@ -1053,7 +1053,7 @@ describe('A Coroutine', () => {
   });
 
   it('clamps negative yield values to 0ms when scheduling on the clock', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
     const scheduleSpy = vi.spyOn(clock, 'schedule');
@@ -1068,7 +1068,7 @@ describe('A Coroutine', () => {
   });
 
   it('settles child.done when a delegated child self-cancels and then throws before yielding', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 
@@ -1106,7 +1106,7 @@ describe('A Coroutine', () => {
   });
 
   it('propagates errors from a delegated child finally block to parent.done on parent.cancel()', async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     const clock = engine.clock as ex.TestClock;
     clock.start();
 

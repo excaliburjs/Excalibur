@@ -13,14 +13,17 @@ describe('A game actor', () => {
   let actionSystem: ex.ActionsSystem;
 
   beforeEach(async () => {
-    engine = TestUtils.engine({
-      width: 100,
-      height: 100,
-      physics: {
-        solver: ex.SolverStrategy.Arcade,
-        gravity: ex.vec(0, 0)
-      }
-    });
+    engine = TestUtils.engine(
+      {
+        width: 100,
+        height: 100,
+        physics: {
+          solver: ex.SolverStrategy.Arcade,
+          gravity: ex.vec(0, 0)
+        }
+      },
+      ['use-canvas-context']
+    );
     actor = new ex.Actor({ name: 'Default' });
     actor.body.collisionType = ex.CollisionType.Active;
     scene = new ex.Scene();
@@ -229,7 +232,7 @@ describe('A game actor', () => {
     const parent = new ex.Actor();
     const child = new ex.Actor();
 
-    const engine = TestUtils.engine();
+    const engine = TestUtils.engine({}, ['use-canvas-context']);
 
     engine.add(parent);
 
@@ -724,7 +727,7 @@ describe('A game actor', () => {
     engine.stop();
     engine.dispose();
     engine = null as any;
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await TestUtils.runToReady(engine);
     actor = new ex.Actor();
     actor.body.collisionType = ex.CollisionType.Active;

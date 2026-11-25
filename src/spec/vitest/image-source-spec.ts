@@ -2,21 +2,22 @@ import * as ex from '@excalibur';
 import { ImageRendererV2 as ImageRenderer } from '../../engine/graphics/context/image-renderer-v2/image-renderer-v2';
 
 describe('A ImageSource', () => {
-  let canvasElement: HTMLCanvasElement;
-  let ctx: ex.ExcaliburGraphicsContext;
+  const webglContexts: ex.ExcaliburGraphicsContextWebGL[] = [];
+
+  const createWebGLContext = (options: ex.ExcaliburGraphicsContextWebGLOptions) => {
+    const context = new ex.ExcaliburGraphicsContextWebGL(options);
+    webglContexts.push(context);
+    return context;
+  };
 
   beforeEach(() => {
     ex.TextureLoader.filtering = ex.ImageFiltering.Pixel;
-    canvasElement = document.createElement('canvas');
-    canvasElement.width = 100;
-    canvasElement.height = 100;
-    ctx = new ex.ExcaliburGraphicsContextWebGL({
-      canvasElement,
-      uvPadding: 0.01,
-      antialiasing: false,
-      snapToPixel: false,
-      pixelArtSampler: false
-    });
+  });
+
+  afterEach(() => {
+    while (webglContexts.length > 0) {
+      webglContexts.pop()!.dispose();
+    }
   });
 
   it('exists', () => {
@@ -85,7 +86,7 @@ describe('A ImageSource', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    new ex.ExcaliburGraphicsContextWebGL({
+    createWebGLContext({
       canvasElement: canvasElement,
       enableTransparency: false,
       backgroundColor: ex.Color.White
@@ -111,7 +112,7 @@ describe('A ImageSource', () => {
     const canvasElement = document.createElement('canvas');
     canvasElement.width = 100;
     canvasElement.height = 100;
-    new ex.ExcaliburGraphicsContextWebGL({
+    createWebGLContext({
       canvasElement: canvasElement,
       enableTransparency: false,
       backgroundColor: ex.Color.White
@@ -120,23 +121,27 @@ describe('A ImageSource', () => {
     vi.spyOn(logger, 'warn');
     vi.spyOn(logger, 'error');
 
+    const originalMaxTextureSize = (ex.TextureLoader as any)._MAX_TEXTURE_SIZE;
     (ex.TextureLoader as any)._MAX_TEXTURE_SIZE = 4096;
+    try {
+      const sut = new ex.ImageSource('/src/spec/assets/images/graphics-image-source-spec/big-image.png');
 
-    const sut = new ex.ImageSource('/src/spec/assets/images/graphics-image-source-spec/big-image.png');
+      await sut.load();
 
-    await sut.load();
-
-    expect(logger.error).toHaveBeenCalledWith(
-      `The image [/src/spec/assets/images/graphics-image-source-spec/big-image.png] provided to Excalibur is too large for the device's maximum ` +
-        `texture size of (4096x4096) please resize to an image for excalibur to render properly.\n\n` +
-        `Images will likely render as black rectangles.\n\n` +
-        `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`
-    );
+      expect(logger.error).toHaveBeenCalledWith(
+        `The image [/src/spec/assets/images/graphics-image-source-spec/big-image.png] provided to Excalibur is too large for the device's maximum ` +
+          `texture size of (4096x4096) please resize to an image for excalibur to render properly.\n\n` +
+          `Images will likely render as black rectangles.\n\n` +
+          `Read more here: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/WebGL_best_practices#understand_system_limits`
+      );
+    } finally {
+      (ex.TextureLoader as any)._MAX_TEXTURE_SIZE = originalMaxTextureSize;
+    }
   });
 
   it('can load images with an image filtering Blended', async () => {
     const canvas = document.createElement('canvas');
-    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+    const webgl = createWebGLContext({
       canvasElement: canvas
     });
     const imageRenderer = new ImageRenderer({ pixelArtSampler: false, uvPadding: 0 });
@@ -171,7 +176,7 @@ describe('A ImageSource', () => {
 
   it('can load images with an image filtering Pixel', async () => {
     const canvas = document.createElement('canvas');
-    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+    const webgl = createWebGLContext({
       canvasElement: canvas
     });
     const imageRenderer = new ImageRenderer({ pixelArtSampler: false, uvPadding: 0 });
@@ -202,7 +207,7 @@ describe('A ImageSource', () => {
 
   it('can load images with an image wrap repeat', async () => {
     const canvas = document.createElement('canvas');
-    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+    const webgl = createWebGLContext({
       canvasElement: canvas
     });
     const imageRenderer = new ImageRenderer({ pixelArtSampler: false, uvPadding: 0 });
@@ -236,7 +241,7 @@ describe('A ImageSource', () => {
 
   it('can load images with an image wrap repeat', async () => {
     const canvas = document.createElement('canvas');
-    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+    const webgl = createWebGLContext({
       canvasElement: canvas
     });
     const imageRenderer = new ImageRenderer({ pixelArtSampler: false, uvPadding: 0 });
@@ -270,7 +275,7 @@ describe('A ImageSource', () => {
 
   it('can load images with an image wrap mixed', async () => {
     const canvas = document.createElement('canvas');
-    const webgl = new ex.ExcaliburGraphicsContextWebGL({
+    const webgl = createWebGLContext({
       canvasElement: canvas
     });
     const imageRenderer = new ImageRenderer({ pixelArtSampler: false, uvPadding: 0 });
@@ -419,6 +424,22 @@ describe('A ImageSource', () => {
   });
 
   describe('@visual', () => {
+    let canvasElement: HTMLCanvasElement;
+    let ctx: ex.ExcaliburGraphicsContext;
+
+    beforeEach(() => {
+      canvasElement = document.createElement('canvas');
+      canvasElement.width = 100;
+      canvasElement.height = 100;
+      ctx = createWebGLContext({
+        canvasElement,
+        uvPadding: 0.01,
+        antialiasing: false,
+        snapToPixel: false,
+        pixelArtSampler: false
+      });
+    });
+
     it('can be built from canvas elements', async () => {
       const sutCanvas = document.createElement('canvas')!;
       sutCanvas.width = 100;

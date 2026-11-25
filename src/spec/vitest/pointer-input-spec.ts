@@ -29,9 +29,12 @@ describe('A pointer', () => {
   }
 
   beforeEach(async () => {
-    engine = TestUtils.engine({
-      pointerScope: ex.PointerScope.Document
-    });
+    engine = TestUtils.engine(
+      {
+        pointerScope: ex.PointerScope.Document
+      },
+      ['use-canvas-context']
+    );
     await TestUtils.runToReady(engine);
 
     const clock = engine.clock as ex.TestClock;

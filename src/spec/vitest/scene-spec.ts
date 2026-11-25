@@ -9,7 +9,7 @@ describe('A scene', () => {
 
   beforeEach(async () => {
     actor = new ex.Actor();
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     scene = new ex.Scene();
 
     vi.spyOn(scene, 'draw');
@@ -416,7 +416,7 @@ describe('A scene', () => {
       engine.stop();
       engine.dispose();
       engine = null as any;
-      engine = TestUtils.engine({ width: 100, height: 100 });
+      engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
       const scene = new ex.Scene();
 
       engine.removeScene('otherScene');
@@ -443,7 +443,7 @@ describe('A scene', () => {
       engine.stop();
       engine.dispose();
       engine = null as any;
-      engine = TestUtils.engine({ width: 100, height: 100 });
+      engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
       scene = new ex.Scene();
 
       engine.removeScene('otherScene');
@@ -475,7 +475,7 @@ describe('A scene', () => {
     engine.stop();
     engine.dispose();
     engine = null as any;
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await TestUtils.runToReady(engine);
     scene = new ex.Scene();
 
@@ -498,7 +498,7 @@ describe('A scene', () => {
     engine.stop();
     engine.dispose();
     engine = null as any;
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
     clock.step(1);
@@ -826,7 +826,7 @@ describe('A scene', () => {
     let scene: ex.Scene;
     let engine: ex.Engine;
     beforeEach(() => {
-      engine = TestUtils.engine({ width: 100, height: 100 });
+      engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
       scene = new ex.Scene();
       engine.removeScene('newScene');
       engine.addScene('newScene', scene);

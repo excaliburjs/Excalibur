@@ -11,10 +11,14 @@ describe('Collision Shape', () => {
     let circle: ex.CircleCollider;
     let actor: ex.Actor;
 
-    beforeEach(async () => {
-      engine = TestUtils.engine({
-        backgroundColor: ex.Color.ExcaliburBlue
-      });
+    beforeEach(async (ctx) => {
+      const flags = ctx.task.name.includes('@visual') ? [] : ['use-canvas-context'];
+      engine = TestUtils.engine(
+        {
+          backgroundColor: ex.Color.ExcaliburBlue
+        },
+        flags
+      );
       scene = new ex.Scene();
       engine.add('test', scene);
       await engine.goToScene('test');
@@ -478,10 +482,14 @@ describe('Collision Shape', () => {
   describe('a ConvexPolygon', () => {
     let engine: ex.Engine;
     let scene: ex.Scene;
-    beforeEach(async () => {
-      engine = TestUtils.engine({
-        backgroundColor: ex.Color.ExcaliburBlue
-      });
+    beforeEach(async (ctx) => {
+      const flags = ctx.task.name.includes('@visual') ? [] : ['use-canvas-context'];
+      engine = TestUtils.engine(
+        {
+          backgroundColor: ex.Color.ExcaliburBlue
+        },
+        flags
+      );
       scene = new ex.Scene();
       engine.addScene('test', scene);
       await engine.goToScene('test');
@@ -934,10 +942,14 @@ describe('Collision Shape', () => {
       engine = null as any;
     });
 
-    beforeEach(async () => {
-      engine = TestUtils.engine({
-        backgroundColor: ex.Color.ExcaliburBlue
-      });
+    beforeEach(async (ctx) => {
+      const flags = ctx.task.name.includes('@visual') ? [] : ['use-canvas-context'];
+      engine = TestUtils.engine(
+        {
+          backgroundColor: ex.Color.ExcaliburBlue
+        },
+        flags
+      );
       scene = new ex.Scene();
       engine.addScene('test', scene);
       await engine.goToScene('test');

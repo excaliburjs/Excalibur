@@ -9,13 +9,16 @@ describe('A Collision', () => {
   let clock: ex.TestClock = null as any;
 
   beforeEach(async () => {
-    engine = TestUtils.engine({
-      width: 600,
-      height: 400,
-      physics: {
-        solver: ex.SolverStrategy.Arcade
-      }
-    });
+    engine = TestUtils.engine(
+      {
+        width: 600,
+        height: 400,
+        physics: {
+          solver: ex.SolverStrategy.Arcade
+        }
+      },
+      ['use-canvas-context']
+    );
     clock = engine.clock = engine.clock.toTestClock();
 
     actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
@@ -199,13 +202,16 @@ describe('A Collision', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = TestUtils.engine({
-        width: 600,
-        height: 400,
-        physics: {
-          solver: ex.SolverStrategy.Realistic
-        }
-      });
+      engine = TestUtils.engine(
+        {
+          width: 600,
+          height: 400,
+          physics: {
+            solver: ex.SolverStrategy.Realistic
+          }
+        },
+        ['use-canvas-context']
+      );
       clock = engine.clock = engine.clock.toTestClock();
 
       actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
@@ -251,13 +257,16 @@ describe('A Collision', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = TestUtils.engine({
-        width: 600,
-        height: 400,
-        physics: {
-          solver: ex.SolverStrategy.Realistic
-        }
-      });
+      engine = TestUtils.engine(
+        {
+          width: 600,
+          height: 400,
+          physics: {
+            solver: ex.SolverStrategy.Realistic
+          }
+        },
+        ['use-canvas-context']
+      );
       clock = engine.clock = engine.clock.toTestClock();
 
       actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
@@ -295,13 +304,16 @@ describe('A Collision', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = TestUtils.engine({
-        width: 600,
-        height: 400,
-        physics: {
-          solver: ex.SolverStrategy.Realistic
-        }
-      });
+      engine = TestUtils.engine(
+        {
+          width: 600,
+          height: 400,
+          physics: {
+            solver: ex.SolverStrategy.Realistic
+          }
+        },
+        ['use-canvas-context']
+      );
       clock = engine.clock = engine.clock.toTestClock();
 
       actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
@@ -371,13 +383,16 @@ describe('A Collision', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = TestUtils.engine({
-        width: 600,
-        height: 400,
-        physics: {
-          solver: ex.SolverStrategy.Realistic
-        }
-      });
+      engine = TestUtils.engine(
+        {
+          width: 600,
+          height: 400,
+          physics: {
+            solver: ex.SolverStrategy.Realistic
+          }
+        },
+        ['use-canvas-context']
+      );
       clock = engine.clock = engine.clock.toTestClock();
 
       actor1 = new ex.Actor({ x: 0, y: 0, width: 10, height: 10 });
@@ -411,13 +426,16 @@ describe('A Collision', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = TestUtils.engine({
-        width: 600,
-        height: 400,
-        physics: {
-          solver: ex.SolverStrategy.Realistic
-        }
-      });
+      engine = TestUtils.engine(
+        {
+          width: 600,
+          height: 400,
+          physics: {
+            solver: ex.SolverStrategy.Realistic
+          }
+        },
+        ['use-canvas-context']
+      );
       clock = engine.clock as ex.TestClock;
       clock.start();
       clock.step(1);
@@ -471,7 +489,9 @@ describe('A Collision', () => {
   it('should collisionend for a deleted collider', async () => {
     engine.stop();
     engine.dispose();
-    engine = TestUtils.engine({ width: 600, height: 400, physics: { enabled: true, solver: ex.SolverStrategy.Arcade } });
+    engine = TestUtils.engine({ width: 600, height: 400, physics: { enabled: true, solver: ex.SolverStrategy.Arcade } }, [
+      'use-canvas-context'
+    ]);
     clock = engine.clock = engine.clock.toTestClock();
     await TestUtils.runToReady(engine);
     const activeBlock = new ex.Actor({
@@ -517,15 +537,18 @@ describe('A Collision', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = TestUtils.engine({
-        width: 600,
-        height: 400,
-        physics: {
-          solver: ex.SolverStrategy.Realistic,
-          substep: 3,
-          gravity: ex.vec(0, 0)
-        }
-      });
+      engine = TestUtils.engine(
+        {
+          width: 600,
+          height: 400,
+          physics: {
+            solver: ex.SolverStrategy.Realistic,
+            substep: 3,
+            gravity: ex.vec(0, 0)
+          }
+        },
+        ['use-canvas-context']
+      );
       clock = engine.clock = engine.clock.toTestClock();
 
       engine.start().then(() => {
@@ -553,15 +576,18 @@ describe('A Collision', () => {
     new Promise<void>((done) => {
       engine.stop();
       engine.dispose();
-      engine = TestUtils.engine({
-        width: 600,
-        height: 400,
-        physics: {
-          solver: ex.SolverStrategy.Realistic,
-          gravity: ex.vec(0, 200),
-          bodies: { canSleepByDefault: true, sleepTimeThreshold: 200 }
-        }
-      });
+      engine = TestUtils.engine(
+        {
+          width: 600,
+          height: 400,
+          physics: {
+            solver: ex.SolverStrategy.Realistic,
+            gravity: ex.vec(0, 200),
+            bodies: { canSleepByDefault: true, sleepTimeThreshold: 200 }
+          }
+        },
+        ['use-canvas-context']
+      );
       clock = engine.clock = engine.clock.toTestClock();
 
       engine.start().then(() => {

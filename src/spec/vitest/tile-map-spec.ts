@@ -15,17 +15,23 @@ describe('A TileMap', () => {
   let engine: ex.Engine;
   let scene: ex.Scene;
   let texture: ex.ImageSource;
-  beforeEach(async () => {
-    engine = TestUtils.engine({
-      width: 800,
-      height: 200
-    });
+  beforeEach(async (ctx) => {
+    const isVisual = ctx.task.name.includes('@visual') || ctx.task.suite?.name.includes('@visual');
+    engine = TestUtils.engine(
+      {
+        width: 800,
+        height: 200
+      },
+      isVisual ? [] : ['use-canvas-context']
+    );
     scene = new ex.Scene();
     engine.addScene('root', scene);
     await TestUtils.runToReady(engine);
     const clock = engine.clock as ex.TestClock;
-    texture = new ex.ImageSource('/src/spec/assets/images/tile-map-spec/blocks.png');
-    await texture.load();
+    if (isVisual) {
+      texture = new ex.ImageSource('/src/spec/assets/images/tile-map-spec/blocks.png');
+      await texture.load();
+    }
     clock.step(1);
   });
   afterEach(() => {

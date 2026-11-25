@@ -3,6 +3,7 @@ import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig, mergeConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import baseConfig from '../../vitest.config';
+import { findEngineFilesMatching } from './__util__/commands/find-engine-files-matching';
 
 export default defineConfig(
   mergeConfig(baseConfig, {
@@ -20,10 +21,19 @@ export default defineConfig(
       },
       browser: {
         enabled: true,
+        commands: {
+          findEngineFilesMatching
+        },
         provider: playwright({
           launchOptions: {
             channel: 'chromium',
-            args: ['--mute-audio', '--enable-precise-memory-info', '--js-flags="--max_old_space_size=8192" --expose-gc']
+            args: [
+              '--mute-audio',
+              '--enable-precise-memory-info',
+              '--js-flags="--max_old_space_size=8192" --expose-gc',
+              '--use-gl=swiftshader',
+              '--disable-gpu'
+            ]
           }
         }),
         headless: process.env.CI === 'true' ? true : undefined,

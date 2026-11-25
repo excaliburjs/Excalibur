@@ -8,7 +8,7 @@ describe('Action', () => {
   let scene: ex.Scene;
 
   beforeEach(async () => {
-    engine = TestUtils.engine({ width: 100, height: 100 });
+    engine = TestUtils.engine({ width: 100, height: 100 }, ['use-canvas-context']);
 
     actor = new ex.Actor();
     scene = new ex.Scene();
@@ -30,6 +30,23 @@ describe('Action', () => {
   });
 
   describe('flash', () => {
+    beforeEach(async () => {
+      engine.stop();
+      engine.dispose();
+      engine = TestUtils.engine({ width: 100, height: 100 });
+
+      actor = new ex.Actor();
+      scene = new ex.Scene();
+      scene.add(actor);
+      engine.addScene('test', scene);
+      await engine.goToScene('test');
+      await engine.start();
+      const clock = engine.clock as ex.TestClock;
+      clock.step(100);
+
+      vi.spyOn(scene, 'draw');
+      engine.stop();
+    });
     it('restores the previous material when the flash completes', () => {
       const userMaterial = engine.graphicsContext.createMaterial({
         name: 'user-material',
