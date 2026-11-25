@@ -53,7 +53,20 @@ function ClosestLine(line1: LineSegment, line2: LineSegment) {
   }
 
   if (Math.abs(e) > EPSILON) {
-    t = clamp((line1Dir.dot(line2Dir) * s + f) / e, 0, 1);
+    // closest point on line2 to line1(s); when it falls outside line2, clamp t to the
+    // nearest end and recompute s for that end (Ericson, Real-Time Collision Detection 5.1.9)
+    const b = line1Dir.dot(line2Dir);
+    const c = line1Dir.dot(r);
+    const tNumerator = b * s + f;
+    if (tNumerator < 0) {
+      t = 0;
+      s = clamp(-c / a, 0, 1);
+    } else if (tNumerator > e) {
+      t = 1;
+      s = clamp((b - c) / a, 0, 1);
+    } else {
+      t = tNumerator / e;
+    }
   } else {
     // line2 is a degenerate point
     t = 0;
