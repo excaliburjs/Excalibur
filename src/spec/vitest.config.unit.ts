@@ -27,7 +27,13 @@ export default defineConfig(
         provider: playwright({
           launchOptions: {
             channel: 'chromium',
-            args: ['--mute-audio', '--enable-precise-memory-info', '--js-flags="--max_old_space_size=8192" --expose-gc']
+            args: [
+              '--mute-audio',
+              '--enable-precise-memory-info',
+              '--js-flags="--max_old_space_size=8192" --expose-gc',
+              '--use-gl=swiftshader',
+              '--disable-gpu'
+            ]
           }
         }),
         headless: process.env.CI === 'true' ? true : undefined,
