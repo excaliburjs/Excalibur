@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var widthEl = document.getElementById('containerWidth') as HTMLInputElement;
 var heightEl = document.getElementById('containerHeight') as HTMLInputElement;
 var container = document.getElementsByClassName('game-container').item(0) as HTMLDivElement;

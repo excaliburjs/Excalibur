@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class TestFontScene extends ex.Scene {
   async onInitialize(game: ex.Engine) {
     super.onInitialize(game);

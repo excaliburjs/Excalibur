@@ -2,26 +2,14 @@ import { createContext, useContext } from '../context';
 import { Engine } from '../engine';
 import type { ScheduledCallbackTiming } from './clock';
 import { Logger } from './log';
-export type CoroutineGenerator = () => Generator<any | number | Promise<any> | undefined, void, number>;
+export type CoroutineYield = number | Promise<unknown> | undefined;
+export type CoroutineIterator<TReturn = void> = Generator<CoroutineYield, TReturn, number>;
+export type CoroutineGenerator<TThis = unknown> = (this: TThis) => CoroutineIterator;
+
+// Non-conditional exclusion so polymorphic `this` (e.g. Actor/Scene subclasses) stays assignable
+type NotEngine = { useCanvas2DFallback?: never } | null | undefined; // TODO this is goofy
 
 const InsideCoroutineContext = createContext<boolean>();
-
-const generatorFunctionDeclaration = /^\s*(?:function)?\*/;
-/**
- *
- */
-function isCoroutineGenerator(x: any): x is CoroutineGenerator {
-  if (typeof x !== 'function') {
-    return false;
-  }
-  if (generatorFunctionDeclaration.test(Function.prototype.toString.call(x))) {
-    return true;
-  }
-  if (!Object.getPrototypeOf) {
-    return false;
-  }
-  return Object.getPrototypeOf(x) === Object.getPrototypeOf(new Function('return function * () {}')());
-}
 
 export interface CoroutineOptions {
   /**
@@ -29,124 +17,123 @@ export interface CoroutineOptions {
    */
   timing?: ScheduledCallbackTiming;
   /**
-   * Coroutines auto start by default, set to false to require play();
+   * Coroutines auto start by default, set to false to require start();
    */
   autostart?: boolean;
 }
 
-type Thenable = PromiseLike<void>['then'];
-
-export interface CoroutineInstance extends PromiseLike<void> {
+export interface CoroutineInstance extends PromiseLike<void>, Iterable<CoroutineYield> {
   readonly isRunning: boolean;
   readonly isComplete: boolean;
-  done: Promise<void>;
-  generator: Generator<CoroutineInstance | number | Promise<any> | undefined, void, number>;
-  start: () => CoroutineInstance;
-  cancel: () => void;
-  then: Thenable;
-  [Symbol.iterator]: () => Generator<CoroutineInstance | number | Promise<any> | undefined, void, number>;
+  readonly done: Promise<void>;
+  readonly generator: CoroutineIterator;
+  start(): CoroutineInstance;
+  cancel(): void;
+  [Symbol.iterator](): CoroutineIterator;
 }
 
 /**
  * Excalibur coroutine helper, returns a [[CoroutineInstance]] which is promise-like when complete. Coroutines run before frame update by default.
  *
- * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time our of yield. Coroutines
+ * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time out of yield. Coroutines
  * run internally on the excalibur clock.
  *
- * If you yield a promise it will be awaited before resumed
- * If you yield a number it will wait that many ms before resumed
- * @param thisArg set the "this" context of the generator, by default is globalThis
- * @param engine pass a specific engine to use for running the coroutine
+ * If you yield a promise it will be awaited before resumed (the `yield` expression still evaluates to the resumed frame's elapsed ms, not the promise's resolved value)
+ * If you yield a number it will wait at least that many ms before resumed (the `yield` expression evaluates to the resumed frame's elapsed ms)
  * @param coroutineGenerator coroutine generator function
- * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
- */
-export function coroutine(
-  thisArg: any,
-  engine: Engine,
-  coroutineGenerator: CoroutineGenerator,
-  options?: CoroutineOptions
-): CoroutineInstance;
-/**
- * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
- *
- * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time our of yield. Coroutines
- * run internally on the excalibur clock.
- *
- * If you yield a promise it will be awaited before resumed
- * If you yield a number it will wait that many ms before resumed
- * @param engine pass a specific engine to use for running the coroutine
- * @param coroutineGenerator coroutine generator function
- * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
- */
-export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
-/**
- * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
- *
- * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time our of yield. Coroutines
- * run internally on the excalibur clock.
- *
- * If you yield a promise it will be awaited before resumed
- * If you yield a number it will wait that many ms before resumed
- * @param coroutineGenerator coroutine generator function
- * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
+ * @param options optionally schedule coroutine pre/post update
  */
 export function coroutine(coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
 /**
- * Excalibur coroutine helper, returns a promise when complete. Coroutines run before frame update.
+ * Excalibur coroutine helper, returns a [[CoroutineInstance]] which is promise-like when complete. Coroutines run before frame update by default.
  *
- * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time our of yield. Coroutines
+ * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time out of yield. Coroutines
  * run internally on the excalibur clock.
  *
- * If you yield a promise it will be awaited before resumed
- * If you yield a number it will wait that many ms before resumed
+ * If you yield a promise it will be awaited before resumed (the `yield` expression still evaluates to the resumed frame's elapsed ms, not the promise's resolved value)
+ * If you yield a number it will wait at least that many ms before resumed (the `yield` expression evaluates to the resumed frame's elapsed ms)
+ * @param engine pass a specific engine to use for running the coroutine
+ * @param coroutineGenerator coroutine generator function
+ * @param options optionally schedule coroutine pre/post update
+ */
+export function coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
+/**
+ * Excalibur coroutine helper, returns a [[CoroutineInstance]] which is promise-like when complete. Coroutines run before frame update by default.
+ *
+ * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time out of yield. Coroutines
+ * run internally on the excalibur clock.
+ *
+ * If you yield a promise it will be awaited before resumed (the `yield` expression still evaluates to the resumed frame's elapsed ms, not the promise's resolved value)
+ * If you yield a number it will wait at least that many ms before resumed (the `yield` expression evaluates to the resumed frame's elapsed ms)
+ * @param thisArg set the "this" context of the generator, by default is globalThis
+ * @param engine pass a specific engine to use for running the coroutine
+ * @param coroutineGenerator coroutine generator function
+ * @param options optionally schedule coroutine pre/post update
+ */
+export function coroutine<TThis>(
+  thisArg: TThis,
+  engine: Engine,
+  coroutineGenerator: CoroutineGenerator<NoInfer<TThis>>,
+  options?: CoroutineOptions
+): CoroutineInstance;
+/**
+ * Excalibur coroutine helper, returns a [[CoroutineInstance]] which is promise-like when complete. Coroutines run before frame update by default.
+ *
+ * Each coroutine yield is 1 excalibur frame. Coroutines get passed the elapsed time out of yield. Coroutines
+ * run internally on the excalibur clock.
+ *
+ * If you yield a promise it will be awaited before resumed (the `yield` expression still evaluates to the resumed frame's elapsed ms, not the promise's resolved value)
+ * If you yield a number it will wait at least that many ms before resumed (the `yield` expression evaluates to the resumed frame's elapsed ms)
  * @param thisArg set the "this" context of the generator, by default is globalThis
  * @param coroutineGenerator coroutine generator function
- * @param {CoroutineOptions} options optionally schedule coroutine pre/post update
+ * @param options optionally schedule coroutine pre/post update
  */
-export function coroutine(thisArg: any, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
+export function coroutine<TThis>(
+  thisArg: TThis & NotEngine,
+  coroutineGenerator: CoroutineGenerator<NoInfer<TThis>>,
+  options?: CoroutineOptions
+): CoroutineInstance;
 /**
  *
  */
-export function coroutine(...args: any[]): CoroutineInstance {
+export function coroutine(...args: unknown[]): CoroutineInstance {
   const logger = Logger.getInstance();
-  let coroutineGenerator: CoroutineGenerator;
-  let thisArg: any;
+  let coroutineGenerator: CoroutineGenerator<unknown> | undefined;
+  let thisArg: unknown;
   let options: CoroutineOptions | undefined;
   let passedEngine: Engine | undefined;
 
-  // coroutine(coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
-  if (isCoroutineGenerator(args[0])) {
-    thisArg = globalThis;
-    coroutineGenerator = args[0];
-    options = args[1];
-  }
-
-  // coroutine(thisArg: any, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
-  if (isCoroutineGenerator(args[1])) {
-    thisArg = args[0];
-    coroutineGenerator = args[1];
-    options = args[2];
-  }
-
-  // coroutine(thisArg: any, engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
   if (args[1] instanceof Engine) {
+    // coroutine(thisArg, engine, coroutineGenerator, options?)
     thisArg = args[0];
     passedEngine = args[1];
-    coroutineGenerator = args[2];
-    options = args[3];
-  }
-
-  // coroutine(engine: Engine, coroutineGenerator: CoroutineGenerator, options?: CoroutineOptions): CoroutineInstance;
-  if (args[0] instanceof Engine) {
+    coroutineGenerator = args[2] as CoroutineGenerator<unknown>;
+    options = args[3] as CoroutineOptions | undefined;
+  } else if (args[0] instanceof Engine) {
+    // coroutine(engine, coroutineGenerator, options?)
     thisArg = globalThis;
     passedEngine = args[0];
-    coroutineGenerator = args[1];
-    options = args[2];
+    coroutineGenerator = args[1] as CoroutineGenerator<unknown>;
+    options = args[2] as CoroutineOptions | undefined;
+  } else if (typeof args[1] === 'function') {
+    // coroutine(thisArg, coroutineGenerator, options?)
+    thisArg = args[0];
+    coroutineGenerator = args[1] as CoroutineGenerator<unknown>;
+    options = args[2] as CoroutineOptions | undefined;
+  } else if (typeof args[0] === 'function') {
+    // coroutine(coroutineGenerator, options?)
+    thisArg = globalThis;
+    coroutineGenerator = args[0] as CoroutineGenerator<unknown>;
+    options = args[1] as CoroutineOptions | undefined;
+  }
+
+  if (typeof coroutineGenerator !== 'function') {
+    throw new Error('Cannot run coroutine without a generator function');
   }
 
   const inside = useContext(InsideCoroutineContext);
   const schedule = options?.timing;
-  const autostart = inside ? false : (options?.autostart ?? true);
+  const autostart = options?.autostart ?? !inside;
   let engine: Engine;
   try {
     engine = passedEngine ?? Engine.useEngine();
@@ -160,47 +147,103 @@ export function coroutine(...args: any[]): CoroutineInstance {
   let started = false;
   let completed = false;
   let cancelled = false;
-  const generatorFcn = coroutineGenerator!.bind(thisArg) as CoroutineGenerator;
-  const generator = generatorFcn();
-  let loop: (elapsed: number) => void;
-  const complete = new Promise<void>((resolve, reject) => {
-    loop = (elapsed: number) => {
-      try {
-        if (cancelled) {
-          completed = true;
-          resolve();
-          return;
-        }
-        const { done, value } = InsideCoroutineContext.scope(true, () => generator.next(elapsed));
-        if (done || cancelled) {
-          completed = true;
-          resolve();
-          return;
-        }
+  let stepping = false;
+  let clearScheduled: (() => void) | undefined;
+  let resolveComplete!: () => void;
+  let rejectComplete!: (reason?: unknown) => void;
 
-        if (value instanceof Promise) {
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          value.then(() => {
-            // schedule next loop
-            engine.clock.schedule(loop, 0, schedule);
-          });
-        } else if (value === undefined || value === void 0) {
-          // schedule next frame
-          engine.clock.schedule(loop, 0, schedule);
-        } else {
-          // schedule value milliseconds from now
-          engine.clock.schedule(loop, value || 0, schedule);
-        }
-      } catch (e) {
-        reject(e);
-        return;
-      }
-    };
-    if (autostart) {
-      started = true;
-      loop(engine.clock.elapsed()); // run first frame immediately
-    }
+  const complete = new Promise<void>((resolve, reject) => {
+    resolveComplete = resolve;
+    rejectComplete = reject;
   });
+
+  const finish = () => {
+    completed = true;
+    resolveComplete();
+  };
+
+  const fail = (e: unknown) => {
+    completed = true;
+    rejectComplete(e);
+  };
+
+  const warn = (message: string) => {
+    logger.warn(message, Function.prototype.toString.call(coroutineGenerator));
+  };
+
+  const scheduleOnClock = (cb: (elapsed: number) => void, timeout: number) => {
+    const clock = engine.clock;
+    const id = clock.schedule(cb, timeout, schedule);
+    clearScheduled = () => clock.clearSchedule(id);
+  };
+
+  const generator = engine.scope(() => coroutineGenerator.call(thisArg));
+
+  const closeGenerator = () => {
+    try {
+      engine.scope(() => generator.return(undefined));
+      finish();
+    } catch (e) {
+      fail(e);
+    }
+  };
+
+  const scheduleNext = (result: IteratorResult<CoroutineYield, void>) => {
+    if (result.done) {
+      finish();
+      return;
+    }
+
+    if (cancelled) {
+      closeGenerator();
+      return;
+    }
+
+    const { value } = result;
+    if (value instanceof Promise) {
+      value.then(
+        () => {
+          if (!cancelled && !completed) {
+            scheduleOnClock(loop, 0);
+          }
+        },
+        (err) => {
+          if (!cancelled && !completed) {
+            scheduleOnClock(() => step(() => generator.throw(err)), 0);
+          }
+        }
+      );
+    } else {
+      // schedule next frame (0ms for undefined) or at least value milliseconds from now
+      scheduleOnClock(loop, Math.max(0, value || 0));
+    }
+  };
+
+  const step = (advance: () => IteratorResult<CoroutineYield, void>) => {
+    clearScheduled = undefined;
+    if (cancelled) {
+      return;
+    }
+    try {
+      stepping = true;
+      let result: IteratorResult<CoroutineYield, void>;
+      try {
+        result = engine.scope(() => InsideCoroutineContext.scope(true, advance));
+      } finally {
+        stepping = false;
+      }
+      scheduleNext(result);
+    } catch (e) {
+      fail(e);
+    }
+  };
+
+  const loop = (elapsed: number) => step(() => generator.next(elapsed));
+
+  if (autostart) {
+    started = true;
+    loop(engine.clock.elapsed()); // run first frame immediately
+  }
 
   const co: CoroutineInstance = {
     get isRunning() {
@@ -210,17 +253,26 @@ export function coroutine(...args: any[]): CoroutineInstance {
       return completed;
     },
     cancel: () => {
+      if (cancelled || completed) {
+        return;
+      }
       cancelled = true;
+      clearScheduled?.();
+      clearScheduled = undefined;
+      if (!stepping) {
+        closeGenerator();
+      }
     },
     start: () => {
+      if (cancelled) {
+        warn('.start() was called on a coroutine that was already cancelled, this is probably a bug:\n');
+        return co;
+      }
       if (!started) {
         started = true;
         loop(engine.clock.elapsed());
       } else {
-        logger.warn(
-          '.start() was called on a coroutine that was already started, this is probably a bug:\n',
-          Function.prototype.toString.call(generatorFcn)
-        );
+        warn('.start() was called on a coroutine that was already started, this is probably a bug:\n');
       }
       return co;
     },
@@ -228,9 +280,66 @@ export function coroutine(...args: any[]): CoroutineInstance {
     done: complete,
     then: complete.then.bind(complete),
     [Symbol.iterator]: () => {
-      // TODO warn if a coroutine is already running
-      // TODO warn if a coroutine is cancelled
-      return generator;
+      if (started && !cancelled && !completed) {
+        warn('Iterating or yield* on a coroutine that is already running, this is probably a bug:\n');
+      } else if (cancelled) {
+        warn('Iterating or yield* on a coroutine that was already cancelled, this is probably a bug:\n');
+      }
+      started = true;
+      return (function* (): CoroutineIterator {
+        let threw = false;
+        try {
+          let nextArg: number | undefined;
+          let first = true;
+          let pendingThrow: { err: unknown } | undefined;
+          while (!cancelled) {
+            stepping = true;
+            let result: IteratorResult<CoroutineYield, void>;
+            try {
+              if (pendingThrow) {
+                const { err } = pendingThrow;
+                pendingThrow = undefined;
+                result = generator.throw(err);
+              } else if (first) {
+                first = false;
+                result = generator.next();
+              } else {
+                result = generator.next(nextArg!);
+              }
+            } catch (e) {
+              threw = true;
+              throw e;
+            } finally {
+              stepping = false;
+            }
+            if (result.done) {
+              finish();
+              return;
+            }
+            if (cancelled) {
+              closeGenerator();
+              return;
+            }
+            try {
+              nextArg = yield result.value as CoroutineYield;
+            } catch (err) {
+              pendingThrow = { err };
+            }
+          }
+        } finally {
+          if (!completed) {
+            if (threw) {
+              finish();
+            } else {
+              try {
+                engine.scope(() => generator.return(undefined));
+              } finally {
+                finish();
+              }
+            }
+          }
+        }
+      })();
     }
   };
 

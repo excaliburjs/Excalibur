@@ -1,7 +1,7 @@
-// <script type="module" src="//unpkg.com/canvas-txt"></script>
-var canvasTxt = window.canvasTxt.default;
-// or npm install canvas-txt --save
-// import canvasTxt from 'canvas-txt'
+import * as ex from 'excalibur';
+
+// canvas-txt is loaded as a UMD script in index.html (see https://unpkg.com/canvas-txt)
+const canvasTxt = (window as any).canvasTxt;
 
 var textGraphic = new ex.Canvas({
   width: 200,
@@ -9,12 +9,17 @@ var textGraphic = new ex.Canvas({
   draw: (ctx: CanvasRenderingContext2D) => {
     const txt = 'Some extra long text that should wrap properly to the next line automatically';
     ctx.save();
-    canvasTxt.font = 'Verdana';
-    canvasTxt.fontSize = 20;
-    canvasTxt.align = 'left';
-    // canvasTxt.debug = true //shows debug info
-    canvasTxt.justify = false;
-    canvasTxt.drawText(ctx, txt, 0, 0, 200, 200);
+    canvasTxt.drawText(ctx, txt, {
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 200,
+      font: 'Verdana',
+      fontSize: 20,
+      align: 'left',
+      justify: false
+      // debug: true // shows debug info
+    });
     ctx.restore();
   }
 });

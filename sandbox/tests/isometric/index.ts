@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var game = new ex.Engine({
   width: 1200,
   height: 1200,

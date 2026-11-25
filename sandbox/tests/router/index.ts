@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var scene1 = new ex.Scene();
 scene1.add(
   new ex.Label({

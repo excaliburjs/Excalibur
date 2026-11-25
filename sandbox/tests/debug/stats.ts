@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var game = new ex.Engine({
   width: 500,
   height: 500,
@@ -37,9 +39,9 @@ game.on('postframe', (ev: ex.PostFrameEvent) => {
   // clone since engine reuses instances
   historicFrameStats[ev.stats.id % 11] = ev.stats.clone();
 
-  timer -= ev.stats.elapsedMs;
+  timer -= ev.stats.elapsed;
 
-  updateStat('debug-frame-delta', ev.stats.elapsedMs);
+  updateStat('debug-frame-delta', ev.stats.elapsed);
   updateStat('debug-frame-fps', Math.floor(ev.stats.fps));
 
   if (timer <= 0) {

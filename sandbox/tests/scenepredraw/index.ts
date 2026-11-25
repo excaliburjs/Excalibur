@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var paddle = new ex.Actor({
   x: 150,
   y: 150,

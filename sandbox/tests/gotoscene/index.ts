@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class Scene1 extends ex.Scene {
   async onInitialize(_engine: ex.Engine) {
     console.log('before async');

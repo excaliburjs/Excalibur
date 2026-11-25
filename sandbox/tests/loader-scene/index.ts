@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 console.log('hello world');
 
 var img = new ex.ImageSource(

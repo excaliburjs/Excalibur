@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 export function delay(milliseconds: number, clock?: ex.Clock): Promise<void> {
   const future = new ex.Future<void>();
   const schedule = clock?.schedule.bind(clock) ?? setTimeout;

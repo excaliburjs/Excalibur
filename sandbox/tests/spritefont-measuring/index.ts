@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class TestFontMeasuringScene extends ex.Scene {
   font1: ex.SpriteFont;
   font2: ex.SpriteFont;

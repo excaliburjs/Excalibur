@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var canvasElement = document.createElement('canvas');
 document.body.appendChild(canvasElement);
 canvasElement.width = 100;
