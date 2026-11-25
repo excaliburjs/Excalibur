@@ -47,14 +47,14 @@ export function useDevTool() {
     if (disposed) {
       return;
     }
-    engine.stop?.();
-    engine.input?.pointers?.detach?.();
-    // v1 renamed `toggleEnabled` to `setEnabled`; support both
-    (engine.input?.setEnabled ?? engine.input?.toggleEnabled)?.(false);
-    const scene = engine.currentScene ?? engine.director?.currentScene;
-    scene?.input?.pointers?.detach?.();
-    (scene?.input?.setEnabled ?? scene?.input?.toggleEnabled)?.(false);
-    engine.dispose?.();
+    // Best effort: v1's Engine.dispose() already stops the clock, disables/detaches engine and
+    // scene input (via the Director), disposes plugins, and removes the canvas. Never let cleanup
+    // failures block running the next template.
+    try {
+      engine.dispose?.();
+    } catch (e) {
+      console.warn('Failed to dispose previous engine', e);
+    }
   };
 
   return {
