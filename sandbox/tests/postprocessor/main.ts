@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var crtFragmentSource = `#version 300 es
 precision mediump float;
 // Sourced from https://www.shadertoy.com/view/Ms23DR

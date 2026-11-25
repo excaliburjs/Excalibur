@@ -222,14 +222,14 @@ export class Transition extends Entity {
     }
     this._engine = engine;
     currentScene.add(this);
-    const self = this;
     this._co = coroutine(
+      this,
       engine,
       function* () {
-        while (!self.isComplete) {
+        while (!this.isComplete) {
           const elapsed = yield; // per frame
-          self.updateTransition(self._engine!, elapsed);
-          self._execute();
+          this.updateTransition(this._engine!, elapsed);
+          this._execute();
         }
       },
       {

@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var game = new ex.Engine({
   width: 600,
   height: 400,
@@ -49,7 +51,7 @@ function spawnBlock(x: number, y: number) {
 
   //block.rx = .1;
   block.body.collisionType = ex.CollisionType.Active;
-  window.block = block;
+  (window as any).block = block;
   game.add(block);
   return block;
 }

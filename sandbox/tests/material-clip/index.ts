@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var glsl = ex.glsl;
 
 var game = new ex.Engine({

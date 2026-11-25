@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var game = new ex.Engine({ width: 400, height: 300 });
 var hrt = new ex.ImageSource('../../images/heart.png');
 var ldr = new ex.Loader([hrt]);

@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var width = 600;
 var height = 400;
 var playerTexture = new ex.ImageSource('rotation-sprite.png');

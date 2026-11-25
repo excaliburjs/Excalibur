@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 // Manual test for Material `u_screen_texture` / `v_screenuv`.
 //
 // A water plane mirrors everything drawn above it by sampling the screen texture at a vertically mirrored

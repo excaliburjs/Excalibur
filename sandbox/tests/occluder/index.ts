@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var occluder = new ex.ImageSource('test.png');
 
 var shader = `#version 300 es

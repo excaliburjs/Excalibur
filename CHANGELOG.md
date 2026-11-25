@@ -15,6 +15,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Added `ArenaPool.getWith(...args)` to get a pooled object built with arguments, for example `enemies.getWith(EnemyType.Rocket)`. A new instance gets the arguments from the builder and a reused one from the recycler; the argument types come from the builder's parameters, which need defaults since `get()` still builds without arguments (issue #3547)
+- Improved Coroutine typings that will eliminate some footguns that would have failed or been a bug at runtime
+  - Exported CoroutineYield and CoroutineIterator types so standalone generator functions and class methods can be cleanly typed without any
+  - Removed any from CoroutineGenerator yields so invalid yielded values are caught at compile time, and made CoroutineInstance extend Iterable<CoroutineYield> with readonly done and generator.
+  - Strongly typed thisArg so `this` is automatically inferred inside ex.coroutine(myObj, function* () { ... }) (including inside Actor/Scene subclasses) without needing this: any or .bind(this), and defaulted this to unknown when thisArg is omitted to catch accidental globalThis property access.
+  - Prevented passing an Engine as thisArg on the 2-argument overload (matching runtime behavior) and fixed overload dispatch so ex.coroutine(engine, engine, ...) works when binding an Engine as thisArg.
+
 
 ### Fixed
 
@@ -22,6 +28,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - Fixed issue with multiline text where lines were drawn too close to together if lineHeight wasn't explicitly set
 - Fixed issue with JSON parse round tripping through JSON when null/NaN/Infinite
 - Fixed issue with GraphicsComponent serialization not correctly restoring graphics
+- Fixed ex.coroutine(...) losing Engine.useEngine() scope on resumed 'preframe' and 'postframe' ticks (and manual .start() calls)
+- Fixed ex.coroutine(() => myGenerator(args)) arrow-function wrappers crashing at runtime (this is just a bug an not how generators can work **yet** in the browser spec)
+- Fixed coroutine.cancel() leaking scheduled clock callbacks and hanging await co
+- Fixed rejected yielded promises causing unhandled rejections and hanging coroutines
+- Fixed nested yield* child coroutines not reporting isRunning/isComplete or resolving done
+- Fixed explicit { autostart: true } being ignored when spawning a parallel coroutine from inside another coroutine
+- Fixed clamped negative yield delays to 0ms
+- Fixed duplicate .start() warnings logging [native code] instead of the generator function source.
+- Fixed issue where `getClosestLineBetween()` (and `Actor.within()`) on edges and polygons could return a line that was not the closest when the closest point was a segment endpoint
 
 ### Updates
 

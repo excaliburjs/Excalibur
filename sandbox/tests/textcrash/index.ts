@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class GameScene extends ex.Scene {
   private tilemap!: ex.TileMap;
   private font!: ex.Font;

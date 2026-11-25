@@ -13,6 +13,7 @@ type Props = {
   onChange: (text: string) => void;
   onCompiledChange: (text: string) => void;
   onCompilingChange?: (compiling: boolean) => void;
+  onMount?: (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => void;
   value: string;
 };
 
@@ -26,7 +27,7 @@ const monacoOptions = {
 } satisfies editor.IStandaloneEditorConstructionOptions;
 
 export function Editor(props: Props) {
-  const { isLightMode, onChange, onCompiledChange, onCompilingChange, value } = props;
+  const { isLightMode, onChange, onCompiledChange, onCompilingChange, onMount, value } = props;
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<Monaco | null>(null);
 
@@ -52,6 +53,7 @@ export function Editor(props: Props) {
 
   const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor) => {
     editorRef.current = editor;
+    onMount?.(editor, monacoRef.current!);
 
     // Flush the code on initial render
     handleOnChange(value);

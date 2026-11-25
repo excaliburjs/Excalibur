@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var SCALE = 1;
 var image = new ex.ImageSource('./icon@2x.png');
 var spriteFontImage = new ex.ImageSource('./spritefont.png', false, ex.ImageFiltering.Pixel);

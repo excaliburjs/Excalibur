@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 // identity tagged template literal lights up glsl-literal vscode plugin
 var glsl = (x) => x[0];
 var game = new ex.Engine({

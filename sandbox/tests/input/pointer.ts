@@ -1,4 +1,6 @@
-﻿class Box extends ex.Entity {
+import * as ex from 'excalibur';
+
+class Box extends ex.Entity {
   transform: ex.TransformComponent;
   collider: ex.ColliderComponent;
   pointer: ex.PointerComponent;
@@ -92,7 +94,7 @@ box1.on('pointerdragleave', (pe: ex.PointerEvent) => {
 });
 
 box1.on('pointerwheel', (pe: ex.WheelEvent) => {
-  box.rotation = box.rotation + (pe.deltaY > 0 ? 0.1 : -0.1);
+  box1.transform.rotation = box1.transform.rotation + (pe.deltaY > 0 ? 0.1 : -0.1);
 });
 
 // Follow cursor

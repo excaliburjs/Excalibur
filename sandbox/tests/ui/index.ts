@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var Resources = {
   Background: new ex.ImageSource('../../images/Background.png')
 };

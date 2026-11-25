@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 var a = new ex.Scene();
 a.on('initialize', () => {
   console.log('a input:', a.input.keyboard);

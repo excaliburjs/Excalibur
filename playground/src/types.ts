@@ -5,7 +5,10 @@ export type ExcaliburDevTool = {
   version?: string;
   stop?: () => void;
   dispose?: () => void;
-  isDisposed?: () => boolean;
+  /**
+   * Excalibur v1 exposes this as a boolean getter; older releases exposed it as a method
+   */
+  isDisposed?: boolean | (() => boolean);
 };
 
 export type GlobalWithDevTool = typeof globalThis & { ___EXCALIBUR_DEVTOOL?: ExcaliburDevTool };

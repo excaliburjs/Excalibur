@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 /*********************
  *                  uuuuuuuuuuuuuuuuuuuu
  *                u" uuuuuuuuuuuuuuuuuu "u
@@ -1131,6 +1133,11 @@ var trigger = new ex.Trigger({
 game.add(trigger);
 
 game.input.pointers.primary.on('down', (evt: ex.PointerEvent) => {
+  // ignore clicks while the loader is up (the Play button click is a pointerdown too,
+  // and at preview-iframe geometry it lands on a tile and would toggle it)
+  if (!game.isLoaded) {
+    return;
+  }
   var c = tileMap.getTileByPoint(evt.worldPos);
   if (c) {
     if (c.isSolid) {

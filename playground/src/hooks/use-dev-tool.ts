@@ -39,16 +39,22 @@ export function useDevTool() {
 
   const disposeEngine = () => {
     const engine = devtools.current as any;
-    if (!engine || engine.isDisposed?.()) {
+    if (!engine) {
       return;
     }
-    engine.stop?.();
-    engine.input?.pointers?.detach?.();
-    engine.input?.toggleEnabled?.(false);
-    const scene = engine.currentScene ?? engine.director?.currentScene;
-    scene?.input?.pointers?.detach?.();
-    scene?.input?.toggleEnabled?.(false);
-    engine.dispose?.();
+    // Excalibur v1 exposes `isDisposed` as a boolean getter; older releases exposed it as a method
+    const disposed = typeof engine.isDisposed === 'function' ? engine.isDisposed() : Boolean(engine.isDisposed);
+    if (disposed) {
+      return;
+    }
+    // Best effort: v1's Engine.dispose() already stops the clock, disables/detaches engine and
+    // scene input (via the Director), disposes plugins, and removes the canvas. Never let cleanup
+    // failures block running the next template.
+    try {
+      engine.dispose?.();
+    } catch (e) {
+      console.warn('Failed to dispose previous engine', e);
+    }
   };
 
   return {

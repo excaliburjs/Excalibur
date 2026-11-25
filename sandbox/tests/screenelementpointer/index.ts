@@ -1,3 +1,5 @@
+import * as ex from 'excalibur';
+
 class StartButton extends ex.ScreenElement {
   constructor(x: number, y: number) {
     super({
