@@ -14,6 +14,8 @@ section: Plugins
 
 ![Export as JSON in Aseprite](https://github.com/excaliburjs/excalibur-aseprite/raw/main/export.gif)
 
+Not drawing in Aseprite? JSON in Aseprite's format from other tools loads the same way, as long as it includes frame tags. For example, [SpriteSheet.dev](https://spritesheet.dev/) packs PNG frames or an animated GIF into a sheet and writes an Aseprite JSON with one tag per animation and each frame's duration.
+
 2. Load the Aseprite resource via the json and voila ✨
 
 - Use `AsepriteResource.getAnimation(name)` to retrieve animations by the name in aseprite
