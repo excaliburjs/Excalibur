@@ -92,6 +92,13 @@ export function inverseLerp(a: number, b: number, value: number): number {
 export function inverseLerpVector(a: Vector, b: Vector, value: Vector): number {
   const numerator = value.sub(a);
   const denominator = b.sub(a);
+  // On a horizontal or vertical line one axis is 0 / 0 = NaN, so use the other axis
+  if (denominator.x === 0) {
+    return numerator.y / denominator.y;
+  }
+  if (denominator.y === 0) {
+    return numerator.x / denominator.x;
+  }
   const x = numerator.x / denominator.x;
   const y = numerator.y / denominator.y;
   return Math.min(x, y);

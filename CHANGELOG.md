@@ -24,6 +24,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+- Fixed `ex.inverseLerpVector` and `ex.remapVector` returning `NaN` when the vectors are on a horizontal or vertical line (issue #3943)
 - Fixed `Screen` leaving the host page unable to scroll: the screen modes that fit the canvas to the window (`FillScreen`, `FitScreen`, `FitScreenAndFill`, `FitScreenAndZoom`) set `body.style.margin` and `body.style.overflow` and never put them back. `Screen.dispose()` now restores what the page had.
 - Fixed issue with multiline text where lines were drawn too close to together if lineHeight wasn't explicitly set
 - Fixed issue with JSON parse round tripping through JSON when null/NaN/Infinite

@@ -50,4 +50,19 @@ describe('Excalibur Math', () => {
     expect(ex.sign(100)).toBe(1);
     expect(ex.sign(0)).toBe(0);
   });
+
+  it('can inverse lerp a vector on a diagonal line', () => {
+    expect(ex.inverseLerpVector(ex.vec(1, 1), ex.vec(5, 5), ex.vec(4, 4))).toBeCloseTo(0.75);
+  });
+
+  it('can inverse lerp a vector on a horizontal or vertical line', () => {
+    expect(ex.inverseLerpVector(ex.vec(0, 0), ex.vec(10, 0), ex.vec(5, 0))).toBeCloseTo(0.5);
+    expect(ex.inverseLerpVector(ex.vec(0, 3), ex.vec(0, -5), ex.vec(0, 1))).toBeCloseTo(0.25);
+  });
+
+  it('can remap a vector on a horizontal line', () => {
+    const result = ex.remapVector(ex.vec(0, 0), ex.vec(10, 0), ex.vec(0, 0), ex.vec(100, 0), ex.vec(5, 0));
+    expect(result.x).toBeCloseTo(50);
+    expect(result.y).toBeCloseTo(0);
+  });
 });
