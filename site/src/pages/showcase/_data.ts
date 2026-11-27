@@ -18,8 +18,17 @@ import AxeNArrow from './images/AxeNArrow.png'
 import SpookyTruth from './images/SpookyTruth.png'
 import QuadRush from './images/QuadRush.png'
 import pixelFantasyWarImage from './images/pixel-fantasy-war.png'
+import verticopolisImage from './images/verticopolis.png'
 
 export default [
+  {
+    title: 'Verticopolis',
+    image: verticopolisImage,
+    description:
+      "A browser tower-building sim inspired by SimTower (1994). Build floor by floor, wire it with elevators, attract tenants, set the rents and climb the star ratings. Play Classic, the 1994 rules, or Modern, which adds what the original couldn't do. Excalibur runs the camera, scene and render loop; the simulation is a Rust engine compiled to WebAssembly.",
+    url: 'https://verticopolis.com',
+    source: 'https://github.com/Verticopolis/web',
+  },
   {
     title: 'Pixel Fantasy War',
     image: pixelFantasyWarImage,
