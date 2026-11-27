@@ -1,3 +1,4 @@
+import type { DistanceJoint } from './distance-joint';
 import type { BodyConfig } from './index';
 import { CollisionType, type BodyComponent, type CollisionContact } from './index';
 
@@ -63,7 +64,12 @@ export class Island {
   }
 }
 
-export function buildContactIslands(config: BodyConfig, bodies: BodyComponent[], contacts: CollisionContact[]): Island[] {
+export function buildContactIslands(
+  config: BodyConfig,
+  bodies: BodyComponent[],
+  contacts: CollisionContact[],
+  joints: readonly DistanceJoint[] = []
+): Island[] {
   // Union-find to group connected bodies
   const parent = new Map<BodyComponent, BodyComponent>();
 
@@ -106,6 +112,12 @@ export function buildContactIslands(config: BodyConfig, bodies: BodyComponent[],
 
     if (contact?.bodyB?.collisionType === CollisionType.Active) {
       bodyToContacts.get(contact.bodyB!)!.push(contact);
+    }
+  }
+
+  for (const joint of joints) {
+    if (joint.bodyA.collisionType === CollisionType.Active && joint.bodyB.collisionType === CollisionType.Active) {
+      union(joint.bodyA, joint.bodyB);
     }
   }
 

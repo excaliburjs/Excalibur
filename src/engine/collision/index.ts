@@ -1,3 +1,4 @@
+export * from './distance-joint';
 export * from './body-component';
 export * from './collider-component';
 export * from './collision-type';

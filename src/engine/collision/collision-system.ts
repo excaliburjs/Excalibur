@@ -85,6 +85,7 @@ export class CollisionSystem extends System {
     this.bodyQuery.entityRemoved$.subscribe((e) => {
       const body = e.get(BodyComponent);
 
+      this._physics.removeBodyJoints(body);
       const indexOf = this._bodies.indexOf(body);
       if (indexOf > -1) {
         this._bodies.splice(indexOf, 1);
@@ -133,6 +134,7 @@ export class CollisionSystem extends System {
     }
 
     const solver: CollisionSolver = this.getSolver();
+    const joints = this._physics.joints.filter((joint) => joint.isActive);
 
     // Solve, this resolves the position/velocity so entities aren't overlapping
     const substep = this._physics.config.substep;
@@ -163,20 +165,27 @@ export class CollisionSystem extends System {
         }
       }
 
-      if (pairs.length || dormantContacts.length) {
+      if (pairs.length || dormantContacts.length || (solver instanceof RealisticSolver && joints.length)) {
         contacts = pairs.length ? this._processor.narrowphase(pairs, stats) : [];
         const frameContacts = dormantContacts.length ? contacts.concat(dormantContacts) : contacts;
 
         if (this._physics.config.solver === SolverStrategy.Realistic) {
           // TODO we could possbily enable this for Arcade, will require some thinking
-          const islands = buildContactIslands(this._physics.config.bodies, this._bodies, frameContacts);
+          for (const joint of joints) {
+            joint.updateSleepState(this._physics.config.realistic.slop);
+          }
+          const islands = buildContactIslands(this._physics.config.bodies, this._bodies, frameContacts, joints);
 
           for (const island of islands) {
             island.updateSleepState(elapsed / substep);
           }
         }
 
-        solver.solve(frameContacts, elapsed / substep, step, substep);
+        if (solver instanceof RealisticSolver) {
+          solver.solve(frameContacts, elapsed / substep, step, substep, joints);
+        } else {
+          solver.solve(frameContacts, elapsed / substep, step, substep);
+        }
 
         // Only contacts detected this substep drive the next substep's pairs, carried contacts are excluded
         contacts = contacts.filter((c) => !c.isCanceled);
