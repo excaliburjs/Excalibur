@@ -150,7 +150,7 @@ This is possible:
 
 ```typescript
 const options: ActorOptions = {
-   pos: new ex.Vector(1,2);
+   pos: new ex.Vector(1,2),
    width: 100,
    height: 100,
    color: ex.Color.Red,
@@ -160,27 +160,15 @@ const actor = new ex.Actor(options);
 actor.body.collisionType = ex.CollisionType.Active;
 ```
 
-In fact you can create a duplicate this way
+To make a duplicate of an actor, use `clone()`
 
 ```typescript
 const actor = new ex.Actor({
   pos: new ex.Vector(1, 2)
 });
-const actorClone = new ex.Actor(actor);
+const actorClone = actor.clone();
 
-expect(actor.pos).toBe(actorClone.pos); // true;
-```
-
-Types that support option bags can have their properties mass assigned using the assign method.
-
-```typescript
-const actor = new ex.Actor(options);
-
-actor.assign({
-  pos: new ex.Vector(100, 100),
-  width: 1000,
-  color: ex.Color.Red
-});
+expect(actorClone.pos.equals(actor.pos)).toBe(true);
 ```
 
 ## Extending the engine
